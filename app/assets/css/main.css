@@ -1,0 +1,33 @@
+/* assets/css/main.css */
+:root {
+  --bg: #000000;
+
+  --title-color: #f8fafc;
+  --title-size: 100px;
+
+  --description-color: #94a3b8;
+  --description-size: 40px;
+
+  --eyebrow-color: #3b82f6;
+  --eyebrow-size: 30px;
+}
+
+body {
+  background: var(--bg);
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--eyebrow-color);
+  font-size: var(--eyebrow-size);
+}
+
+.title {
+  color: var(--title-color);
+  font-size: var(--title-size);
+}
+
+.description {
+  color: var(--description-color);
+  font-size: var(--description-size);
+}
