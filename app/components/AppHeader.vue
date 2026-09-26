@@ -35,7 +35,7 @@ const menuIcon = "M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z";
               :to="link.to"
             >
               <q-item-section>
-                <GlitchText :text="link.label" />
+                <AnimationGlitchText :text="link.label" />
               </q-item-section>
             </q-item>
           </q-list>
@@ -51,14 +51,14 @@ const menuIcon = "M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z";
           exact
           :to="link.to"
         >
-          <GlitchText :text="link.label" />
+          <AnimationGlitchText :text="link.label" />
         </q-btn>
       </nav>
 
       <q-space />
 
       <q-btn class="cta" flat no-ripple to="/contact">
-        <GlitchText text="Get in touch" />
+        <AnimationGlitchText text="Get in touch" />
       </q-btn>
     </q-toolbar>
   </header>

@@ -1,37 +1,47 @@
 <script setup>
 // components/LoadingScreen.vue
-// Full-screen glitch loader shown when the site is first opened.
-// Add it once, in app.vue:  <LoadingScreen />
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+// Converted from the standalone "Glitch Loading v2" HTML/CSS/JS into a Vue component.
+// Add it once, at the top of app.vue:  <LoadingScreen />
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
 const props = defineProps({
-  text: { type: String, default: "LOADING" },
-  // the loader stays at least this long (ms) so the effect is actually seen
-  minDuration: { type: Number, default: 2200 },
-  // safety net: never wait longer than this (ms) for the page to finish loading
-  maxDuration: { type: Number, default: 8000 },
+  // safety net: force-finish after this many ms even if progress stalls
+  maxDuration: { type: Number, default: 2000 },
 });
 
-const visible = ref(true);
+const bursting = ref(false);
+const done = ref(false);
 const progress = ref(0);
-const dotCount = ref(3);
 
-// Fixed width (padded with non-breaking spaces) so the text never jumps while the dots cycle
-const label = computed(
-  () =>
-    props.text +
-    ".".repeat(dotCount.value) +
-    "\u00A0".repeat(3 - dotCount.value),
-);
-
-let raf = 0;
-let dotTimer = 0;
+let progressTimer = 0;
 let maxTimer = 0;
-let doneTimer = 0;
+let burstTimer = 0;
+let removeTimer = 0;
 let restoreScroll = () => {};
 
-const easeInOut = (t) =>
-  t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function tick() {
+  // retro feel: uneven jumps with occasional stalls, same logic as the original script
+  const jump = Math.random() < 0.18 ? 2 : 4 + Math.random() * 14;
+  progress.value = Math.min(100, progress.value + jump);
+
+  if (progress.value >= 100) {
+    finish();
+  } else {
+    progressTimer = window.setTimeout(tick, 80 + Math.random() * 260);
+  }
+}
+
+function finish() {
+  clearTimeout(progressTimer);
+  clearTimeout(maxTimer);
+  burstTimer = window.setTimeout(() => {
+    bursting.value = true;
+    removeTimer = window.setTimeout(() => {
+      done.value = true; // triggers the fade-out transition
+      restoreScroll();
+    }, 320);
+  }, 500);
+}
 
 onMounted(() => {
   const html = document.documentElement;
@@ -41,73 +51,52 @@ onMounted(() => {
     html.style.overflow = prevOverflow;
   };
 
-  let loaded = document.readyState === "complete";
-  const markLoaded = () => {
-    loaded = true;
-  };
-  if (!loaded) window.addEventListener("load", markLoaded, { once: true });
-  maxTimer = window.setTimeout(markLoaded, props.maxDuration);
+  maxTimer = window.setTimeout(() => {
+    progress.value = 100;
+    finish();
+  }, props.maxDuration);
 
-  dotTimer = window.setInterval(() => {
-    dotCount.value = (dotCount.value + 1) % 4;
-  }, 350);
-
-  const start = performance.now();
-  const frame = (now) => {
-    const t = Math.min((now - start) / props.minDuration, 1);
-    // waits at 92% until the page has really finished loading
-    const cap = loaded ? 100 : 92;
-    progress.value = Math.min(easeInOut(t) * 100, cap);
-
-    if (progress.value >= 100) {
-      doneTimer = window.setTimeout(() => {
-        visible.value = false;
-        restoreScroll();
-      }, 300);
-      return;
-    }
-    raf = requestAnimationFrame(frame);
-  };
-  raf = requestAnimationFrame(frame);
+  progressTimer = window.setTimeout(tick, 400);
 });
 
 onBeforeUnmount(() => {
-  cancelAnimationFrame(raf);
-  clearInterval(dotTimer);
+  clearTimeout(progressTimer);
   clearTimeout(maxTimer);
-  clearTimeout(doneTimer);
+  clearTimeout(burstTimer);
+  clearTimeout(removeTimer);
   restoreScroll();
 });
 </script>
 
 <template>
-  <Transition name="loading-fade">
-    <div v-if="visible" class="loading">
-      <div class="loading__box" aria-hidden="true">
-        <span class="glitch" :data-text="label">{{ label }}</span>
-        <span class="scan" />
-      </div>
+  <Transition name="loader-fade">
+    <div
+      v-if="!done"
+      id="loader"
+      class="loader"
+      :class="{ burst: bursting }"
+      role="status"
+      aria-label="Loading"
+    >
+      <div class="loader-inner">
+        <h1 class="title" data-text="LOADING">LOADING</h1>
 
-      <div
-        class="loading__bar"
-        role="progressbar"
-        aria-label="Loading"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        :aria-valuenow="Math.round(progress)"
-      >
-        <div class="loading__fill" :style="{ width: progress + '%' }" />
+        <div class="bar-wrap">
+          <div class="bar-fill" :style="{ width: progress + '%' }" />
+          <span class="bar-edge bar-edge-l" aria-hidden="true" />
+          <span class="bar-edge bar-edge-r" aria-hidden="true" />
+        </div>
       </div>
     </div>
   </Transition>
 </template>
 
 <style scoped>
-.loading {
-  --bg: #000000;
-  --text: #f8fafc;
-  --glitch-a: #00e5ff; /* cyan split */
-  --glitch-b: #ff2bd6; /* magenta split */
+.loader {
+  --cyan: #00f0ff;
+  --magenta: #ff00d4;
+  --red: #e80000;
+  --mono: "Courier New", ui-monospace, Menlo, Consolas, monospace;
 
   position: fixed;
   inset: 0;
@@ -116,245 +105,264 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(28px, 6vw, 56px);
   overflow: hidden;
-  background: var(--bg);
-  color: var(--text);
-  font-family: "Share Tech Mono", "Courier New", ui-monospace, monospace;
+  background: #000;
 }
 
-/* CRT scanlines over the whole screen */
-.loading::before {
+/* faint scanlines */
+.loader::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.05) 0 1px,
+    rgba(255, 255, 255, 0.03) 0 1px,
     transparent 1px 3px
   );
 }
 
-/* ---------- Glitch text ---------- */
-.loading__box {
+/* whole-content CRT jitter */
+.loader-inner {
   position: relative;
-  padding: 0.35em 0.5em;
-  font-size: clamp(30px, 8.5vw, 88px);
-  background: rgba(255, 255, 255, 0.07);
-  animation: ld-box 3.2s steps(1, end) infinite;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: screenJitter 3.2s infinite steps(1);
 }
 
-.glitch {
+@keyframes screenJitter {
+  0%,
+  92%,
+  100% {
+    transform: translate(0, 0);
+  }
+  93% {
+    transform: translate(-4px, 2px);
+  }
+  95% {
+    transform: translate(4px, -2px);
+  }
+  97% {
+    transform: translate(-3px, -2px);
+  }
+}
+
+/* ---------- title: "LOADING" ---------- */
+.title {
   position: relative;
-  display: inline-block;
-  white-space: pre;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  line-height: 1;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: #fff;
   text-shadow:
-    -3px 0 var(--glitch-a),
-    3px 3px 0 var(--glitch-b);
-  animation: ld-jitter 2.6s steps(1, end) infinite;
+    -3px 0 rgba(0, 240, 255, 0.9),
+    3px 0 rgba(255, 0, 212, 0.9);
 }
 
-/* sliced colour layers that jump around */
-.glitch::before,
-.glitch::after {
+.title::before,
+.title::after {
   content: attr(data-text);
   position: absolute;
   inset: 0;
-  white-space: pre;
-  text-shadow: none;
+  letter-spacing: inherit;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.glitch::before {
-  color: var(--glitch-a);
-  animation: ld-slice-a 1.8s steps(1, end) infinite;
+.title::before {
+  color: var(--cyan);
+  animation: sliceA 3.3s infinite steps(1) 0.5s;
 }
 
-.glitch::after {
-  color: var(--glitch-b);
-  animation: ld-slice-b 2.2s steps(1, end) infinite;
+.title::after {
+  color: var(--magenta);
+  animation: sliceB 2.9s infinite steps(1) 0.2s;
 }
 
-/* horizontal scan line running through the text */
-.scan {
-  position: absolute;
-  left: -8%;
-  right: -8%;
-  height: 4px;
-  background: #e5e7eb;
-  box-shadow: 6px 0 0 var(--glitch-b);
-  animation: ld-scan 2.4s steps(1, end) infinite;
-}
-
-/* ---------- Loading bar ---------- */
-.loading__bar {
-  position: relative;
-  box-sizing: border-box;
-  width: min(720px, 86vw);
-  height: clamp(36px, 6vw, 60px);
-  padding: 6px;
-  border: 3px solid var(--text);
-  animation: ld-bar 3.6s steps(1, end) infinite;
-}
-
-/* tiny glitch notches on the left / right edges */
-.loading__bar::before,
-.loading__bar::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 6px;
-  height: 14px;
-  transform: translateY(-50%);
-}
-
-.loading__bar::before {
-  left: -6px;
-  background: var(--glitch-a);
-}
-
-.loading__bar::after {
-  right: -6px;
-  background: var(--glitch-b);
-}
-
-.loading__fill {
-  height: 100%;
-  background: var(--text);
-  box-shadow: 3px 0 0 var(--glitch-b);
-}
-
-/* ---------- Animations ---------- */
-@keyframes ld-jitter {
+@keyframes sliceA {
   0%,
+  84%,
   100% {
-    transform: none;
+    opacity: 0;
   }
-  12% {
-    transform: translate(2px, -1px);
+  85% {
+    opacity: 0.95;
+    clip-path: inset(10% 0 68% 0);
+    transform: translate(-6px, -2px);
   }
-  13% {
-    transform: translate(-4px, 1px) skewX(-6deg);
+  88% {
+    opacity: 0.95;
+    clip-path: inset(58% 0 22% 0);
+    transform: translate(5px, 2px);
   }
-  14% {
-    transform: none;
-  }
-  62% {
-    transform: translate(3px, 0);
-  }
-  63% {
-    transform: none;
-  }
-}
-
-@keyframes ld-slice-a {
-  0%,
-  100% {
-    clip-path: inset(0 0 62% 0);
-    transform: translate(-3px, 0);
-  }
-  15% {
-    clip-path: inset(24% 0 46% 0);
-    transform: translate(-12px, 0);
-  }
-  30% {
-    clip-path: inset(62% 0 8% 0);
-    transform: translate(7px, 0);
-  }
-  55% {
-    clip-path: inset(10% 0 70% 0);
-    transform: translate(-5px, 0);
-  }
-  75% {
-    clip-path: inset(48% 0 30% 0);
-    transform: translate(10px, 0);
-  }
-}
-
-@keyframes ld-slice-b {
-  0%,
-  100% {
-    clip-path: inset(60% 0 0 0);
-    transform: translate(3px, 0);
-  }
-  20% {
-    clip-path: inset(8% 0 66% 0);
-    transform: translate(12px, 0);
-  }
-  45% {
-    clip-path: inset(38% 0 36% 0);
-    transform: translate(-8px, 0);
-  }
-  70% {
-    clip-path: inset(72% 0 4% 0);
-    transform: translate(6px, 0);
-  }
-}
-
-@keyframes ld-scan {
-  0%,
-  100% {
-    top: 40%;
-  }
-  30% {
-    top: 72%;
-  }
-  55% {
-    top: 18%;
-  }
-  80% {
-    top: 55%;
-  }
-}
-
-@keyframes ld-box {
-  0%,
-  88%,
-  100% {
-    transform: none;
-  }
-  90% {
-    transform: skewX(-3deg);
+  91% {
+    opacity: 0.95;
+    clip-path: inset(30% 0 48% 0);
+    transform: translate(-4px, 1px);
   }
   94% {
-    transform: translateX(6px) skewX(1deg);
+    opacity: 0;
   }
 }
 
-@keyframes ld-bar {
+@keyframes sliceB {
+  0%,
+  66%,
+  100% {
+    opacity: 0;
+  }
+  67% {
+    opacity: 0.95;
+    clip-path: inset(68% 0 6% 0);
+    transform: translate(6px, 2px);
+  }
+  70% {
+    opacity: 0.95;
+    clip-path: inset(6% 0 78% 0);
+    transform: translate(-5px, -2px);
+  }
+  73% {
+    opacity: 0.95;
+    clip-path: inset(42% 0 34% 0);
+    transform: translate(4px, -1px);
+  }
+  76% {
+    opacity: 0;
+  }
+}
+
+/* ---------- progress bar ---------- */
+.bar-wrap {
+  position: relative;
+  margin-top: clamp(1rem, 2.5vh, 1.4rem);
+  width: min(65vw, 560px);
+  height: clamp(32px, 5.5vh, 46px);
+  border: 3px solid #fff;
+  background: #000;
+  box-shadow:
+    -3px 0 0 rgba(0, 240, 255, 0.28),
+    3px 0 0 rgba(255, 0, 212, 0.28);
+}
+
+.bar-fill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: 0%;
+  background: #fff;
+  transition: width 0.18s linear;
+}
+
+/* red glitch "head" on the leading edge of the fill */
+.bar-fill::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: -3px;
+  bottom: -3px;
+  width: 8px;
+  background: var(--red);
+  animation: headFlick 1.1s infinite steps(1);
+}
+
+@keyframes headFlick {
   0%,
   70%,
   100% {
-    transform: none;
+    opacity: 1;
+    transform: translateX(0);
   }
   72% {
-    transform: translateX(-5px);
+    opacity: 0.55;
+    transform: translateX(2px);
   }
-  74% {
-    transform: translateX(4px);
+  76% {
+    opacity: 1;
+    transform: translateX(-1px);
   }
 }
 
-/* ---------- Leave transition ---------- */
-.loading-fade-leave-active {
-  transition: opacity 0.5s ease;
+.bar-edge {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  width: 4px;
 }
 
-.loading-fade-leave-to {
+.bar-edge-l {
+  left: -7px;
+  background: var(--cyan);
+  animation: edgeFlick 1.6s infinite steps(1);
+}
+
+.bar-edge-r {
+  right: -7px;
+  background: var(--magenta);
+  animation: edgeFlick 1.3s infinite steps(1) 0.4s;
+}
+
+@keyframes edgeFlick {
+  0%,
+  80%,
+  100% {
+    opacity: 0.95;
+    transform: translateX(0);
+  }
+  82% {
+    opacity: 0.4;
+    transform: translateX(-2px);
+  }
+  86% {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+}
+
+/* final burst before the overlay fades */
+.loader.burst .title::before {
+  animation-duration: 0.45s;
+}
+.loader.burst .title::after {
+  animation-duration: 0.4s;
+}
+.loader.burst .loader-inner {
+  animation-duration: 0.5s;
+}
+.loader.burst .bar-wrap {
+  box-shadow:
+    -6px 0 0 rgba(0, 240, 255, 0.5),
+    6px 0 0 rgba(255, 0, 212, 0.5);
+}
+
+/* fade-out transition (replaces the original opacity/visibility timing) */
+.loader-fade-leave-active {
+  transition: opacity 0.45s ease;
+}
+.loader-fade-leave-to {
   opacity: 0;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .loading__box,
-  .glitch,
-  .glitch::before,
-  .glitch::after,
-  .scan,
-  .loading__bar {
-    animation: none;
+  .loader-inner,
+  .title::before,
+  .title::after,
+  .bar-edge,
+  .bar-fill::after {
+    animation: none !important;
+  }
+  .title {
+    text-shadow:
+      -2px 0 rgba(0, 240, 255, 0.8),
+      2px 0 rgba(255, 0, 212, 0.8);
   }
 }
 </style>
