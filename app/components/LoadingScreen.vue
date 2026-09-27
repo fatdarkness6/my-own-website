@@ -6,12 +6,13 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 
 const props = defineProps({
   // safety net: force-finish after this many ms even if progress stalls
-  maxDuration: { type: Number, default: 2000 },
+  maxDuration: { type: Number, default: 8000 },
 });
 
 const bursting = ref(false);
 const done = ref(false);
 const progress = ref(0);
+const introReady = useState("introReady", () => false);
 
 let progressTimer = 0;
 let maxTimer = 0;
@@ -38,6 +39,7 @@ function finish() {
     bursting.value = true;
     removeTimer = window.setTimeout(() => {
       done.value = true; // triggers the fade-out transition
+      introReady.value = true; // tells the page it can start its intro sequence
       restoreScroll();
     }, 320);
   }, 500);

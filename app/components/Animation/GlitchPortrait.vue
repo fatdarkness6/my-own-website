@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 import * as THREE from "three";
 
 const props = defineProps({
@@ -21,10 +21,29 @@ const props = defineProps({
   ambientSpacing: { type: Number, default: 3.2 },
   ambientJitter: { type: Number, default: 0.55 },
   ambientSize: { type: Number, default: 0.4 },
-  ambientBrightness: { type: Number, default: 0.35 }, // peak opacity right next to the portrait
-  ambientMinOpacity: { type: Number, default: 0.05 }, // opacity far away
-  ambientFalloff: { type: Number, default: 22 }, // world units until fade completes
+  ambientBrightness: { type: Number, default: 0.35 },
+  ambientMinOpacity: { type: Number, default: 0.05 },
+  ambientFalloff: { type: Number, default: 22 },
   ambientMarginFactor: { type: Number, default: 1.7 },
+
+  // ---- Reveal / assemble animation (initial load only) ----
+  revealed: { type: Boolean, default: true },
+  revealDuration: { type: Number, default: 1200 },
+  scatterRadius: { type: Number, default: 60 },
+
+  // ---- Random ambient glitch bursts (multi-style) ----
+  autoGlitch: { type: Boolean, default: true },
+  autoGlitchInterval: { type: Number, default: 8000 },
+  autoGlitchRandomness: { type: Number, default: 6000 },
+  autoGlitchDuration: { type: Number, default: 800 },
+  autoGlitchStyles: {
+    type: Array,
+    default: () => ["scatter", "wave", "slice", "flicker"],
+  },
+  autoGlitchScatterRadius: { type: Number, default: 18 }, // gentler than before
+  autoGlitchWaveAmplitude: { type: Number, default: 2.5 },
+  autoGlitchSliceMaxOffset: { type: Number, default: 6 },
+  autoGlitchFlashIntensity: { type: Number, default: 0.6 },
 });
 
 const containerEl = ref(null);
@@ -41,6 +60,17 @@ let tiltY = 0;
 let dotWorldSize = 1;
 let repelRadiusWorld = 1;
 let repelStrengthWorld = 1;
+let glitchTimer = null;
+
+// ---- Ambient glitch state ----
+const NUM_BANDS = 14;
+let glitchActive = null;
+let lastGlitchStyle = null;
+let bandOffsets = new Float32Array(NUM_BANDS);
+let lastBandUpdateTime = 0;
+let lastFlickerToggle = 0;
+let flashValue = 0;
+let flashTarget = 0;
 
 const mouseNDC = new THREE.Vector2(-10, -10);
 const mouseWorld = new THREE.Vector3();
@@ -56,12 +86,19 @@ function smoothstep(edge0, edge1, x) {
   return t * t * (3 - 2 * t);
 }
 
+function pseudoRandom(n) {
+  const x = Math.sin(n) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 function buildMaterial() {
   return new THREE.ShaderMaterial({
     uniforms: {
       uColor: { value: new THREE.Color(props.particleColor) },
       uAccent: { value: new THREE.Color(props.accentColor) },
       uDotPixelSize: { value: 1 },
+      uRevealProgress: { value: props.revealed ? 1 : 0 },
+      uFlashIntensity: { value: 0 },
     },
     vertexShader: `
       attribute float aSize;
@@ -83,12 +120,16 @@ function buildMaterial() {
       varying float vHighlight;
       uniform vec3 uColor;
       uniform vec3 uAccent;
+      uniform float uRevealProgress;
+      uniform float uFlashIntensity;
       void main() {
         vec2 uv = gl_PointCoord - vec2(0.5);
         float dist = length(uv);
         if (dist > 0.5) discard;
-        float alpha = smoothstep(0.5, 0.42, dist) * vOpacity;
-        vec3 color = mix(uColor, uAccent, vHighlight);
+        float alpha = smoothstep(0.5, 0.42, dist) * vOpacity * uRevealProgress;
+        alpha = clamp(alpha * (1.0 + uFlashIntensity * 0.7), 0.0, 1.0);
+        float mixAmount = clamp(vHighlight + uFlashIntensity * 0.6, 0.0, 1.0);
+        vec3 color = mix(uColor, uAccent, mixAmount);
         gl_FragColor = vec4(color, alpha);
       }
     `,
@@ -98,15 +139,12 @@ function buildMaterial() {
   });
 }
 
-// ============================================================
-// Chamfer distance transform: for every pixel, distance to nearest "subject" pixel
-// ============================================================
+// ---- Distance Transform ----
 function computeDistanceTransform(mask, sw, sh) {
   const INF = 1e6;
   const dist = new Float32Array(sw * sh);
   for (let i = 0; i < dist.length; i++) dist[i] = mask[i] ? 0 : INF;
 
-  // forward pass (top-left → bottom-right)
   for (let y = 0; y < sh; y++) {
     for (let x = 0; x < sw; x++) {
       const i = y * sw + x;
@@ -120,7 +158,6 @@ function computeDistanceTransform(mask, sw, sh) {
       dist[i] = d;
     }
   }
-  // backward pass (bottom-right → top-left)
   for (let y = sh - 1; y >= 0; y--) {
     for (let x = sw - 1; x >= 0; x--) {
       const i = y * sw + x;
@@ -145,7 +182,6 @@ function sampleDistanceField(distField, sw, sh, wx, wy) {
   const ix = Math.round(cx);
   const iy = Math.round(cy);
   const base = distField[iy * sw + ix];
-  // if the point is outside the image rect, add distance to the edge
   const dx = fx - cx;
   const dy = fy - cy;
   return base + Math.sqrt(dx * dx + dy * dy);
@@ -171,17 +207,13 @@ function buildParticlesFromImage(img) {
   worldWidth = 100;
   worldHeight = worldWidth * (sh / sw);
 
-  // ---- Subject mask + distance field ----
   const mask = new Uint8Array(sw * sh);
   for (let y = 0; y < sh; y++) {
     for (let x = 0; x < sw; x++) {
       const i = (y * sw + x) * 4;
-      const r = data[i],
-        g = data[i + 1],
-        b = data[i + 2],
-        a = data[i + 3];
-      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-      if (a >= 10 && lum >= props.backgroundThreshold) mask[y * sw + x] = 1;
+      const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+      if (data[i + 3] >= 10 && lum >= props.backgroundThreshold)
+        mask[y * sw + x] = 1;
     }
   }
   const distField = computeDistanceTransform(mask, sw, sh);
@@ -191,7 +223,6 @@ function buildParticlesFromImage(img) {
   const sizes = [];
   const opacities = [];
 
-  // ---- Foreground dots (portrait itself) ----
   for (let y = 0; y < sh; y++) {
     for (let x = 0; x < sw; x++) {
       if (!mask[y * sw + x]) continue;
@@ -206,7 +237,6 @@ function buildParticlesFromImage(img) {
     }
   }
 
-  // ---- Ambient dots with distance-based gradient ----
   if (props.ambientDots) {
     const halfW = (worldWidth * props.ambientMarginFactor) / 2;
     const halfH = (worldHeight * props.ambientMarginFactor) / 2;
@@ -217,7 +247,6 @@ function buildParticlesFromImage(img) {
         const wx = ax + (Math.random() - 0.5) * spacing * props.ambientJitter;
         const wy = ay + (Math.random() - 0.5) * spacing * props.ambientJitter;
 
-        // Skip if this dot lands exactly on the portrait
         const nx = wx / worldWidth + 0.5;
         const ny = 0.5 - wy / worldHeight;
         if (nx >= 0 && nx <= 1 && ny >= 0 && ny <= 1) {
@@ -226,17 +255,12 @@ function buildParticlesFromImage(img) {
           if (mask[iy * sw + ix]) continue;
         }
 
-        // Distance from the portrait silhouette, in world units
         const distWorld =
           sampleDistanceField(distField, sw, sh, wx, wy) * worldPerSample;
-
-        // Gradient: near → bright, far → min opacity
         const t = 1 - smoothstep(0, props.ambientFalloff, distWorld);
         const opacity =
           props.ambientMinOpacity +
           (props.ambientBrightness - props.ambientMinOpacity) * t;
-
-        // Optional: also scale size slightly with distance (near = bigger)
         const sizeScale = 0.55 + t * 0.75;
 
         positions.push(wx, wy, 0);
@@ -249,7 +273,19 @@ function buildParticlesFromImage(img) {
   }
 
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+
+  let startPositions = positions;
+  if (!props.revealed) {
+    startPositions = positions.map((v, i) => {
+      if (i % 3 === 2) return v;
+      return v + (Math.random() - 0.5) * props.scatterRadius * 2;
+    });
+  }
+
+  geo.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(startPositions, 3),
+  );
   geo.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
   geo.setAttribute("aOpacity", new THREE.Float32BufferAttribute(opacities, 1));
   geo.setAttribute(
@@ -321,15 +357,97 @@ function onPointerLeave() {
   hasPointer = false;
 }
 
+// ---- Ambient glitch helpers ----
+function randomizeBandOffsets() {
+  for (let b = 0; b < NUM_BANDS; b++) {
+    bandOffsets[b] =
+      Math.random() > 0.55
+        ? (Math.random() - 0.5) * 2 * props.autoGlitchSliceMaxOffset
+        : 0;
+  }
+}
+
+function pickGlitchStyle() {
+  const pool = props.autoGlitchStyles.length
+    ? props.autoGlitchStyles
+    : ["scatter"];
+  let next;
+  do {
+    next = pool[Math.floor(Math.random() * pool.length)];
+  } while (next === lastGlitchStyle && pool.length > 1);
+  lastGlitchStyle = next;
+  return next;
+}
+
+function triggerGlitchBurst(styleOverride) {
+  if (!homes.length) return;
+  const style = styleOverride || pickGlitchStyle();
+  const now = performance.now();
+
+  glitchActive = {
+    style,
+    start: now,
+    duration: props.autoGlitchDuration,
+    freq: 0.1 + Math.random() * 0.12,
+    speed: 0.015 + Math.random() * 0.015,
+    phase: Math.random() * Math.PI * 2,
+  };
+
+  lastBandUpdateTime = 0;
+  lastFlickerToggle = 0;
+
+  if (style === "slice") randomizeBandOffsets();
+  if (style === "flicker") flashTarget = props.autoGlitchFlashIntensity;
+}
+
+function scheduleNextGlitch() {
+  if (!props.autoGlitch || reduceMotion) return;
+  const jitter = Math.random() * props.autoGlitchRandomness;
+  glitchTimer = setTimeout(() => {
+    triggerGlitchBurst();
+    scheduleNextGlitch();
+  }, props.autoGlitchInterval + jitter);
+}
+
 function animate() {
   raf = requestAnimationFrame(animate);
   if (document.hidden || !geometry) return;
+
+  const now = performance.now();
 
   let repelActive = false;
   if (hasPointer) {
     raycaster.setFromCamera(mouseNDC, camera);
     repelActive = !!raycaster.ray.intersectPlane(groundPlane, mouseWorld);
   }
+
+  // ---- Update ambient glitch per-frame state ----
+  let glitchEnvelope = 0;
+  let glitchStyle = null;
+  if (glitchActive) {
+    const tNorm = Math.min(
+      1,
+      (now - glitchActive.start) / glitchActive.duration,
+    );
+    glitchEnvelope = Math.sin(Math.PI * tNorm);
+    glitchStyle = glitchActive.style;
+
+    if (glitchStyle === "slice" && now - lastBandUpdateTime > 70) {
+      randomizeBandOffsets();
+      lastBandUpdateTime = now;
+    }
+    if (glitchStyle === "flicker" && now - lastFlickerToggle > 90) {
+      flashTarget = Math.random() > 0.4 ? props.autoGlitchFlashIntensity : 0;
+      lastFlickerToggle = now;
+    }
+
+    if (tNorm >= 1) {
+      glitchActive = null;
+      flashTarget = 0;
+    }
+  }
+  flashValue += (flashTarget - flashValue) * 0.25;
+  if (material) material.uniforms.uFlashIntensity.value = flashValue;
 
   const posAttr = geometry.attributes.position;
   const hlAttr = geometry.attributes.aHighlight;
@@ -359,6 +477,50 @@ function animate() {
       }
     }
 
+    // ---- Ambient glitch offset ----
+    if (glitchStyle) {
+      let gx = 0;
+      let gy = 0;
+      switch (glitchStyle) {
+        case "scatter": {
+          const rx = pseudoRandom(j * 12.9898 + glitchActive.start * 0.001);
+          const ry = pseudoRandom(j * 78.233 + glitchActive.start * 0.001);
+          gx = (rx - 0.5) * 2 * props.autoGlitchScatterRadius * glitchEnvelope;
+          gy = (ry - 0.5) * 2 * props.autoGlitchScatterRadius * glitchEnvelope;
+          break;
+        }
+        case "wave": {
+          gy =
+            Math.sin(
+              hx * glitchActive.freq +
+                now * glitchActive.speed +
+                glitchActive.phase,
+            ) *
+            props.autoGlitchWaveAmplitude *
+            glitchEnvelope;
+          break;
+        }
+        case "slice": {
+          const band = Math.min(
+            NUM_BANDS - 1,
+            Math.max(
+              0,
+              Math.floor(((hy + worldHeight / 2) / worldHeight) * NUM_BANDS),
+            ),
+          );
+          gx = bandOffsets[band] * glitchEnvelope;
+          break;
+        }
+        case "flicker": {
+          gx = (Math.random() - 0.5) * 0.6 * glitchEnvelope;
+          gy = (Math.random() - 0.5) * 0.6 * glitchEnvelope;
+          break;
+        }
+      }
+      tx += gx;
+      ty += gy;
+    }
+
     pos[i] += (tx - pos[i]) * ease;
     pos[i + 1] += (ty - pos[i + 1]) * ease;
     hl[j] += (th - hl[j]) * ease;
@@ -375,6 +537,46 @@ function animate() {
 
   renderer.render(scene, camera);
 }
+
+// ---------- REVEAL (initial load assemble) ----------
+let revealRaf = 0;
+
+function reveal() {
+  if (!material) return;
+  cancelAnimationFrame(revealRaf);
+  const start = performance.now();
+  const duration = props.revealDuration;
+
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+
+    let flicker = 1;
+    if (t < 0.35) {
+      flicker = Math.random() > 0.25 ? 1 : 0.15;
+    } else if (t < 0.55) {
+      flicker = Math.random() > 0.15 ? 1 : 0.45;
+    }
+
+    material.uniforms.uRevealProgress.value = eased * flicker;
+
+    if (t < 1) {
+      revealRaf = requestAnimationFrame(tick);
+    } else {
+      material.uniforms.uRevealProgress.value = 1;
+    }
+  }
+  revealRaf = requestAnimationFrame(tick);
+}
+
+defineExpose({ reveal, triggerGlitchBurst });
+
+watch(
+  () => props.revealed,
+  (val) => {
+    if (val) reveal();
+  },
+);
 
 onMounted(() => {
   if (!containerEl.value || !canvasEl.value) return;
@@ -411,6 +613,7 @@ onMounted(() => {
       containerEl.value.addEventListener("pointermove", onPointerMove);
       containerEl.value.addEventListener("pointerleave", onPointerLeave);
       animate();
+      scheduleNextGlitch();
     }
   };
   img.onerror = () => {
@@ -424,6 +627,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf);
+  cancelAnimationFrame(revealRaf);
+  clearTimeout(glitchTimer);
   ro?.disconnect();
   containerEl.value?.removeEventListener("pointermove", onPointerMove);
   containerEl.value?.removeEventListener("pointerleave", onPointerLeave);

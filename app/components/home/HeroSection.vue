@@ -1,14 +1,52 @@
 <script setup>
+import { ref, nextTick, watch } from "vue";
+
 defineProps({
   avatarSrc: { type: String, default: "/images/background.png" },
   portraitSrc: { type: String, default: "/images/background.png" },
   portraitOpacity: { type: Number, default: 0.8 },
 });
+const introReady = useState("introReady", () => false);
+const introPlayed = useState("introPlayed", () => false);
+
+const phase = ref(introPlayed.value ? 4 : 0);
+
+const eyebrowTyper = ref(null);
+const taglineTyper = ref(null);
+const nameTyper1 = ref(null);
+const nameTyper2 = ref(null);
+
+watch(
+  introReady,
+  (ready) => {
+    if (ready && !introPlayed.value) {
+      nextTick(() => eyebrowTyper.value?.start());
+    }
+  },
+  { immediate: true },
+);
+
+function onEyebrowDone() {
+  phase.value = 1;
+  nextTick(() => taglineTyper.value?.start());
+}
+function onTaglineDone() {
+  phase.value = 2;
+  nextTick(() => nameTyper1.value?.start());
+}
+function onName1Done() {
+  phase.value = 3;
+  nextTick(() => nameTyper2.value?.start());
+}
+function onName2Done() {
+  phase.value = 4;
+  introPlayed.value = true;
+}
 </script>
 
 <template>
   <section class="hero full-bleed">
-    <div class="hero__visual">
+    <div class="hero__visual" :class="{ 'is-revealed': phase >= 4 }">
       <AnimationGlitchPortrait
         :src="portraitSrc"
         :opacity="portraitOpacity"
@@ -19,49 +57,87 @@ defineProps({
         :ambient-size="0.3"
         :ambient-brightness="0.7"
         :ambient-falloff="30"
+        :auto-glitch="true"
+        :auto-glitch-styles="['scatter', 'slice', 'flicker']"
+        :auto-glitch-scatter-radius="10"
+        :auto-glitch-interval="4000"
       />
     </div>
 
     <div class="hero__text">
       <p class="hero__eyebrow eyebrow text-accent">
+        <AnimationTypewriterText
+          v-if="phase === 0"
+          ref="eyebrowTyper"
+          text="FULL-STACK DEVELOPER"
+          @done="onEyebrowDone"
+        />
         <AnimationGlitchTextTimer
+          v-else-if="phase >= 1"
           text="FULL-STACK DEVELOPER"
           :interval="4000"
         />
       </p>
 
-      <p class="hero__tagline description">
-        <AnimationGlitchTextTimer text="Vue" :interval="6000" />
-        <span class="text-accent"> • </span>
-        <AnimationGlitchTextTimer
-          text="Nuxt"
-          :interval="5500"
-          class="text-primary"
+      <p v-if="phase >= 1" class="hero__tagline description">
+        <AnimationTypewriterText
+          v-if="phase === 1"
+          ref="taglineTyper"
+          text="Vue • Nuxt • Nodejs Crafting Interactive Experiences."
+          @done="onTaglineDone"
         />
-        <span class="text-accent"> • </span>
-        <AnimationGlitchTextTimer text="Nodejs " :interval="6500" />
-        <AnimationGlitchTextTimer
-          text="Crafting "
-          :interval="5000"
-          class="text-primary"
-        />
-        <AnimationGlitchTextTimer
-          text="Interactive Experiences."
-          :interval="7000"
-        />
+        <template v-else>
+          <AnimationGlitchTextTimer text="Vue" :interval="6000" />
+          <span class="text-accent"> • </span>
+          <AnimationGlitchTextTimer
+            text="Nuxt"
+            :interval="5500"
+            class="text-primary"
+          />
+          <span class="text-accent"> • </span>
+          <AnimationGlitchTextTimer text="Nodejs " :interval="6500" />
+          <AnimationGlitchTextTimer
+            text="Crafting "
+            :interval="5000"
+            class="text-primary"
+          />
+          <AnimationGlitchTextTimer
+            text="Interactive Experiences."
+            :interval="7000"
+          />
+        </template>
       </p>
 
-      <h1 class="hero__name title q-pt-xl">
+      <h1 v-if="phase >= 2" class="hero__name title q-pt-xl">
+        <AnimationTypewriterText
+          v-if="phase === 2"
+          ref="nameTyper1"
+          text="ARSAM"
+          class="hero__name-row"
+          @done="onName1Done"
+        />
         <AnimationGlitchTextTimer
+          v-else
           text="ARSAM"
           class="hero__name-row"
           :interval="4500"
         />
-        <AnimationGlitchTextTimer
-          text="SARKHOSH"
-          class="text-primary hero__name-row"
-          :interval="5200"
-        />
+
+        <template v-if="phase >= 3">
+          <AnimationTypewriterText
+            v-if="phase === 3"
+            ref="nameTyper2"
+            text="SARKHOSH"
+            class="text-primary hero__name-row"
+            @done="onName2Done"
+          />
+          <AnimationGlitchTextTimer
+            v-else
+            text="SARKHOSH"
+            class="text-primary hero__name-row"
+            :interval="5200"
+          />
+        </template>
       </h1>
     </div>
   </section>
@@ -82,6 +158,45 @@ defineProps({
   inset: 0;
   width: 100%;
   height: 100%;
+  opacity: 0;
+}
+
+.hero__visual.is-revealed {
+  animation: hero-portrait-in 0.6s steps(1, end) both;
+}
+
+@keyframes hero-portrait-in {
+  0% {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  10% {
+    opacity: 1;
+    clip-path: inset(40% 0 40% 0);
+    transform: translateX(-6px);
+  }
+  20% {
+    clip-path: inset(10% 0 70% 0);
+    transform: translateX(5px);
+  }
+  35% {
+    clip-path: inset(60% 0 5% 0);
+    transform: translateX(-4px);
+  }
+  50% {
+    clip-path: inset(0 0 0 0);
+    opacity: 0.75;
+    transform: translateX(3px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-2px);
+  }
+  100% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0);
+  }
 }
 
 .hero__text {
@@ -117,12 +232,6 @@ defineProps({
   display: block;
   font-size: clamp(48px, 10vw + 8px, 150px);
 }
-
-/* ============================================================
-   RESPONSIVE — Quasar breakpoints
-   Only adjusting container position/width here.
-   Font sizes are fully fluid via clamp() above — no steps needed.
-============================================================ */
 
 @media (max-width: 1023px) {
   .hero__text {
