@@ -9,12 +9,10 @@ const props = defineProps({
     type: String,
     default: "!<>-_\\/[]{}=+*^?#@$%&0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
   },
-  trigger: { type: String, default: "auto" }, // "auto" | "self"
+  interval: { type: Number, default: 5000 },
+  randomize: { type: Boolean, default: true },
 });
 
-const INTERACTIVE = 'a, button, [role="button"], .q-btn, .q-item';
-
-// 🎲 Pool of glitch visual styles
 const STYLES = ["rgb", "shake", "flicker", "block", "scanline"];
 
 const el = ref(null);
@@ -23,8 +21,8 @@ const active = ref(false);
 const lockedWidth = ref(null);
 const currentStyle = ref(STYLES[0]);
 
-let target = null;
 let raf = 0;
+let timer = null;
 let lastStyle = null;
 
 const randomChar = () =>
@@ -53,7 +51,7 @@ function run() {
 
   currentStyle.value = pickStyle();
 
-  const runDuration = props.duration * (0.85 + Math.random() * 0.3);
+  const runDuration = props.duration * (0.8 + Math.random() * 0.6);
 
   const original = Array.from(props.text);
   const total = original.length;
@@ -81,21 +79,21 @@ function run() {
   raf = requestAnimationFrame(frame);
 }
 
+function scheduleNext() {
+  const jitter = props.randomize ? Math.random() * 1500 : 0;
+  timer = setTimeout(() => {
+    run();
+    scheduleNext();
+  }, props.interval + jitter);
+}
+
 onMounted(() => {
-  target =
-    props.trigger === "self"
-      ? el.value
-      : el.value.closest(INTERACTIVE) || el.value;
-  target.addEventListener("mouseenter", run);
-  target.addEventListener("focusin", run);
+  scheduleNext();
 });
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf);
-  if (target) {
-    target.removeEventListener("mouseenter", run);
-    target.removeEventListener("focusin", run);
-  }
+  clearTimeout(timer);
 });
 
 watch(
@@ -153,7 +151,7 @@ watch(
 }
 
 /* ============================================================
-   STYLE 1: RGB SPLIT
+   STYLE 1: RGB SPLIT — chromatic aberration + slice
 ============================================================ */
 .glitch-style--rgb.is-glitching::before {
   color: #ff004c;
@@ -204,9 +202,9 @@ watch(
 }
 
 /* ============================================================
-   STYLE 2: SHAKE
+   STYLE 2: SHAKE — hard jittery skew, no color split
 ============================================================ */
-/* .glitch-style--shake.is-glitching {
+.glitch-style--shake.is-glitching {
   animation: shake-jitter 0.15s steps(2, end) infinite;
 }
 
@@ -226,10 +224,10 @@ watch(
   100% {
     transform: translate(0, 0) skewX(0deg);
   }
-} */
+}
 
 /* ============================================================
-   STYLE 3: FLICKER
+   STYLE 3: FLICKER — opacity strobe like bad signal
 ============================================================ */
 .glitch-style--flicker.is-glitching {
   animation: flicker-strobe 0.12s steps(1, end) infinite;
@@ -260,7 +258,7 @@ watch(
 }
 
 /* ============================================================
-   STYLE 4: BLOCK
+   STYLE 4: BLOCK — hard abrupt block displacement jumps
 ============================================================ */
 .glitch-style--block.is-glitching::before {
   color: #f8fafc;
@@ -309,7 +307,7 @@ watch(
 }
 
 /* ============================================================
-   STYLE 5: SCANLINE
+   STYLE 5: SCANLINE — CRT-style horizontal sweep + squeeze
 ============================================================ */
 .glitch-style--scanline.is-glitching {
   animation: scanline-squeeze 0.4s steps(4, end) infinite;

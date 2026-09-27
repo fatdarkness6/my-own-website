@@ -1,13 +1,4 @@
 <script setup>
-// components/GlitchPortrait.vue
-// Turns an image (ideally a halftone/dot portrait like your background.png) into an
-// interactive Three.js particle cloud: dots push away from the cursor and glow, and
-// the whole portrait tilts slightly toward the mouse, like a cheap parallax "3D" feel.
-//
-// Requires the "three" package:  npm install three
-//
-// Usage:
-//   <GlitchPortrait src="/images/background.png" />
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import * as THREE from "three";
 
@@ -15,27 +6,25 @@ const props = defineProps({
   src: { type: String, required: true },
   particleColor: { type: String, default: "#F8FAFC" },
   accentColor: { type: String, default: "#3B82F6" },
-  // luminance (0-255) below this is treated as background and skipped
   backgroundThreshold: { type: Number, default: 30 },
-  // downscale width used for sampling the image; higher = more particles = heavier
   sampleWidth: { type: Number, default: 220 },
-  // dot diameter as a multiple of the gap between dots: below 1 = visible gaps between
-  // dots (crisp, Figma-style halftone), 1 = dots just touch, above 1 = dots overlap
-  // into a solid look
   pointSize: { type: Number, default: 0.95 },
-  // how far (world units) the mouse influence reaches
-  repelRadius: { type: Number, default: 26 },
-  // how far (world units) a particle gets pushed at the center of that radius
-  repelStrength: { type: Number, default: 7 },
-  // max tilt in radians for the whole-portrait parallax
+  repelRadius: { type: Number, default: 8 },
+  repelStrength: { type: Number, default: 1.8 },
   tilt: { type: Number, default: 0.12 },
-  // "cover" fills the container edge-to-edge (cropping overflow, like background-size: cover);
-  // "contain" keeps the whole portrait visible with letterboxing
   fit: { type: String, default: "cover" },
-  // >1 zooms in further on top of the chosen fit mode
   zoom: { type: Number, default: 1 },
-  // lets you dial the whole portrait's visibility up or down (0 = invisible, 1 = full)
   opacity: { type: Number, default: 1 },
+
+  // ---- Ambient background dots ----
+  ambientDots: { type: Boolean, default: true },
+  ambientSpacing: { type: Number, default: 3.2 },
+  ambientJitter: { type: Number, default: 0.55 },
+  ambientSize: { type: Number, default: 0.4 },
+  ambientBrightness: { type: Number, default: 0.35 }, // peak opacity right next to the portrait
+  ambientMinOpacity: { type: Number, default: 0.05 }, // opacity far away
+  ambientFalloff: { type: Number, default: 22 }, // world units until fade completes
+  ambientMarginFactor: { type: Number, default: 1.7 },
 });
 
 const containerEl = ref(null);
@@ -49,7 +38,9 @@ let worldHeight = 100;
 let hasPointer = false;
 let tiltX = 0;
 let tiltY = 0;
-let dotWorldSize = 1; // spacing-derived; set in buildParticlesFromImage, used every fitCamera
+let dotWorldSize = 1;
+let repelRadiusWorld = 1;
+let repelStrengthWorld = 1;
 
 const mouseNDC = new THREE.Vector2(-10, -10);
 const mouseWorld = new THREE.Vector3();
@@ -60,23 +51,27 @@ const reduceMotion =
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+function smoothstep(edge0, edge1, x) {
+  const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1);
+  return t * t * (3 - 2 * t);
+}
+
 function buildMaterial() {
   return new THREE.ShaderMaterial({
     uniforms: {
       uColor: { value: new THREE.Color(props.particleColor) },
       uAccent: { value: new THREE.Color(props.accentColor) },
-      // pixels-per-world-unit * devicePixelRatio, refreshed by fitCamera on load/resize
       uDotPixelSize: { value: 1 },
     },
     vertexShader: `
       attribute float aSize;
-      attribute float aBrightness;
+      attribute float aOpacity;
       attribute float aHighlight;
-      varying float vBrightness;
+      varying float vOpacity;
       varying float vHighlight;
       uniform float uDotPixelSize;
       void main() {
-        vBrightness = aBrightness;
+        vOpacity = aOpacity;
         vHighlight = aHighlight;
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
         gl_PointSize = aSize * uDotPixelSize * (1.0 + aHighlight * 0.9);
@@ -84,7 +79,7 @@ function buildMaterial() {
       }
     `,
     fragmentShader: `
-      varying float vBrightness;
+      varying float vOpacity;
       varying float vHighlight;
       uniform vec3 uColor;
       uniform vec3 uAccent;
@@ -92,7 +87,7 @@ function buildMaterial() {
         vec2 uv = gl_PointCoord - vec2(0.5);
         float dist = length(uv);
         if (dist > 0.5) discard;
-        float alpha = smoothstep(0.5, 0.42, dist) * (0.75 + vBrightness * 0.25);
+        float alpha = smoothstep(0.5, 0.42, dist) * vOpacity;
         vec3 color = mix(uColor, uAccent, vHighlight);
         gl_FragColor = vec4(color, alpha);
       }
@@ -103,8 +98,60 @@ function buildMaterial() {
   });
 }
 
+// ============================================================
+// Chamfer distance transform: for every pixel, distance to nearest "subject" pixel
+// ============================================================
+function computeDistanceTransform(mask, sw, sh) {
+  const INF = 1e6;
+  const dist = new Float32Array(sw * sh);
+  for (let i = 0; i < dist.length; i++) dist[i] = mask[i] ? 0 : INF;
+
+  // forward pass (top-left → bottom-right)
+  for (let y = 0; y < sh; y++) {
+    for (let x = 0; x < sw; x++) {
+      const i = y * sw + x;
+      let d = dist[i];
+      if (y > 0) {
+        d = Math.min(d, dist[i - sw] + 1);
+        if (x > 0) d = Math.min(d, dist[i - sw - 1] + 1.414);
+        if (x < sw - 1) d = Math.min(d, dist[i - sw + 1] + 1.414);
+      }
+      if (x > 0) d = Math.min(d, dist[i - 1] + 1);
+      dist[i] = d;
+    }
+  }
+  // backward pass (bottom-right → top-left)
+  for (let y = sh - 1; y >= 0; y--) {
+    for (let x = sw - 1; x >= 0; x--) {
+      const i = y * sw + x;
+      let d = dist[i];
+      if (y < sh - 1) {
+        d = Math.min(d, dist[i + sw] + 1);
+        if (x > 0) d = Math.min(d, dist[i + sw - 1] + 1.414);
+        if (x < sw - 1) d = Math.min(d, dist[i + sw + 1] + 1.414);
+      }
+      if (x < sw - 1) d = Math.min(d, dist[i + 1] + 1);
+      dist[i] = d;
+    }
+  }
+  return dist;
+}
+
+function sampleDistanceField(distField, sw, sh, wx, wy) {
+  const fx = (wx / worldWidth + 0.5) * sw - 0.5;
+  const fy = (0.5 - wy / worldHeight) * sh - 0.5;
+  const cx = Math.min(Math.max(fx, 0), sw - 1);
+  const cy = Math.min(Math.max(fy, 0), sh - 1);
+  const ix = Math.round(cx);
+  const iy = Math.round(cy);
+  const base = distField[iy * sw + ix];
+  // if the point is outside the image rect, add distance to the edge
+  const dx = fx - cx;
+  const dy = fy - cy;
+  return base + Math.sqrt(dx * dx + dy * dy);
+}
+
 function buildParticlesFromImage(img) {
-  // smaller sample width on small screens: fewer particles, better mobile perf
   const sw =
     window.innerWidth < 640
       ? Math.round(props.sampleWidth * 0.6)
@@ -124,36 +171,87 @@ function buildParticlesFromImage(img) {
   worldWidth = 100;
   worldHeight = worldWidth * (sh / sw);
 
-  const positions = [];
-  const sizes = [];
-  const brightness = [];
-
+  // ---- Subject mask + distance field ----
+  const mask = new Uint8Array(sw * sh);
   for (let y = 0; y < sh; y++) {
     for (let x = 0; x < sw; x++) {
       const i = (y * sw + x) * 4;
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      const a = data[i + 3];
+      const r = data[i],
+        g = data[i + 1],
+        b = data[i + 2],
+        a = data[i + 3];
       const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-      if (a < 10 || lum < props.backgroundThreshold) continue;
+      if (a >= 10 && lum >= props.backgroundThreshold) mask[y * sw + x] = 1;
+    }
+  }
+  const distField = computeDistanceTransform(mask, sw, sh);
+  const worldPerSample = worldWidth / sw;
 
+  const positions = [];
+  const sizes = [];
+  const opacities = [];
+
+  // ---- Foreground dots (portrait itself) ----
+  for (let y = 0; y < sh; y++) {
+    for (let x = 0; x < sw; x++) {
+      if (!mask[y * sw + x]) continue;
+      const i = (y * sw + x) * 4;
+      const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
       const px = (x / sw - 0.5) * worldWidth;
       const py = -(y / sh - 0.5) * worldHeight;
       positions.push(px, py, 0);
       const b01 = lum / 255;
-      brightness.push(b01);
       sizes.push(0.5 + b01 * 1.1);
+      opacities.push(0.75 + b01 * 0.25);
+    }
+  }
+
+  // ---- Ambient dots with distance-based gradient ----
+  if (props.ambientDots) {
+    const halfW = (worldWidth * props.ambientMarginFactor) / 2;
+    const halfH = (worldHeight * props.ambientMarginFactor) / 2;
+    const spacing = props.ambientSpacing;
+
+    for (let ax = -halfW; ax <= halfW; ax += spacing) {
+      for (let ay = -halfH; ay <= halfH; ay += spacing) {
+        const wx = ax + (Math.random() - 0.5) * spacing * props.ambientJitter;
+        const wy = ay + (Math.random() - 0.5) * spacing * props.ambientJitter;
+
+        // Skip if this dot lands exactly on the portrait
+        const nx = wx / worldWidth + 0.5;
+        const ny = 0.5 - wy / worldHeight;
+        if (nx >= 0 && nx <= 1 && ny >= 0 && ny <= 1) {
+          const ix = Math.min(sw - 1, Math.max(0, Math.floor(nx * sw)));
+          const iy = Math.min(sh - 1, Math.max(0, Math.floor(ny * sh)));
+          if (mask[iy * sw + ix]) continue;
+        }
+
+        // Distance from the portrait silhouette, in world units
+        const distWorld =
+          sampleDistanceField(distField, sw, sh, wx, wy) * worldPerSample;
+
+        // Gradient: near → bright, far → min opacity
+        const t = 1 - smoothstep(0, props.ambientFalloff, distWorld);
+        const opacity =
+          props.ambientMinOpacity +
+          (props.ambientBrightness - props.ambientMinOpacity) * t;
+
+        // Optional: also scale size slightly with distance (near = bigger)
+        const sizeScale = 0.55 + t * 0.75;
+
+        positions.push(wx, wy, 0);
+        sizes.push(
+          props.ambientSize * sizeScale * (0.85 + Math.random() * 0.3),
+        );
+        opacities.push(opacity * (0.75 + Math.random() * 0.25));
+      }
     }
   }
 
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geo.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
-  geo.setAttribute(
-    "aBrightness",
-    new THREE.Float32BufferAttribute(brightness, 1),
-  );
+  geo.setAttribute("aOpacity", new THREE.Float32BufferAttribute(opacities, 1));
   geo.setAttribute(
     "aHighlight",
     new THREE.Float32BufferAttribute(new Array(sizes.length).fill(0), 1),
@@ -164,8 +262,7 @@ function buildParticlesFromImage(img) {
 
 function fitCamera() {
   if (!camera || !containerEl.value) return;
-  // getBoundingClientRect (not clientWidth/Height) avoids a 0-or-huge read
-  // before the surrounding layout has fully settled; clamp as a last resort.
+
   const rect = containerEl.value.getBoundingClientRect();
   const w = Math.min(Math.max(rect.width, 1), window.innerWidth);
   const h = Math.min(Math.max(rect.height, 1), window.innerHeight * 3);
@@ -174,7 +271,6 @@ function fitCamera() {
 
   let viewW, viewH;
   if (props.fit === "cover") {
-    // fill the container completely, cropping whichever axis overflows
     if (containerAspect > imageAspect) {
       viewW = worldWidth;
       viewH = viewW / containerAspect;
@@ -183,7 +279,6 @@ function fitCamera() {
       viewW = viewH * containerAspect;
     }
   } else {
-    // keep the whole portrait visible, with a small margin
     const pad = 1.08;
     if (containerAspect > imageAspect) {
       viewH = worldHeight * pad;
@@ -212,7 +307,7 @@ function fitCamera() {
   }
 
   renderer.setSize(w, h);
-  if (reduceMotion) renderer.render(scene, camera); // keep the static frame in sync on resize
+  if (reduceMotion) renderer.render(scene, camera);
 }
 
 function onPointerMove(e) {
@@ -240,8 +335,8 @@ function animate() {
   const hlAttr = geometry.attributes.aHighlight;
   const pos = posAttr.array;
   const hl = hlAttr.array;
-  const R = props.repelRadius;
-  const S = props.repelStrength;
+  const R = repelRadiusWorld;
+  const S = repelStrengthWorld;
   const ease = 0.09;
 
   for (let i = 0, j = 0; i < homes.length; i += 3, j++) {
@@ -302,13 +397,16 @@ onMounted(() => {
     const built = buildParticlesFromImage(img);
     geometry = built.geo;
     homes = built.homes;
-    dotWorldSize = (worldWidth / built.sw) * props.pointSize;
+    const spacing = worldWidth / built.sw;
+    dotWorldSize = spacing * props.pointSize;
+    repelRadiusWorld = spacing * props.repelRadius;
+    repelStrengthWorld = spacing * props.repelStrength;
     points = new THREE.Points(geometry, material);
     scene.add(points);
     fitCamera();
 
     if (reduceMotion) {
-      renderer.render(scene, camera); // static image, no listeners, no rAF loop
+      renderer.render(scene, camera);
     } else {
       containerEl.value.addEventListener("pointermove", onPointerMove);
       containerEl.value.addEventListener("pointerleave", onPointerLeave);
@@ -348,7 +446,7 @@ onBeforeUnmount(() => {
   height: 100%;
   max-width: 100%;
   max-height: 100%;
-  overflow: hidden; /* the canvas can never visually escape this box */
+  overflow: hidden;
 }
 
 .glitch-portrait__canvas {

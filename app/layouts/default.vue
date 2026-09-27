@@ -4,7 +4,9 @@
 
     <QPageContainer>
       <q-page class="app-page">
-        <slot />
+        <div class="container">
+          <slot />
+        </div>
       </q-page>
     </QPageContainer>
   </QLayout>
@@ -15,5 +17,6 @@
   background: var(--bg);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 </style>

@@ -16,6 +16,7 @@
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
-    "nuxt-quasar-ui": "^3.0.1"
+    "nuxt-quasar-ui": "^3.0.1",
+    "sass": "^1.105.0"
   }
 }

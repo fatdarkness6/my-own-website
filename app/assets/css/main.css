@@ -1,13 +1,15 @@
-/* assets/css/main.css */
 :root {
   --bg: #000000;
 
+  --title-font: "MainFont", sans-serif;
   --title-color: #f8fafc;
   --title-size: 100px;
 
+  --description-font: "DescFont", sans-serif;
   --description-color: #94a3b8;
-  --description-size: 40px;
+  --description-size: 45px;
 
+  --eyebrow-font: "MainFont", sans-serif;
   --eyebrow-color: #3b82f6;
   --eyebrow-size: 30px;
 }
@@ -17,20 +19,24 @@ body {
   margin: 0;
 }
 
-.eyebrow {
-  color: var(--eyebrow-color);
-  font-size: var(--eyebrow-size);
-}
-
 .title {
+  font-family: var(--title-font);
   color: var(--title-color);
   font-size: var(--title-size);
 }
 
 .description {
+  font-family: var(--description-font);
   color: var(--description-color);
   font-size: var(--description-size);
 }
+
+.eyebrow {
+  font-family: var(--eyebrow-font);
+  color: var(--eyebrow-color);
+  font-size: var(--eyebrow-size);
+}
+
 .container {
   width: 100%;
   max-width: 1400px;
@@ -42,4 +48,9 @@ body {
   .container {
     padding-inline: 56px;
   }
+}
+
+.full-bleed {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
 }
