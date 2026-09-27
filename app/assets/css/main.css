@@ -65,6 +65,13 @@ html {
   scrollbar-color: var(--eyebrow-color, #3b82f6) #0a0a0a;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 /* Webkit (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
   width: 10px;
