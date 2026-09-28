@@ -127,7 +127,7 @@ const stats = [
         no-ripple
         dense
         to="/about"
-        class="terminal-card__link"
+        class="terminal-card__link description"
       >
         <AnimationGlitchText text="Explore Full About Page & Philosophy" />
         <q-icon name="arrow_forward" size="16px" class="q-ml-sm" />
@@ -299,9 +299,7 @@ const stats = [
 
 /* ---- Footer link ---- */
 .terminal-card__link {
-  color: var(--eyebrow-color, #3b82f6);
-  font-family: var(--eyebrow-font);
-  font-size: clamp(11px, 0.5vw + 9px, 13px);
+  font-size: clamp(20px, 0.5vw + 9px, 13px);
   letter-spacing: 0.04em;
 }
 

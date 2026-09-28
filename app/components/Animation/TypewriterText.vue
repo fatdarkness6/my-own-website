@@ -8,6 +8,10 @@ const props = defineProps({
   prefix: { type: String, default: "> " }, // terminal-style prompt
   sound: { type: Boolean, default: true },
   soundSrc: { type: String, default: "/sound/type-01.mp3" },
+  soundVolume: { type: Number, default: 0.35 },
+  // minimum time (ms) that must pass between two clicks so each one
+  // has room to actually be heard instead of getting stepped on
+  soundMinInterval: { type: Number, default: 70 },
   cursor: { type: Boolean, default: true },
 });
 
@@ -20,12 +24,19 @@ const isTyping = ref(false);
 let audioBuffer = null;
 let timeouts = [];
 let cursorInterval = null;
+let lastTickAt = 0;
 
 function playTick() {
   if (!props.sound || !audioBuffer) return;
+
+  const now = performance.now();
+  // skip this click if the previous one hasn't had enough time to breathe
+  if (now - lastTickAt < props.soundMinInterval) return;
+  lastTickAt = now;
+
   // clone so overlapping keystrokes don't cut each other off
   const node = audioBuffer.cloneNode();
-  node.volume = 0.35;
+  node.volume = props.soundVolume;
   node.play().catch(() => {}); // ignore autoplay-block errors silently
 }
 
@@ -42,13 +53,27 @@ function typeChar(index) {
 }
 
 function start() {
+  timeouts.forEach(clearTimeout);
+  timeouts = [];
   displayed.value = "";
   isTyping.value = true;
+  lastTickAt = 0;
+
   const t = setTimeout(() => typeChar(0), props.startDelay);
   timeouts.push(t);
 }
 
-defineExpose({ start });
+/** Instantly completes the text (used by safety-net / force-complete flows) */
+function finish() {
+  timeouts.forEach(clearTimeout);
+  timeouts = [];
+  const wasTyping = isTyping.value;
+  displayed.value = props.text;
+  isTyping.value = false;
+  if (wasTyping) emit("done");
+}
+
+defineExpose({ start, finish });
 
 onMounted(() => {
   if (props.sound) {

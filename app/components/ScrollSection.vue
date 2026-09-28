@@ -21,17 +21,26 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section ref="el" class="scroll-section" :data-section-id="id">
+  <section
+    ref="el"
+    class="scroll-section"
+    :data-section-id="id"
+    data-lenis-prevent
+  >
     <slot />
   </section>
 </template>
 
 <style scoped>
 .scroll-section {
+  position: relative;
   width: 100%;
   height: 100dvh;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
+  flex: 0 0 100dvh;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y pinch-zoom;
 }
 </style>

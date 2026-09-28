@@ -14,10 +14,10 @@ watch(currentIndex, () => {
 </script>
 
 <template>
-  <section class="about">
+  <section class="about container">
     <div class="about__grid-bg" />
 
-    <div class="about__inner q-px-md q-px-sm-xl">
+    <div class="about__inner column q-px-md q-py-xl q-px-sm-xl">
       <p class="about__eyebrow eyebrow">
         <AnimationGlitchTextTimer text="// 02. ABOUT" :interval="4200" />
       </p>
@@ -50,7 +50,6 @@ watch(currentIndex, () => {
           :interval="7600"
         />
       </p>
-
       <HomeDetailsAboutInfoCardVue ref="cardRef" />
     </div>
   </section>
@@ -60,12 +59,10 @@ watch(currentIndex, () => {
 .about {
   position: relative;
   width: 100%;
-  height: 100%;
   min-height: 100dvh;
   background: var(--bg);
-  overflow: hidden;
   display: flex;
-  align-items: center;
+  align-items: safe center;
 }
 
 .about__grid-bg {
@@ -79,24 +76,14 @@ watch(currentIndex, () => {
   pointer-events: none;
 }
 
-.about__inner {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 760px;
-  margin-inline: auto;
-  padding-block: 24px;
-}
-
-/* ---- Eyebrow (uses global .eyebrow class, size overridden to fit) ---- */
+/* ---- Eyebrow ---- */
 .about__eyebrow {
   margin: 0 0 14px;
-  font-size: clamp(12px, 0.8vw + 8px, 16px);
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 
-/* ---- Title (uses global .title class, size overridden to fit 100dvh) ---- */
+/* ---- Title ---- */
 .about__title {
   margin: 0 0 18px;
   line-height: 1.02;
@@ -104,13 +91,11 @@ watch(currentIndex, () => {
 
 .about__title :deep(.about__title-row) {
   display: block;
-  font-size: clamp(22px, 2.6vw + 12px, 42px);
 }
 
-/* ---- Description (uses global .description class, size overridden) ---- */
+/* ---- Description ---- */
 .about__desc {
   margin: 0 0 28px;
-  font-size: clamp(13px, 0.55vw + 10px, 16px);
   line-height: 1.65;
   max-width: 62ch;
 }

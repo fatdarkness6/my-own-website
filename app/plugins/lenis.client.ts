@@ -25,7 +25,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Scroll to top on every page navigation
   nuxtApp.hook("page:finish", () => {
     lenis.scrollTo(0, { immediate: true });
-    lenis.resize(); // recalculate height for the new page
+    lenis.resize();
   });
 
   return {

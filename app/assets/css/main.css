@@ -3,15 +3,15 @@
 
   --title-font: "MainFont", sans-serif;
   --title-color: #f8fafc;
-  --title-size: 100px;
+  --title-size: clamp(32px, 1.164rem + 3.568vw, 70px);
 
   --description-font: "DescFont", sans-serif;
   --description-color: #94a3b8;
-  --description-size: 45px;
+  --description-size: clamp(14px, 0.633rem + 1.033vw, 25px);
 
   --eyebrow-font: "MainFont", sans-serif;
   --eyebrow-color: #3b82f6;
-  --eyebrow-size: 30px;
+  --eyebrow-size: clamp(11px, 0.599rem + 0.376vw, 15px);
 }
 
 body {
