@@ -13,7 +13,7 @@ const props = defineProps({
   randomize: { type: Boolean, default: true },
 });
 
-const STYLES = ["rgb", "shake", "flicker", "block", "scanline"];
+const STYLES = ["rgb", "flicker", "block", "scanline"];
 
 const el = ref(null);
 const display = ref(props.text);

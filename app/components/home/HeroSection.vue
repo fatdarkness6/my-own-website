@@ -61,6 +61,7 @@ function onName2Done() {
         :auto-glitch-styles="['scatter', 'slice', 'flicker']"
         :auto-glitch-scatter-radius="10"
         :auto-glitch-interval="4000"
+        class="q-mt-xl"
       />
     </div>
 
