@@ -1,6 +1,10 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref, watch, onBeforeUnmount, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { useScrollSections } from "~/composables/useScrollSections";
+import { useSelectSound } from "~/composables/useSelectSound";
+
+const { app } = useRuntimeConfig();
 
 const links = [
   { label: "Home", to: "/" },
@@ -11,9 +15,11 @@ const links = [
 
 const menuIcon = "M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z";
 
-// tie the header's "docked" intensity + progress bar to the scroll system
-const { sections, currentIndex } = useScrollSections();
+const { sections, currentIndex, direction, isAnimating } = useScrollSections();
 
+/* =========================
+   dock + progress
+========================= */
 const isDocked = computed(() => currentIndex.value > 0);
 
 const progress = computed(() => {
@@ -21,14 +27,80 @@ const progress = computed(() => {
   if (total <= 0) return 0;
   return (currentIndex.value / total) * 100;
 });
+
+/* =========================
+   (optional) active tab
+   - keep ONLY if you're still using v-model on QTabs.
+   - if you removed v-model (recommended with QRouteTab), you can delete this block.
+========================= */
+const route = useRoute();
+const activeTab = ref(route.path);
+watch(
+  () => route.path,
+  (p) => (activeTab.value = p),
+);
+
+/* =========================
+   click sound (shared WebAudio via composable)
+========================= */
+const { init: initSelectSound, play: playSelect } = useSelectSound();
+
+const SOUND_SRC = `/sound/select-sound.mp3`;
+const SOUND_VOLUME = 0.45;
+
+// If your MP3 has leading silence, you can set something like 0.02–0.08
+// but start with 0 to avoid chopping the sound.
+const SOUND_START_OFFSET = 0;
+
+function playSelectSound() {
+  playSelect({
+    volume: SOUND_VOLUME,
+    offset: SOUND_START_OFFSET,
+    delayMs: 0,
+  });
+}
+
+onMounted(() => {
+  // preload/decode once (buffer stays alive across route changes)
+  initSelectSound(SOUND_SRC).catch(() => {});
+});
+
+/* =========================
+   scroll feedback nudge
+========================= */
+const nudgeActive = ref(false);
+const nudgeDir = ref("down");
+let nudgeTimer = 0;
+
+watch(isAnimating, (val) => {
+  if (!val) return;
+
+  nudgeDir.value = direction.value;
+
+  nudgeActive.value = true;
+  clearTimeout(nudgeTimer);
+  nudgeTimer = window.setTimeout(() => {
+    nudgeActive.value = false;
+  }, 220);
+});
+
+const headerClasses = computed(() => ({
+  "is-docked": isDocked.value,
+  "is-nudge": nudgeActive.value,
+  "is-nudge--down": nudgeActive.value && nudgeDir.value === "down",
+  "is-nudge--up": nudgeActive.value && nudgeDir.value === "up",
+}));
+
+onBeforeUnmount(() => {
+  clearTimeout(nudgeTimer);
+  // IMPORTANT: do NOT close AudioContext here (it will cut sounds on navigation)
+});
 </script>
 
 <template>
-  <header class="app-header" :class="{ 'is-docked': isDocked }">
-    <!-- ambient glow blob that breathes behind the bar -->
+  <!-- Quasar-based header (so QLayout knows it's a header) -->
+  <header class="app-header" :class="headerClasses" elevated="false">
     <div class="app-header__glow" />
-
-    <!-- fine scanline texture overlay, matches the loader's CRT vibe -->
     <div class="app-header__scanlines" />
 
     <q-toolbar class="app-header__bar">
@@ -39,6 +111,8 @@ const progress = computed(() => {
         no-ripple
         :icon="menuIcon"
         aria-label="Open menu"
+        @pointerdown="playSelectSound"
+        @click="playSelectSound"
       >
         <q-menu
           class="app-header-menu"
@@ -54,6 +128,8 @@ const progress = computed(() => {
               clickable
               exact
               :to="link.to"
+              @pointerdown="playSelectSound"
+              @click="playSelectSound"
             >
               <q-item-section>
                 <AnimationGlitchText :text="link.label" />
@@ -63,34 +139,48 @@ const progress = computed(() => {
         </q-menu>
       </q-btn>
 
-      <nav class="gt-sm app-header__nav" aria-label="Main">
-        <q-btn
-          v-for="link in links"
-          :key="link.to"
-          class="nav-link"
-          flat
+      <nav class="gt-sm" aria-label="Main">
+        <q-tabs
+          v-model="activeTab"
+          class="app-header__nav"
+          dense
+          inline-label
+          narrow-indicator
           no-caps
-          no-ripple
-          exact
-          :to="link.to"
         >
-          <span class="nav-link__sweep" aria-hidden="true" />
-          <AnimationGlitchText :text="link.label" />
-        </q-btn>
+          <q-route-tab
+            v-for="link in links"
+            :key="link.to"
+            :name="link.to"
+            :to="link.to"
+            exact
+            class="nav-link"
+            @pointerdown="playSelectSound"
+          >
+            <AnimationGlitchText :text="link.label" />
+          </q-route-tab>
+        </q-tabs>
       </nav>
 
       <q-space />
 
-      <q-btn class="cta" unelevated no-caps no-ripple to="/contact">
+      <AppMusicControl class="q-mr-sm" />
+      <q-btn
+        class="cta"
+        unelevated
+        no-caps
+        no-ripple
+        to="/contact"
+        @pointerdown="playSelectSound"
+        @click="playSelectSound"
+      >
         <AnimationGlitchText text="Get in touch" />
       </q-btn>
     </q-toolbar>
 
-    <!-- animated corner brackets on the whole header shell -->
     <span class="app-header__corner app-header__corner--tl" />
     <span class="app-header__corner app-header__corner--br" />
 
-    <!-- scroll-section progress indicator -->
     <div class="app-header__progress" aria-hidden="true">
       <div
         class="app-header__progress-bar"
@@ -107,10 +197,11 @@ const progress = computed(() => {
   --accent: #3b82f6;
   --accent-light: #67a2ff;
 
-  position: fixed;
-  top: 16px;
-  left: 12px;
-  right: 12px;
+  position: fixed; /* keep your behavior */
+  top: 16px !important;
+  left: 12px !important;
+  right: 12px !important;
+
   z-index: 100;
   margin: 0;
   background: rgba(22, 27, 34, 0.72);
@@ -119,7 +210,7 @@ const progress = computed(() => {
   color: var(--text);
   overflow: hidden;
 
-  border-radius: 0 56px 56px 28px;
+  border-radius: 0 56px 0px 28px !important;
   font-family: "Chakra Petch", "Rajdhani", system-ui, sans-serif;
 
   box-shadow:
@@ -128,12 +219,27 @@ const progress = computed(() => {
     0 8px 30px -10px rgba(0, 0, 0, 0.6),
     0 0 24px -6px rgba(59, 130, 246, 0.25);
 
+  /* corner/backdrop-filter rendering fix (doesn't change the look) */
+  transform: translateZ(0);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+
   transition:
     background 0.4s ease,
-    box-shadow 0.4s ease;
+    box-shadow 0.4s ease,
+    transform 0.22s ease;
 }
 
-/* once the user scrolls past hero, the header "docks" and intensifies */
+/* little motion on snap scroll */
+.app-header.is-nudge--down {
+  transform: translateY(-2px) translateZ(0);
+}
+.app-header.is-nudge--down .app-header__bar {
+  min-height: 66px; /* was 72px */
+}
+.app-header.is-nudge--up {
+  transform: translateY(1px) translateZ(0);
+}
+
 .app-header.is-docked {
   background: rgba(22, 27, 34, 0.92);
   box-shadow:
@@ -143,7 +249,7 @@ const progress = computed(() => {
     0 0 30px -4px rgba(59, 130, 246, 0.4);
 }
 
-/* ---- ambient breathing glow behind the bar ---- */
+/* glow */
 .app-header__glow {
   position: absolute;
   inset: -40% -10%;
@@ -169,7 +275,7 @@ const progress = computed(() => {
   }
 }
 
-/* ---- subtle CRT scanline texture ---- */
+/* scanlines */
 .app-header__scanlines {
   position: absolute;
   inset: 0;
@@ -183,12 +289,36 @@ const progress = computed(() => {
   opacity: 0.5;
 }
 
-/* ---- corner brackets framing the whole header ---- */
+.app-header__bar {
+  position: relative;
+  z-index: 2;
+  min-height: 72px;
+  padding: 0 18px 0 20px;
+  transition: min-height 0.22s ease; /* needed for the shrink effect */
+}
+
+.app-header__nav :deep(.q-tabs__content) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* hide Quasar tab indicator line (you already have your own active styling) */
+.app-header__nav :deep(.q-tab__indicator) {
+  display: none;
+}
+
+.app-header__burger {
+  color: var(--text);
+}
+
+/* corners */
 .app-header__corner {
   position: absolute;
-  z-index: 1;
+  z-index: 3;
   width: 14px;
   height: 14px;
+  box-sizing: border-box; /* helps prevent border-size corner glitches */
   pointer-events: none;
   opacity: 0.55;
   animation: header-corner-pulse 3.2s ease-in-out infinite;
@@ -219,7 +349,7 @@ const progress = computed(() => {
   }
 }
 
-/* ---- scroll-section progress bar ---- */
+/* progress */
 .app-header__progress {
   position: absolute;
   left: 20px;
@@ -239,24 +369,7 @@ const progress = computed(() => {
   transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-.app-header__bar {
-  position: relative;
-  z-index: 2;
-  min-height: 72px;
-  padding: 0 18px 0 20px;
-}
-
-.app-header__nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.app-header__burger {
-  color: var(--text);
-}
-
-/* ---- nav links ---- */
+/* nav links */
 .nav-link {
   position: relative;
   min-height: 42px;
@@ -275,7 +388,6 @@ const progress = computed(() => {
   display: none;
 }
 
-/* light sweep that slides across on hover — "power up" feel */
 .nav-link__sweep {
   position: absolute;
   inset: 0;
@@ -338,7 +450,7 @@ const progress = computed(() => {
   text-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
 }
 
-/* CTA */
+/* CTA (unchanged) */
 .cta {
   --cut: 14px;
   --bw: 2px;
@@ -376,26 +488,6 @@ const progress = computed(() => {
 .cta :deep(.q-btn__content) {
   position: relative;
   z-index: 2;
-}
-
-.cta__sweep {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  background: linear-gradient(
-    110deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.45) 50%,
-    transparent 60%
-  );
-  transform: translateX(-140%);
-  transition: transform 0.55s ease;
-  mix-blend-mode: overlay;
-}
-
-.cta:hover .cta__sweep,
-.cta:focus-visible .cta__sweep {
-  transform: translateX(140%);
 }
 
 .cta::before {
@@ -436,7 +528,6 @@ const progress = computed(() => {
     0 100%,
     0 var(--cut),
     var(--cut) 0,
-
     var(--ic) var(--bw),
     calc(100% - var(--bw)) var(--bw),
     calc(100% - var(--bw)) calc(100% - var(--ic)),
@@ -455,13 +546,12 @@ const progress = computed(() => {
   filter: brightness(1.08);
 }
 
-/* Responsive */
+/* responsive (unchanged) */
 @media (min-width: 1024px) {
   .app-header {
-    top: 20px;
-    left: 20px;
-    right: 24px;
-    border-radius: 0 72px 72px 30px;
+    top: 20px !important;
+    left: 20px !important;
+    right: 24px !important;
   }
 
   .app-header__bar {
@@ -483,22 +573,25 @@ const progress = computed(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-link::before,
-  .nav-link::after,
-  .cta::before,
   .app-header__glow,
   .app-header__corner,
   .cta {
     animation: none !important;
   }
-  .nav-link__sweep,
-  .cta__sweep {
+  .nav-link__sweep {
+    transition: none !important;
+  }
+  .app-header {
+    transition: none !important;
+  }
+  .app-header__bar {
     transition: none !important;
   }
 }
 </style>
 
 <style>
+/* unchanged menu styles */
 .app-header-menu {
   background: #161b22;
   color: #f8fafc;
