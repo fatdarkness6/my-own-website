@@ -3,15 +3,15 @@
 
   --title-font: "MainFont", sans-serif;
   --title-color: #f8fafc;
-  --title-size: clamp(32px, 1.164rem + 3.568vw, 70px);
+  --title-size: clamp(2rem, 1.4rem + 2vw, 3.5rem);
 
   --description-font: "DescFont", sans-serif;
-  --description-color: #94a3b8;
-  --description-size: clamp(14px, 0.633rem + 1.033vw, 25px);
+  --description-color: #a8b3c4;
+  --description-size: clamp(1rem, 0.94rem + 0.25vw, 1.125rem);
 
   --eyebrow-font: "MainFont", sans-serif;
   --eyebrow-color: #3b82f6;
-  --eyebrow-size: clamp(11px, 0.599rem + 0.376vw, 15px);
+  --eyebrow-size: clamp(0.75rem, 0.71rem + 0.15vw, 0.875rem);
 }
 
 body {
@@ -21,20 +21,26 @@ body {
 
 .title {
   font-family: var(--title-font);
-  color: var(--title-color);
   font-size: var(--title-size);
+  color: var(--title-color);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
 }
 
 .description {
   font-family: var(--description-font);
-  color: var(--description-color);
   font-size: var(--description-size);
+  color: var(--description-color);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .eyebrow {
   font-family: var(--eyebrow-font);
-  color: var(--eyebrow-color);
   font-size: var(--eyebrow-size);
+  color: var(--eyebrow-color);
+  line-height: 1.5;
+  letter-spacing: 0.1em;
 }
 
 .container {
