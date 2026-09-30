@@ -1,4 +1,4 @@
-import { readonly, ref, watch } from "vue";
+import { readonly, ref } from "vue";
 
 type MainMusicState = {
   ready: boolean;
@@ -6,124 +6,118 @@ type MainMusicState = {
   volume: number; // 0..1
 };
 
-const audioEl = ref<HTMLAudioElement | null>(null);
+const STORAGE_KEY_VOLUME = "mainMusic:volume";
+const DEFAULT_VOLUME = 0.3; // 50% for first-time visitors
+
 const state = ref<MainMusicState>({
   ready: false,
   playing: false,
-  volume: 0.3,
+  volume: DEFAULT_VOLUME,
 });
 
-const STORAGE_KEY_ENABLED = "mainMusic:enabled";
-const STORAGE_KEY_VOLUME = "mainMusic:volume";
+// Module-level audio: keeps playing when the header remounts during navigation.
+let audioEl: HTMLAudioElement | null = null;
+let volumeRestored = false;
 
-// tries to start playback later if autoplay is blocked
-let pendingPlay = false;
-let unlockListenerAttached = false;
+function restoreVolume() {
+  if (!import.meta.client || volumeRestored) return;
+  volumeRestored = true;
 
-function readStored() {
-  if (!import.meta.client) return;
-  const vol = Number(localStorage.getItem(STORAGE_KEY_VOLUME));
-  if (!Number.isNaN(vol)) state.value.volume = Math.min(1, Math.max(0, vol));
-}
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY_VOLUME);
 
-function isEnabledStored() {
-  if (!import.meta.client) return false;
-  return localStorage.getItem(STORAGE_KEY_ENABLED) === "1";
-}
+    // Important: Number(null) is 0, so check for a missing value first.
+    if (saved === null || saved.trim() === "") return;
 
-function setEnabledStored(v: boolean) {
-  if (!import.meta.client) return;
-  localStorage.setItem(STORAGE_KEY_ENABLED, v ? "1" : "0");
+    const value = Number(saved);
+    if (Number.isFinite(value)) {
+      state.value.volume = Math.max(0, Math.min(1, value));
+    }
+  } catch {
+    // Storage unavailable: keep the default volume.
+  }
 }
 
 function ensureAudio(src: string) {
   if (!import.meta.client) return null;
-  if (audioEl.value) return audioEl.value;
 
-  readStored();
+  restoreVolume();
 
-  const a = new Audio(src);
-  a.preload = "auto";
-  a.loop = true;
-  a.volume = state.value.volume;
+  if (audioEl) return audioEl;
 
-  a.addEventListener("play", () => (state.value.playing = true));
-  a.addEventListener("pause", () => (state.value.playing = false));
+  const audio = new Audio(src);
+  audio.preload = "auto";
+  audio.loop = true;
+  audio.volume = state.value.volume;
 
-  audioEl.value = a;
+  audio.addEventListener("play", () => {
+    state.value.playing = true;
+  });
+
+  audio.addEventListener("pause", () => {
+    state.value.playing = false;
+  });
+
+  audioEl = audio;
   state.value.ready = true;
 
-  return a;
-}
-
-function attachUnlockListener(src: string) {
-  if (!import.meta.client) return;
-  if (unlockListenerAttached) return;
-  unlockListenerAttached = true;
-
-  const tryPlay = () => {
-    unlockListenerAttached = false;
-    if (!pendingPlay) return;
-    pendingPlay = false;
-    play(src);
-  };
-
-  window.addEventListener("pointerdown", tryPlay, { once: true });
-  window.addEventListener("keydown", tryPlay, { once: true });
+  // Creating/preloading audio does NOT start playback.
+  return audio;
 }
 
 async function play(src: string) {
-  const a = ensureAudio(src);
-  if (!a) return;
-
-  setEnabledStored(true);
+  const audio = ensureAudio(src);
+  if (!audio) return;
 
   try {
-    await a.play();
-  } catch {
-    // autoplay policy blocked it; try again on next user gesture
-    pendingPlay = true;
-    attachUnlockListener(src);
+    await audio.play();
+  } catch (error) {
+    // Don't retry on a random future click elsewhere on the website.
+    // The user can press Play again if playback fails.
+    console.warn("Background music could not start:", error);
   }
 }
 
 function pause() {
-  const a = audioEl.value;
-  if (!a) return;
-  setEnabledStored(false);
-  a.pause();
+  audioEl?.pause();
 }
 
 function toggle(src: string) {
-  if (state.value.playing) pause();
-  else play(src);
+  const audio = ensureAudio(src);
+  if (!audio) return;
+
+  if (audio.paused) {
+    void play(src);
+  } else {
+    pause();
+  }
 }
 
-function setVolume(v: number) {
-  const volume = Math.min(1, Math.max(0, v));
+function setVolume(value: number) {
+  if (!Number.isFinite(value)) return;
+
+  restoreVolume();
+
+  const volume = Math.max(0, Math.min(1, value));
   state.value.volume = volume;
 
-  if (import.meta.client) {
-    localStorage.setItem(STORAGE_KEY_VOLUME, String(volume));
+  if (audioEl) {
+    audioEl.volume = volume;
   }
-  if (audioEl.value) {
-    audioEl.value.volume = volume;
+
+  if (import.meta.client) {
+    try {
+      localStorage.setItem(STORAGE_KEY_VOLUME, String(volume));
+    } catch {
+      // Volume still works for this session if storage is unavailable.
+    }
   }
 }
-
-// keep element volume in sync if state changes
-watch(
-  () => state.value.volume,
-  (v) => {
-    if (audioEl.value) audioEl.value.volume = v;
-  },
-);
 
 export function useMainMusic() {
   return {
     state: readonly(state),
     ensureAudio,
-    isEnabledStored,
     play,
     pause,
     toggle,

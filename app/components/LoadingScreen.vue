@@ -1,10 +1,16 @@
 <script setup>
+import { useMainMusic } from "~/composables/useMainMusic";
+
 const props = defineProps({
   maxBootDuration: { type: Number, default: 6000 },
   sound: { type: Boolean, default: true },
   soundSrc: { type: String, default: "/sound/type-01.mp3" },
   typeSpeed: { type: Number, default: 14 }, // ms/char, passed to TypewriterText
+  musicSrc: { type: String, default: "/sound/main-song.mp3" },
+  autoplayMusic: { type: Boolean, default: true },
 });
+
+const { play: playMainMusic } = useMainMusic();
 
 const bootLines = [
   { label: "Initializing kernel modules", tag: "OK" },
@@ -94,6 +100,13 @@ function primeAudio() {
 function triggerBurst() {
   if (phase.value !== "ready") return;
   primeAudio();
+
+  // Same synchronous, user-gesture-triggered call stack as primeAudio() above -
+  // this is what lets the browser allow it to actually start with sound.
+  if (props.autoplayMusic) {
+    playMainMusic(props.musicSrc);
+  }
+
   phase.value = "bursting";
 
   burstTimer = window.setTimeout(() => {

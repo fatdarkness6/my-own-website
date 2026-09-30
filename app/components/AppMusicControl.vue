@@ -9,8 +9,7 @@ const props = defineProps({
   buttonDense: { type: Boolean, default: true },
 });
 
-const { state, ensureAudio, isEnabledStored, toggle, setVolume, play } =
-  useMainMusic();
+const { state, ensureAudio, toggle, setVolume, play } = useMainMusic();
 
 const volUi = ref(Math.round(state.value.volume * 100));
 
@@ -32,12 +31,6 @@ function onVolumeChange(v: number) {
 
 onMounted(() => {
   ensureAudio(props.src);
-
-  // If user previously enabled music, try to resume.
-  // If autoplay blocks it, composable will retry on first gesture.
-  if (isEnabledStored()) {
-    play(props.src);
-  }
 });
 </script>
 
