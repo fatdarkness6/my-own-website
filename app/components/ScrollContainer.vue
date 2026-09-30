@@ -89,83 +89,20 @@ function triggerGlitch() {
 }
 
 function handleWheel(e) {
-  // Preserve browser zoom and horizontal scrolling.
-  if (e.ctrlKey) return;
   if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-  if (e.deltaY === 0) return;
-
-  const section = sections[currentIndex.value]?.el;
-  if (!section) return;
-
-  // Don't intercept wheel events outside the active section.
-  if (!(e.target instanceof Node) || !section.contains(e.target)) {
-    return;
-  }
-
-  // Freeze input during the section transition.
-  if (isAnimating.value) {
-    e.preventDefault();
-    wheelAccum = 0;
-    return;
-  }
-
-  const scrollingDown = e.deltaY > 0;
-  const maxScrollTop = Math.max(0, section.scrollHeight - section.clientHeight);
-
-  const epsilon = 2;
-
-  const canScrollInside = scrollingDown
-    ? section.scrollTop < maxScrollTop - epsilon
-    : section.scrollTop > epsilon;
-
-  // THE FIX:
-  // Let the browser scroll the section normally while it has room.
-  // Do not call preventDefault() in this branch.
-  if (canScrollInside) {
-    wheelAccum = 0;
-    lastWheelTime = 0;
-    return;
-  }
-
-  // Only take over the event at the section's top/bottom boundary.
   e.preventDefault();
+  if (isAnimating.value || !canTrigger()) return;
 
-  if (!canTrigger()) {
-    wheelAccum = 0;
-    return;
-  }
-
-  const targetIndex = currentIndex.value + (scrollingDown ? 1 : -1);
-
-  // No glitch or transition beyond the first/last section.
-  if (targetIndex < 0 || targetIndex >= sections.length) {
-    wheelAccum = 0;
-    return;
-  }
-
-  // Normalize wheel deltas to approximately pixels.
-  const multiplier =
-    e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? section.clientHeight : 1;
-
-  const delta = e.deltaY * multiplier;
   const now = performance.now();
-
-  if (
-    now - lastWheelTime > 200 ||
-    (wheelAccum !== 0 && Math.sign(wheelAccum) !== Math.sign(delta))
-  ) {
-    wheelAccum = 0;
-  }
-
+  if (now - lastWheelTime > 200) wheelAccum = 0;
   lastWheelTime = now;
-  wheelAccum += delta;
+  wheelAccum += e.deltaY;
 
-  if (Math.abs(wheelAccum) >= props.wheelThreshold) {
+  if (Math.abs(wheelAccum) > props.wheelThreshold) {
     lastActionTime = now;
-    wheelAccum = 0;
-
     triggerGlitch();
-    goTo(targetIndex, scrollingDown ? "down" : "up");
+    wheelAccum > 0 ? next() : prev();
+    wheelAccum = 0;
   }
 }
 
