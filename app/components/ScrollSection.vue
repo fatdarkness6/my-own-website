@@ -34,4 +34,9 @@ onBeforeUnmount(() => {
   position: relative;
   overflow: hidden;
 }
+@media (max-width: 660px) {
+  .scroll-section {
+    height: 100%;
+  }
+}
 </style>

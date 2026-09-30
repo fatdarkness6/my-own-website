@@ -454,7 +454,7 @@ defineExpose({ play });
   min-width: 0;
   text-align: right;
   font-family: var(--description-font, sans-serif);
-  font-size: 0.8125rem;
+  font-size: 1rem;
   line-height: 1.5;
   color: #b8c3d3;
   overflow-wrap: anywhere;
@@ -464,7 +464,7 @@ defineExpose({ play });
   padding: var(--card-pad);
   font-family:
     "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: clamp(0.8125rem, 0.75rem + 0.15vw, 0.9375rem);
+  font-size: clamp(0.75rem, 0.65rem + 0.4vw, 0.9375rem);
   line-height: 1.7;
 }
 
@@ -511,7 +511,7 @@ defineExpose({ play });
 .terminal-card__summary-label {
   margin: 1rem 0 0.5rem;
   font-family: var(--description-font, sans-serif);
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.5;
   color: #e2e8f0;
@@ -521,7 +521,7 @@ defineExpose({ play });
   min-width: 0;
   margin: 0;
   font-family: var(--description-font, sans-serif);
-  font-size: clamp(0.875rem, 0.825rem + 0.15vw, 1rem);
+  font-size: clamp(1rem, 0.825rem + 0.15vw, 1.2rem);
   line-height: 1.7;
   color: #bcc7d6;
   overflow-wrap: anywhere;
@@ -579,7 +579,7 @@ defineExpose({ play });
   min-height: 44px;
   padding: 0.625rem;
   font-family: var(--description-font, sans-serif);
-  font-size: 0.875rem;
+  font-size: 1rem;
   line-height: 1.5;
   letter-spacing: normal;
   color: #c5dcff;
@@ -618,18 +618,21 @@ defineExpose({ play });
 /* Reserve the completed text's space so the layout stays stable. */
 .typed-text {
   position: relative;
-  display: grid;
+  display: block;
   min-width: 0;
   max-width: 100%;
   white-space: normal;
   overflow-wrap: anywhere;
 }
-.typed-text__reserve,
 .typed-text__live {
-  grid-area: 1 / 1;
+  position: absolute;
+  inset: 0;
+  display: block;
   min-width: 0;
+  overflow: hidden;
 }
 .typed-text__reserve {
+  display: block;
   visibility: hidden;
   pointer-events: none;
   user-select: none;

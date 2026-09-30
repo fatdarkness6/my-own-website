@@ -27,7 +27,7 @@ function startLine(index) {
   if (disposed) return;
 
   // Four copy blocks: eyebrow, title, description, second description.
-  if (index >= 4) {
+  if (index >= 3) {
     activeLine.value = -1;
     cardRef.value?.play?.();
     return;
@@ -155,33 +155,10 @@ onBeforeUnmount(() => {
             <span class="typed-text__accessible">{{ description }}</span>
           </span>
         </p>
-
-        <!-- <p class="about__desc about__desc--secondary">
-          <span class="typed-text">
-            <span class="typed-text__reserve" aria-hidden="true"
-              >{{ secondary }}█</span
-            >
-            <span class="typed-text__live" aria-hidden="true">
-              <AnimationTypewriterText
-                v-if="activeLine === 3"
-                :ref="(el) => setTyper(3, el)"
-                :text="secondary"
-                :speed="12"
-                prefix=""
-                :cursor="true"
-                @done="onLineDone(3)"
-              />
-              <template v-else-if="completedLines.has(3)">
-                <AnimationGlitchTextTimer :text="secondary" :interval="7600" />
-              </template>
-            </span>
-            <span class="typed-text__accessible">{{ secondary }}</span>
-          </span>
-        </p> -->
       </div>
 
       <!-- Keep your current registered card name. -->
-      <HomeDetailsAboutInfoCardVue ref="cardRef" class="about__card" />
+      <HomeDetailsAboutInfoCard ref="cardRef" class="about__card" />
     </div>
   </section>
 </template>
@@ -319,18 +296,21 @@ onBeforeUnmount(() => {
 /* Reserve the completed text's space so the layout stays stable. */
 .typed-text {
   position: relative;
-  display: grid;
+  display: block;
   min-width: 0;
   max-width: 100%;
   white-space: normal;
   overflow-wrap: anywhere;
 }
-.typed-text__reserve,
 .typed-text__live {
-  grid-area: 1 / 1;
+  position: absolute;
+  inset: 0;
+  display: block;
   min-width: 0;
+  overflow: hidden;
 }
 .typed-text__reserve {
+  display: block;
   visibility: hidden;
   pointer-events: none;
   user-select: none;

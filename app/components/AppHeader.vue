@@ -34,7 +34,7 @@ const { init: initSelectSound, play: playSelect } = useSelectSound();
 const SOUND_SRC = "/sound/select-sound.mp3";
 
 function playSelectSound() {
-  playSelect({ volume: 0.45, offset: 0, delayMs: 0 });
+  playSelect({ volume: 0.8, offset: 0, delayMs: 0 });
 }
 
 onMounted(() => {
