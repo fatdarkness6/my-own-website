@@ -443,6 +443,9 @@ function animate() {
 
     if (tNorm >= 1) {
       glitchActive = null;
+      glitchStyle = null;
+      glitchEnvelope = 0;
+
       flashTarget = 0;
     }
   }
