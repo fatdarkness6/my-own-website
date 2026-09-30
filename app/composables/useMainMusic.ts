@@ -15,7 +15,6 @@ const state = ref<MainMusicState>({
   volume: DEFAULT_VOLUME,
 });
 
-// Module-level audio: keeps playing when the header remounts during navigation.
 let audioEl: HTMLAudioElement | null = null;
 let volumeRestored = false;
 

@@ -1,5 +1,4 @@
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from "vue";
 import { useScrollSections } from "~/composables/useScrollSections";
 
 const props = defineProps({
