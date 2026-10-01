@@ -1,6 +1,10 @@
 <script setup>
+const $q = useQuasar();
 const { sections, currentIndex, isAnimating } = useScrollSections();
 const cardRef = ref(null);
+const copyFinished = ref(false);
+let copyStarted = false;
+const playedCards = new WeakSet();
 
 const titleLead = "ARCHITECTING HIGH-SPEED WEB SOLUTIONS WITH CLEAN CODE";
 const titleAccent = "& MODERN TECH.";
@@ -9,17 +13,29 @@ const description =
   "Full-stack developer specializing in reactive Nuxt 3 interfaces and robust Node.js architectures.";
 
 const { play, line } = useTypingSequence(["eyebrow", "title", "desc"], {
-  onFinish: () => cardRef.value?.play(),
+  onFinish: () => {
+    copyFinished.value = true;
+  },
 });
 
 const inView = computed(
   () => sections[currentIndex.value]?.id === "about" && !isAnimating.value,
 );
 
+// Only the mounted card is played. If the breakpoint changes after the
+// copy completes, the newly mounted card can start without retyping the copy.
 watch(
-  [inView, cardRef],
-  ([visible, card]) => {
-    if (visible && card) play();
+  [inView, cardRef, copyFinished],
+  ([visible, card, ready]) => {
+    if (!visible || !card) return;
+    if (!copyStarted) {
+      copyStarted = true;
+      play();
+    }
+    if (ready && !playedCards.has(card)) {
+      playedCards.add(card);
+      card.play();
+    }
   },
   { immediate: true, flush: "post" },
 );
@@ -61,7 +77,12 @@ watch(
         </p>
       </div>
 
-      <HomeDetailsAboutInfoCard ref="cardRef" class="about__card" />
+      <HomeDetailsAboutInfoCardMobile
+        v-if="$q.screen.lt.sm"
+        ref="cardRef"
+        class="about__card"
+      />
+      <HomeDetailsAboutInfoCard v-else ref="cardRef" class="about__card" />
     </div>
   </section>
 </template>
