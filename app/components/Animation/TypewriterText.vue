@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useTypeSound } from "~/composables/useTypeSound";
 
 const props = defineProps({
   text: { type: String, required: true },
@@ -9,8 +10,7 @@ const props = defineProps({
   sound: { type: Boolean, default: true },
   soundSrc: { type: String, default: "/sound/type-01.mp3" },
   soundVolume: { type: Number, default: 0.35 },
-  // minimum time (ms) that must pass between two clicks so each one
-  // has room to actually be heard instead of getting stepped on
+  // minimum time (ms) between two clicks so each one is actually heard
   soundMinInterval: { type: Number, default: 70 },
   cursor: { type: Boolean, default: true },
 });
@@ -21,33 +21,27 @@ const displayed = ref("");
 const showCursor = ref(true);
 const isTyping = ref(false);
 
-let audioBuffer = null;
+const { load, tick } = useTypeSound();
+
 let timeouts = [];
 let cursorInterval = null;
-let lastTickAt = 0;
+let disposed = false;
 
 function playTick() {
-  if (!props.sound || !audioBuffer) return;
-
-  const now = performance.now();
-  // skip this click if the previous one hasn't had enough time to breathe
-  if (now - lastTickAt < props.soundMinInterval) return;
-  lastTickAt = now;
-
-  // clone so overlapping keystrokes don't cut each other off
-  const node = audioBuffer.cloneNode();
-  node.volume = props.soundVolume;
-  node.play().catch(() => {}); // ignore autoplay-block errors silently
+  if (!props.sound) return;
+  tick(props.soundSrc, props.soundVolume, props.soundMinInterval);
 }
 
 function typeChar(index) {
+  if (disposed) return;
   if (index >= props.text.length) {
     isTyping.value = false;
     emit("done");
     return;
   }
   displayed.value += props.text[index];
-  playTick();
+  // don't click on spaces, sounds more natural
+  if (props.text[index] !== " ") playTick();
   const t = setTimeout(() => typeChar(index + 1), props.speed);
   timeouts.push(t);
 }
@@ -57,7 +51,6 @@ function start() {
   timeouts = [];
   displayed.value = "";
   isTyping.value = true;
-  lastTickAt = 0;
 
   const t = setTimeout(() => typeChar(0), props.startDelay);
   timeouts.push(t);
@@ -76,16 +69,17 @@ function finish() {
 defineExpose({ start, finish });
 
 onMounted(() => {
-  if (props.sound) {
-    audioBuffer = new Audio(props.soundSrc);
-    audioBuffer.preload = "auto";
+  // shared + cached: loads once no matter how many typewriters exist
+  if (props.sound) load(props.soundSrc);
+  if (props.cursor) {
+    cursorInterval = setInterval(() => {
+      showCursor.value = !showCursor.value;
+    }, 500);
   }
-  cursorInterval = setInterval(() => {
-    showCursor.value = !showCursor.value;
-  }, 500);
 });
 
 onBeforeUnmount(() => {
+  disposed = true;
   timeouts.forEach(clearTimeout);
   clearInterval(cursorInterval);
 });

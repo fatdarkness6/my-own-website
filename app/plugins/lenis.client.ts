@@ -2,33 +2,47 @@ import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 
 export default defineNuxtPlugin((nuxtApp) => {
-  // Respect users who prefer reduced motion
   const reduceMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+
+  // Phones already have native momentum scrolling and Lenis doesn't smooth touch
+  // by default, so on touch devices it was just burning a rAF loop for nothing.
+  if (reduceMotion || isTouch) {
+    nuxtApp.hook("page:finish", () => window.scrollTo(0, 0));
+    return { provide: { lenis: null } };
+  }
 
   const lenis = new Lenis({
-    duration: 1.2, // scroll smoothness (higher = smoother/slower)
+    duration: 1.2,
     easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    smoothWheel: !reduceMotion,
+    smoothWheel: true,
     wheelMultiplier: 1,
-    touchMultiplier: 1.5,
+    autoRaf: false,
   });
 
-  // Animation loop
+  let rafId = 0;
   function raf(time: number) {
     lenis.raf(time);
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
   }
-  requestAnimationFrame(raf);
+  rafId = requestAnimationFrame(raf);
 
-  // Scroll to top on every page navigation
+  // Don't spin while the tab is in the background
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    } else if (!rafId) {
+      rafId = requestAnimationFrame(raf);
+    }
+  });
+
   nuxtApp.hook("page:finish", () => {
     lenis.scrollTo(0, { immediate: true });
     lenis.resize();
   });
 
-  return {
-    provide: { lenis },
-  };
+  return { provide: { lenis } };
 });

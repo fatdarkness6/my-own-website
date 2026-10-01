@@ -8,6 +8,7 @@ import {
   onBeforeUnmount,
 } from "vue";
 import { useMainMusic } from "~/composables/useMainMusic";
+import { useTypeSound } from "~/composables/useTypeSound";
 
 const props = defineProps({
   maxBootDuration: { type: Number, default: 7000 },
@@ -19,6 +20,7 @@ const props = defineProps({
 });
 
 const { play: playMainMusic } = useMainMusic();
+const { load: loadTypeSound, unlock: unlockAudio } = useTypeSound();
 const introReady = useState("introReady", () => false);
 
 /* ---------------- data ---------------- */
@@ -65,7 +67,6 @@ let maxTimer = 0;
 let hexTimer = 0;
 let stopRain = () => {};
 let restoreScroll = () => {};
-let audioEl = null;
 
 function later(fn, ms) {
   const id = window.setTimeout(() => {
@@ -155,15 +156,9 @@ function grant() {
 }
 
 /* ---------------- exit ---------------- */
-function primeAudio() {
-  if (!audioEl) return;
-  const node = audioEl.cloneNode();
-  node.volume = 0;
-  node.play().catch(() => {});
-}
 
 function triggerBurst() {
-  primeAudio();
+  unlockAudio();
   // must stay in the same user-gesture call stack so the browser allows sound
   if (props.autoplayMusic) playMainMusic(props.musicSrc);
 
@@ -179,6 +174,8 @@ function triggerBurst() {
 }
 
 function handleActivate() {
+  // every gesture is a chance to unlock audio on mobile (must be sync, in the handler)
+  unlockAudio();
   if (phase.value === "booting") forceComplete();
   else if (phase.value === "ready") triggerBurst();
 }
@@ -255,10 +252,7 @@ function startRain(el) {
 onMounted(() => {
   isTouch.value = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-  if (props.sound) {
-    audioEl = new Audio(props.soundSrc);
-    audioEl.preload = "auto";
-  }
+  if (props.sound) loadTypeSound(props.soundSrc);
 
   const html = document.documentElement;
   const prevOverflow = html.style.overflow;

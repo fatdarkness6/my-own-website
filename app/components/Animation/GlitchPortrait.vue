@@ -40,16 +40,21 @@ const props = defineProps({
     type: Array,
     default: () => ["scatter", "wave", "slice", "flicker"],
   },
-  autoGlitchScatterRadius: { type: Number, default: 18 }, // gentler than before
+  autoGlitchScatterRadius: { type: Number, default: 18 },
   autoGlitchWaveAmplitude: { type: Number, default: 2.5 },
   autoGlitchSliceMaxOffset: { type: Number, default: 6 },
   autoGlitchFlashIntensity: { type: Number, default: 0.6 },
+
+  // ---- Mobile performance ----
+  mobileSampleScale: { type: Number, default: 0.5 }, // fraction of sampleWidth on phones
+  mobileAmbientSpacingScale: { type: Number, default: 1.5 }, // sparser bg dots on phones
+  mobileMaxFps: { type: Number, default: 30 },
 });
 
 const containerEl = ref(null);
 const canvasEl = ref(null);
 
-let scene, camera, renderer, material, points, geometry, ro;
+let scene, camera, renderer, material, points, geometry, ro, io;
 let homes = new Float32Array(0);
 let raf = 0;
 let worldWidth = 100;
@@ -61,6 +66,16 @@ let dotWorldSize = 1;
 let repelRadiusWorld = 1;
 let repelStrengthWorld = 1;
 let glitchTimer = null;
+let disposed = false;
+
+// ---- Perf state ----
+let isMobile = false;
+let isVisible = true;
+let settledFrames = 0;
+let lastFrameAt = 0;
+let lastWidth = 0;
+let lastHeight = 0;
+const SETTLE_FRAMES = 90; // ~1.5s of no movement -> stop touching the GPU
 
 // ---- Ambient glitch state ----
 const NUM_BANDS = 14;
@@ -91,6 +106,10 @@ function pseudoRandom(n) {
   return x - Math.floor(x);
 }
 
+function wake() {
+  settledFrames = 0;
+}
+
 function buildMaterial() {
   return new THREE.ShaderMaterial({
     uniforms: {
@@ -116,6 +135,7 @@ function buildMaterial() {
       }
     `,
     fragmentShader: `
+      precision mediump float;
       varying float vOpacity;
       varying float vHighlight;
       uniform vec3 uColor;
@@ -135,6 +155,7 @@ function buildMaterial() {
     `,
     transparent: true,
     depthWrite: false,
+    depthTest: false,
     blending: THREE.NormalBlending,
   });
 }
@@ -188,10 +209,9 @@ function sampleDistanceField(distField, sw, sh, wx, wy) {
 }
 
 function buildParticlesFromImage(img) {
-  const sw =
-    window.innerWidth < 640
-      ? Math.round(props.sampleWidth * 0.6)
-      : props.sampleWidth;
+  const sw = isMobile
+    ? Math.round(props.sampleWidth * props.mobileSampleScale)
+    : props.sampleWidth;
   const sh = Math.max(
     1,
     Math.round(sw * (img.naturalHeight / img.naturalWidth)),
@@ -200,9 +220,11 @@ function buildParticlesFromImage(img) {
   const off = document.createElement("canvas");
   off.width = sw;
   off.height = sh;
-  const ctx = off.getContext("2d");
+  const ctx = off.getContext("2d", { willReadFrequently: true });
   ctx.drawImage(img, 0, 0, sw, sh);
   const { data } = ctx.getImageData(0, 0, sw, sh);
+  // free the offscreen canvas memory right away (matters on iOS)
+  off.width = off.height = 0;
 
   worldWidth = 100;
   worldHeight = worldWidth * (sh / sw);
@@ -240,7 +262,9 @@ function buildParticlesFromImage(img) {
   if (props.ambientDots) {
     const halfW = (worldWidth * props.ambientMarginFactor) / 2;
     const halfH = (worldHeight * props.ambientMarginFactor) / 2;
-    const spacing = props.ambientSpacing;
+    const spacing = isMobile
+      ? props.ambientSpacing * props.mobileAmbientSpacingScale
+      : props.ambientSpacing;
 
     for (let ax = -halfW; ax <= halfW; ax += spacing) {
       for (let ay = -halfH; ay <= halfH; ay += spacing) {
@@ -272,36 +296,58 @@ function buildParticlesFromImage(img) {
     }
   }
 
-  const geo = new THREE.BufferGeometry();
-
-  let startPositions = positions;
+  const count = sizes.length;
+  const homesArr = new Float32Array(positions);
+  const startArr = new Float32Array(homesArr);
   if (!props.revealed) {
-    startPositions = positions.map((v, i) => {
-      if (i % 3 === 2) return v;
-      return v + (Math.random() - 0.5) * props.scatterRadius * 2;
-    });
+    for (let i = 0; i < startArr.length; i++) {
+      if (i % 3 === 2) continue;
+      startArr[i] += (Math.random() - 0.5) * props.scatterRadius * 2;
+    }
   }
 
+  const geo = new THREE.BufferGeometry();
+  const posAttr = new THREE.BufferAttribute(startArr, 3);
+  posAttr.setUsage(THREE.DynamicDrawUsage);
+  const hlAttr = new THREE.BufferAttribute(new Float32Array(count), 1);
+  hlAttr.setUsage(THREE.DynamicDrawUsage);
+
+  geo.setAttribute("position", posAttr);
   geo.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(startPositions, 3),
+    "aSize",
+    new THREE.BufferAttribute(new Float32Array(sizes), 1),
   );
-  geo.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
-  geo.setAttribute("aOpacity", new THREE.Float32BufferAttribute(opacities, 1));
   geo.setAttribute(
-    "aHighlight",
-    new THREE.Float32BufferAttribute(new Array(sizes.length).fill(0), 1),
+    "aOpacity",
+    new THREE.BufferAttribute(new Float32Array(opacities), 1),
+  );
+  geo.setAttribute("aHighlight", hlAttr);
+  // static bounds: skip three's per-frame bounding sphere work
+  geo.boundingSphere = new THREE.Sphere(
+    new THREE.Vector3(),
+    Math.max(worldWidth, worldHeight) * props.ambientMarginFactor,
   );
 
-  return { geo, homes: new Float32Array(positions), sw };
+  return { geo, homes: homesArr, sw };
 }
 
 function fitCamera() {
-  if (!camera || !containerEl.value) return;
+  if (!camera || !renderer || !containerEl.value) return;
 
   const rect = containerEl.value.getBoundingClientRect();
-  const w = Math.min(Math.max(rect.width, 1), window.innerWidth);
-  const h = Math.min(Math.max(rect.height, 1), window.innerHeight * 3);
+  const w = Math.round(Math.min(Math.max(rect.width, 1), window.innerWidth));
+  const h = Math.round(
+    Math.min(Math.max(rect.height, 1), window.innerHeight * 3),
+  );
+
+  // Mobile URL bar show/hide changes height by a few px constantly.
+  // Ignore tiny height changes so we don't reallocate the canvas every scroll.
+  const widthChanged = w !== lastWidth;
+  const heightChanged = Math.abs(h - lastHeight) > (isMobile ? 120 : 1);
+  if (!widthChanged && !heightChanged && lastWidth) return;
+  lastWidth = w;
+  lastHeight = h;
+
   const containerAspect = w / h;
   const imageAspect = worldWidth / worldHeight;
 
@@ -335,7 +381,7 @@ function fitCamera() {
   camera.bottom = -viewH / 2;
   camera.updateProjectionMatrix();
 
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+  const pixelRatio = renderer.getPixelRatio();
   const pixelsPerWorldUnit = w / viewW;
   if (material) {
     material.uniforms.uDotPixelSize.value =
@@ -343,7 +389,8 @@ function fitCamera() {
   }
 
   renderer.setSize(w, h);
-  if (reduceMotion) renderer.render(scene, camera);
+  wake();
+  if (reduceMotion && points) renderer.render(scene, camera);
 }
 
 function onPointerMove(e) {
@@ -351,10 +398,17 @@ function onPointerMove(e) {
   mouseNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   mouseNDC.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
   hasPointer = true;
+  wake();
 }
 
 function onPointerLeave() {
   hasPointer = false;
+  wake();
+}
+
+// Touch: pointerleave often never fires, so drop the "mouse" when the finger lifts
+function onPointerUp(e) {
+  if (e.pointerType !== "mouse") onPointerLeave();
 }
 
 // ---- Ambient glitch helpers ----
@@ -398,22 +452,48 @@ function triggerGlitchBurst(styleOverride) {
 
   if (style === "slice") randomizeBandOffsets();
   if (style === "flicker") flashTarget = props.autoGlitchFlashIntensity;
+  wake();
 }
 
 function scheduleNextGlitch() {
-  if (!props.autoGlitch || reduceMotion) return;
+  if (!props.autoGlitch || reduceMotion || disposed) return;
   const jitter = Math.random() * props.autoGlitchRandomness;
   glitchTimer = setTimeout(() => {
-    triggerGlitchBurst();
+    // don't glitch something nobody can see
+    if (isVisible && !document.hidden) triggerGlitchBurst();
     scheduleNextGlitch();
   }, props.autoGlitchInterval + jitter);
 }
 
-function animate() {
+function startLoop() {
+  if (raf || disposed || reduceMotion) return;
   raf = requestAnimationFrame(animate);
-  if (document.hidden || !geometry) return;
+}
 
-  const now = performance.now();
+function stopLoop() {
+  cancelAnimationFrame(raf);
+  raf = 0;
+}
+
+function animate(now) {
+  raf = 0;
+  if (disposed) return;
+  // Fully stop the loop when hidden/offscreen (resumed by observers)
+  if (document.hidden || !isVisible || !geometry) return;
+  raf = requestAnimationFrame(animate);
+
+  // Cap FPS on phones: halves the CPU + GPU upload cost
+  if (isMobile) {
+    const minDelta = 1000 / props.mobileMaxFps;
+    if (now - lastFrameAt < minDelta - 1) return;
+  }
+  lastFrameAt = now;
+
+  // Nothing moving and everything is home -> skip the work entirely
+  const busy =
+    hasPointer || !!glitchActive || flashValue > 0.005 || flashTarget > 0;
+  if (busy) settledFrames = 0;
+  else if (++settledFrames > SETTLE_FRAMES) return;
 
   let repelActive = false;
   if (hasPointer) {
@@ -445,11 +525,11 @@ function animate() {
       glitchActive = null;
       glitchStyle = null;
       glitchEnvelope = 0;
-
       flashTarget = 0;
     }
   }
   flashValue += (flashTarget - flashValue) * 0.25;
+  if (flashValue < 0.001) flashValue = 0;
   if (material) material.uniforms.uFlashIntensity.value = flashValue;
 
   const posAttr = geometry.attributes.position;
@@ -457,8 +537,14 @@ function animate() {
   const pos = posAttr.array;
   const hl = hlAttr.array;
   const R = repelRadiusWorld;
+  const R2 = R * R;
   const S = repelStrengthWorld;
-  const ease = 0.09;
+  const ease = isMobile ? 0.16 : 0.09; // fewer frames on mobile -> bigger steps
+  const mx = mouseWorld.x;
+  const my = mouseWorld.y;
+  const scatterR = props.autoGlitchScatterRadius;
+  const waveA = props.autoGlitchWaveAmplitude;
+  const seed = glitchActive ? glitchActive.start * 0.001 : 0;
 
   for (let i = 0, j = 0; i < homes.length; i += 3, j++) {
     const hx = homes[i];
@@ -468,10 +554,11 @@ function animate() {
     let th = 0;
 
     if (repelActive) {
-      const dx = hx - mouseWorld.x;
-      const dy = hy - mouseWorld.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < R) {
+      const dx = hx - mx;
+      const dy = hy - my;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < R2) {
+        const dist = Math.sqrt(d2);
         const force = 1 - dist / R;
         th = force;
         const invDist = dist > 0.0001 ? 1 / dist : 0;
@@ -480,26 +567,23 @@ function animate() {
       }
     }
 
-    // ---- Ambient glitch offset ----
     if (glitchStyle) {
-      let gx = 0;
-      let gy = 0;
       switch (glitchStyle) {
         case "scatter": {
-          const rx = pseudoRandom(j * 12.9898 + glitchActive.start * 0.001);
-          const ry = pseudoRandom(j * 78.233 + glitchActive.start * 0.001);
-          gx = (rx - 0.5) * 2 * props.autoGlitchScatterRadius * glitchEnvelope;
-          gy = (ry - 0.5) * 2 * props.autoGlitchScatterRadius * glitchEnvelope;
+          const rx = pseudoRandom(j * 12.9898 + seed);
+          const ry = pseudoRandom(j * 78.233 + seed);
+          tx += (rx - 0.5) * 2 * scatterR * glitchEnvelope;
+          ty += (ry - 0.5) * 2 * scatterR * glitchEnvelope;
           break;
         }
         case "wave": {
-          gy =
+          ty +=
             Math.sin(
               hx * glitchActive.freq +
                 now * glitchActive.speed +
                 glitchActive.phase,
             ) *
-            props.autoGlitchWaveAmplitude *
+            waveA *
             glitchEnvelope;
           break;
         }
@@ -511,17 +595,15 @@ function animate() {
               Math.floor(((hy + worldHeight / 2) / worldHeight) * NUM_BANDS),
             ),
           );
-          gx = bandOffsets[band] * glitchEnvelope;
+          tx += bandOffsets[band] * glitchEnvelope;
           break;
         }
         case "flicker": {
-          gx = (Math.random() - 0.5) * 0.6 * glitchEnvelope;
-          gy = (Math.random() - 0.5) * 0.6 * glitchEnvelope;
+          tx += (Math.random() - 0.5) * 0.6 * glitchEnvelope;
+          ty += (Math.random() - 0.5) * 0.6 * glitchEnvelope;
           break;
         }
       }
-      tx += gx;
-      ty += gy;
     }
 
     pos[i] += (tx - pos[i]) * ease;
@@ -531,12 +613,15 @@ function animate() {
   posAttr.needsUpdate = true;
   hlAttr.needsUpdate = true;
 
-  const targetTiltX = hasPointer ? -mouseNDC.y * props.tilt : 0;
-  const targetTiltY = hasPointer ? mouseNDC.x * props.tilt : 0;
-  tiltX += (targetTiltX - tiltX) * 0.06;
-  tiltY += (targetTiltY - tiltY) * 0.06;
-  points.rotation.x = tiltX;
-  points.rotation.y = tiltY;
+  // tilt only makes sense with a real mouse
+  if (!isMobile) {
+    const targetTiltX = hasPointer ? -mouseNDC.y * props.tilt : 0;
+    const targetTiltY = hasPointer ? mouseNDC.x * props.tilt : 0;
+    tiltX += (targetTiltX - tiltX) * 0.06;
+    tiltY += (targetTiltY - tiltY) * 0.06;
+    points.rotation.x = tiltX;
+    points.rotation.y = tiltY;
+  }
 
   renderer.render(scene, camera);
 }
@@ -549,8 +634,10 @@ function reveal() {
   cancelAnimationFrame(revealRaf);
   const start = performance.now();
   const duration = props.revealDuration;
+  wake();
 
   function tick(now) {
+    if (disposed) return;
     const t = Math.min(1, (now - start) / duration);
     const eased = 1 - Math.pow(1 - t, 3);
 
@@ -562,11 +649,13 @@ function reveal() {
     }
 
     material.uniforms.uRevealProgress.value = eased * flicker;
+    wake(); // keep rendering while revealing
 
     if (t < 1) {
       revealRaf = requestAnimationFrame(tick);
     } else {
       material.uniforms.uRevealProgress.value = 1;
+      if (reduceMotion && points) renderer.render(scene, camera);
     }
   }
   revealRaf = requestAnimationFrame(tick);
@@ -581,8 +670,31 @@ watch(
   },
 );
 
+function onVisibilityChange() {
+  if (!document.hidden && isVisible) {
+    wake();
+    startLoop();
+  }
+}
+
+function onContextLost(e) {
+  // let the browser restore it instead of killing the page
+  e.preventDefault();
+  stopLoop();
+}
+
+function onContextRestored() {
+  wake();
+  lastWidth = 0;
+  fitCamera();
+  startLoop();
+}
+
 onMounted(() => {
   if (!containerEl.value || !canvasEl.value) return;
+
+  isMobile =
+    window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
 
   scene = new THREE.Scene();
   camera = new THREE.OrthographicCamera(-50, 50, 50, -50, 0.1, 1000);
@@ -591,14 +703,29 @@ onMounted(() => {
   renderer = new THREE.WebGLRenderer({
     canvas: canvasEl.value,
     alpha: true,
-    antialias: true,
+    antialias: !isMobile, // dots are round in the shader anyway
+    powerPreference: isMobile ? "low-power" : "high-performance",
+    stencil: false,
+    depth: false,
+    preserveDrawingBuffer: false,
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2),
+  );
+
+  canvasEl.value.addEventListener("webglcontextlost", onContextLost, false);
+  canvasEl.value.addEventListener(
+    "webglcontextrestored",
+    onContextRestored,
+    false,
+  );
 
   material = buildMaterial();
 
   const img = new Image();
+  img.decoding = "async";
   img.onload = () => {
+    if (disposed) return;
     const built = buildParticlesFromImage(img);
     geometry = built.geo;
     homes = built.homes;
@@ -607,15 +734,21 @@ onMounted(() => {
     repelRadiusWorld = spacing * props.repelRadius;
     repelStrengthWorld = spacing * props.repelStrength;
     points = new THREE.Points(geometry, material);
+    points.frustumCulled = false;
     scene.add(points);
+    lastWidth = 0; // force a full refit now that world size + dot size are known
     fitCamera();
 
     if (reduceMotion) {
       renderer.render(scene, camera);
     } else {
-      containerEl.value.addEventListener("pointermove", onPointerMove);
+      containerEl.value.addEventListener("pointermove", onPointerMove, {
+        passive: true,
+      });
       containerEl.value.addEventListener("pointerleave", onPointerLeave);
-      animate();
+      containerEl.value.addEventListener("pointerup", onPointerUp);
+      containerEl.value.addEventListener("pointercancel", onPointerLeave);
+      startLoop();
       scheduleNextGlitch();
     }
   };
@@ -624,20 +757,59 @@ onMounted(() => {
   };
   img.src = props.src;
 
-  ro = new ResizeObserver(fitCamera);
+  ro = new ResizeObserver(() => fitCamera());
   ro.observe(containerEl.value);
+
+  // Pause completely when the hero is scrolled out of view
+  io = new IntersectionObserver(
+    ([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) {
+        wake();
+        startLoop();
+      } else {
+        stopLoop();
+      }
+    },
+    { threshold: 0.01 },
+  );
+  io.observe(containerEl.value);
+
+  document.addEventListener("visibilitychange", onVisibilityChange);
 });
 
 onBeforeUnmount(() => {
-  cancelAnimationFrame(raf);
+  disposed = true;
+  stopLoop();
   cancelAnimationFrame(revealRaf);
   clearTimeout(glitchTimer);
   ro?.disconnect();
-  containerEl.value?.removeEventListener("pointermove", onPointerMove);
-  containerEl.value?.removeEventListener("pointerleave", onPointerLeave);
+  io?.disconnect();
+  document.removeEventListener("visibilitychange", onVisibilityChange);
+
+  const el = containerEl.value;
+  el?.removeEventListener("pointermove", onPointerMove);
+  el?.removeEventListener("pointerleave", onPointerLeave);
+  el?.removeEventListener("pointerup", onPointerUp);
+  el?.removeEventListener("pointercancel", onPointerLeave);
+  canvasEl.value?.removeEventListener("webglcontextlost", onContextLost);
+  canvasEl.value?.removeEventListener(
+    "webglcontextrestored",
+    onContextRestored,
+  );
+
+  if (points) scene?.remove(points);
   geometry?.dispose();
   material?.dispose();
+  // THE important one: actually release the WebGL context.
+  // Without this, every navigation back to "/" leaks a context and iOS reloads the tab.
+  renderer?.forceContextLoss();
   renderer?.dispose();
+  renderer = null;
+  scene = null;
+  geometry = null;
+  points = null;
+  homes = new Float32Array(0);
 });
 </script>
 
@@ -655,6 +827,8 @@ onBeforeUnmount(() => {
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
+  /* let the page scroll vertically on touch while still getting pointer events */
+  touch-action: pan-y;
 }
 
 .glitch-portrait__canvas {
