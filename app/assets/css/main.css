@@ -185,12 +185,16 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 .scroll-container .scroll-section,
 .scroll-container .hero,
 .scroll-container .about,
-.scroll-container .projects {
+.scroll-container .projects,
+.scroll-container .resume,
+.scroll-container .cta {
   background: transparent !important;
 }
 
 /* Keep text readable on top of the moving background */
 .scroll-container .about__inner,
-.scroll-container .projects__inner {
+.scroll-container .projects__inner,
+.scroll-container .resume__inner,
+.scroll-container .cta__inner {
   text-shadow: 0 0 12px rgba(0, 0, 0, 0.85);
 }

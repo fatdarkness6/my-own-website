@@ -12,6 +12,9 @@
     <ScrollSection id="resume">
       <HomeResumeSection />
     </ScrollSection>
+    <ScrollSection id="cta">
+      <HomeCtaSection />
+    </ScrollSection>
   </ScrollContainer>
 </template>
 

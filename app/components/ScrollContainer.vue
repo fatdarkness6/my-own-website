@@ -285,7 +285,7 @@ onBeforeUnmount(() => {
     <!-- one shared hacker background for every section -->
     <AnimationSectionBackground
       :index="currentIndex"
-      :scenes="['signal', 'grid', 'rain']"
+      :scenes="['signal', 'terminal', 'rain', 'circuit', 'radar']"
       :transition-duration="transitionDuration"
       :intensity="0.9"
     />
