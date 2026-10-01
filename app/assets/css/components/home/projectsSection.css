@@ -389,3 +389,59 @@
     transition: none;
   }
 }
+
+/* Mobile: smaller cards, visible descriptions */
+@media (max-width: 599px) {
+  .projects__inner {
+    --projects-pad-y: clamp(10px, 2dvh, 18px);
+    gap: clamp(8px, 1.5dvh, 12px);
+  }
+
+  /* Restore the description beneath the section heading */
+  .projects__desc {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    margin-top: 6px !important;
+  }
+
+  /* Lower the existing 460px cap; still shrink to fit the rail */
+  .projects__track {
+    --projects-card-max-height: 360px;
+  }
+
+  /* Compact the card body without shrinking its description */
+  .projects__slot :deep(.gcard__body) {
+    padding: 10px 12px;
+  }
+
+  .pcard__name {
+    font-size: clamp(1rem, 5cqw, 1.125rem);
+  }
+
+  /* Restore project summaries, including on short screens */
+  .pcard__summary {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    margin: 4px 0 6px;
+  }
+}
+
+/* Extra-short mobile viewports */
+@media (max-width: 599px) and (max-height: 500px) {
+  .projects__inner {
+    --projects-pad-y: 8px;
+    gap: 8px;
+  }
+
+  /* Stop the existing 7dvh heading from taking too much space */
+  .projects__title {
+    font-size: clamp(1.25rem, 5.8vw, 1.625rem);
+  }
+
+  /* Keep a summary preview instead of hiding it entirely */
+  .pcard__summary {
+    -webkit-line-clamp: 1;
+  }
+}
