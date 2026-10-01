@@ -9,6 +9,9 @@
     <ScrollSection id="projects">
       <HomeProjectsSection />
     </ScrollSection>
+    <ScrollSection id="resume">
+      <HomeResumeSection />
+    </ScrollSection>
   </ScrollContainer>
 </template>
 

@@ -1,0 +1,391 @@
+.resume {
+  --resume-space: clamp(1.25rem, 3vw, 3rem);
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  box-sizing: border-box;
+  display: grid;
+  align-items: center;
+  padding: var(--resume-space);
+  padding-block-start: calc(
+    var(--resume-space) + var(--resume-top-clearance, 0px)
+  );
+  background: var(--bg, #000);
+  color: var(--title-color, #f8fafc);
+}
+
+.resume__grid-bg {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(59 130 246 / 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(59 130 246 / 0.055) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse at 30% 40%, #000, transparent 80%);
+  pointer-events: none;
+}
+
+.resume__inner {
+  width: 100%;
+  max-width: 80rem;
+  min-width: 0;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  /* No padding or min-height here: About places both on the outer section. */
+}
+
+.resume__copy,
+.resume-index {
+  min-width: 0;
+  width: 100%;
+}
+
+.resume__eyebrow {
+  margin: 0 0 1rem;
+  font-family: var(--eyebrow-font, sans-serif);
+  font-size: var(--eyebrow-size, 0.8125rem);
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  color: var(--eyebrow-color, #3b82f6);
+}
+
+.resume__title {
+  margin: 0 0 clamp(1rem, 2vw, 1.75rem);
+  max-width: 21ch;
+  font-family: var(--title-font, sans-serif);
+  font-size: clamp(1.875rem, 1.4rem + 1.15vw, 3rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0.005em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.resume__title :deep(.glitch-text) {
+  display: inline;
+  font: inherit;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.resume__accent {
+  color: var(--eyebrow-color, #3b82f6);
+}
+
+.resume__desc {
+  max-width: 48ch;
+  margin: 0;
+  font-family: var(--description-font, sans-serif);
+  font-size: var(--description-size, 1rem);
+  line-height: 1.7;
+  color: #cbd5e1;
+  overflow-wrap: anywhere;
+}
+
+/* Résumé-specific document preview. This does not set the section layout. */
+.resume-index {
+  box-sizing: border-box;
+  padding: clamp(16px, 2vw, 28px);
+  direction: ltr;
+  text-align: left;
+  background:
+    linear-gradient(135deg, rgb(59 130 246 / 0.07), transparent 70%), #050a12;
+  border: 1px solid rgb(59 130 246 / 0.3);
+  border-top: 2px solid var(--eyebrow-color, #3b82f6);
+}
+
+.resume-index--waiting {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.resume-index__entry {
+  min-width: 0;
+}
+
+.resume-index__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgb(59 130 246 / 0.18);
+  color: var(--eyebrow-color, #3b82f6);
+}
+
+.resume-index__document,
+.resume-index__arrow {
+  flex: none;
+}
+
+.resume-index__filename,
+.resume-index__bar-mark,
+.resume-index__number {
+  font-family: var(--eyebrow-font, monospace);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+}
+
+.resume-index__filename {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.resume-index__bar-mark {
+  flex: none;
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+.resume-index__list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.resume-index__row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 12px;
+  padding-block: 18px;
+  border-bottom: 1px solid rgb(59 130 246 / 0.12);
+}
+
+.resume-index__number {
+  color: var(--eyebrow-color, #3b82f6);
+}
+
+.resume-index__heading {
+  margin: 0;
+  font-family: var(--title-font, sans-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--title-color, #f8fafc);
+  overflow-wrap: anywhere;
+}
+
+.resume-index__detail {
+  margin: 4px 0 0;
+  font-family: var(--description-font, sans-serif);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--description-color, #a8b3c4);
+  overflow-wrap: anywhere;
+}
+
+.resume-index__link {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 10px 14px;
+  font-family: var(--eyebrow-font, sans-serif);
+  font-size: 1rem;
+  line-height: 1.4;
+  letter-spacing: 0.035em;
+  color: #020617;
+  background: var(--eyebrow-color, #3b82f6);
+  transition:
+    background-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.resume-index__link:not(.disabled):hover {
+  background: #60a5fa;
+  box-shadow: 0 0 20px rgb(59 130 246 / 0.2);
+}
+
+.resume-index__link :deep(.q-btn__content) {
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+
+.resume-index__link :deep(.q-btn__content > :first-child) {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.resume-index__link:focus-visible {
+  outline: 2px solid var(--title-color, #f8fafc);
+  outline-offset: 4px;
+}
+
+/* Inherit type sizes without touching TypedLine's space-reserving layers. */
+.resume :deep(.typed-text),
+.resume :deep(.typewriter),
+.resume :deep(.typewriter__text),
+.resume :deep(.glitch-text) {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Same stacked breakpoint, width, alignment and title scale as About. */
+@media (max-width: 67.49rem) {
+  .resume__inner {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 42rem;
+    gap: 1.75rem;
+  }
+
+  .resume__copy {
+    text-align: center;
+  }
+
+  .resume__title,
+  .resume__desc {
+    margin-inline: auto;
+  }
+
+  .resume__title {
+    max-width: 27ch;
+    font-size: clamp(1.875rem, 1.25rem + 2vw, 2.75rem);
+  }
+}
+
+@media (min-width: 67.5rem) and (max-height: 45rem) {
+  .resume {
+    --resume-space: 1.25rem;
+  }
+
+  .resume__inner {
+    gap: 2rem;
+  }
+}
+
+/* Same phone layout and typography as About. */
+@media (max-width: 599px) {
+  .resume {
+    --resume-space: clamp(0.75rem, 3vw, 1rem);
+  }
+
+  .resume__inner {
+    gap: clamp(0.75rem, 2dvh, 1rem);
+  }
+
+  .resume__copy {
+    direction: ltr;
+    text-align: left;
+  }
+
+  .resume__title,
+  .resume__desc {
+    margin-inline: 0;
+  }
+
+  .resume__title {
+    max-width: 100%;
+    font-size: clamp(1.375rem, 1rem + 2vw, 1.75rem);
+  }
+
+  .resume-index {
+    padding: 14px;
+  }
+
+  .resume-index__bar {
+    padding-bottom: 10px;
+  }
+
+  .resume-index__list {
+    margin-bottom: 12px;
+  }
+
+  .resume-index__row {
+    grid-template-columns: 22px minmax(0, 1fr);
+    padding-block: 10px;
+    gap: 10px;
+  }
+
+  .resume-index__heading {
+    font-size: 0.9375rem;
+  }
+
+  .resume-index__detail {
+    margin-top: 2px;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .resume-index__filename,
+  .resume-index__bar-mark,
+  .resume-index__number {
+    font-size: 0.75rem;
+  }
+
+  .resume-index__link {
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 599px) and (max-height: 600px) {
+  .resume__eyebrow {
+    margin-bottom: 0.5rem;
+  }
+
+  .resume__title {
+    margin-bottom: 0.625rem;
+  }
+
+  .resume__desc {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
+/* Compact only the document's internals on short screens. */
+@media (max-height: 600px) {
+  .resume-index {
+    padding: 12px;
+  }
+
+  .resume-index__bar {
+    padding-bottom: 8px;
+  }
+
+  .resume-index__row {
+    padding-block: 8px;
+  }
+
+  .resume-index__list {
+    margin-bottom: 10px;
+  }
+}
+
+/* Same narrow-landscape layout as About. */
+@media (min-width: 480px) and (max-width: 599px) and (max-height: 420px) {
+  .resume__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .resume__title {
+    font-size: clamp(1.125rem, 3.5vw, 1.25rem);
+  }
+
+  .resume__desc {
+    font-size: 0.875rem;
+  }
+
+  .resume-index__row {
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resume-index__link {
+    transition: none;
+  }
+}
