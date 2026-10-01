@@ -181,3 +181,16 @@ html.is-scrolling::-webkit-scrollbar-thumb {
     display: none !important;
   }
 }
+
+.scroll-container .scroll-section,
+.scroll-container .hero,
+.scroll-container .about,
+.scroll-container .projects {
+  background: transparent !important;
+}
+
+/* Keep text readable on top of the moving background */
+.scroll-container .about__inner,
+.scroll-container .projects__inner {
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.85);
+}

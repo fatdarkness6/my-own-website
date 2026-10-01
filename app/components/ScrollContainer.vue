@@ -282,6 +282,13 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="containerEl" class="scroll-container" data-lenis-prevent>
+    <!-- one shared hacker background for every section -->
+    <AnimationSectionBackground
+      :index="currentIndex"
+      :scenes="['signal', 'grid', 'rain']"
+      :transition-duration="transitionDuration"
+      :intensity="0.9"
+    />
     <div class="scroll-track" :style="trackStyle"><slot /></div>
     <div
       class="scroll-glitch-overlay"
@@ -327,6 +334,8 @@ onBeforeUnmount(() => {
   overscroll-behavior: none;
 }
 .scroll-track {
+  position: relative;
+  z-index: 1; /* above the shader background */
   display: flex;
   flex-direction: column;
   width: 100%;
