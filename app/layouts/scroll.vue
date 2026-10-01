@@ -1,23 +1,21 @@
 <template>
   <q-layout view="hHh lpR fff" class="ar-app-layout">
     <AppHeader />
-
-    <QPageContainer class="scroll-page-container">
-      <q-page class="app-page app-page--scroll">
+    <q-page-container>
+      <q-page :style-fn="fitViewport" class="app-page--scroll">
         <slot />
       </q-page>
-    </QPageContainer>
+    </q-page-container>
   </q-layout>
 </template>
 
-<style scoped>
-.scroll-page-container {
-  height: 100dvh;
-  overflow: hidden;
-}
+<script setup>
+const fitViewport = (offset, height) => ({ height: `${height - offset}px` });
+</script>
 
+<style scoped>
 .app-page--scroll {
-  min-height: 100dvh;
   padding: 0;
+  overflow: hidden;
 }
 </style>
