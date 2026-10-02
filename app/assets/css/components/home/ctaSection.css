@@ -49,6 +49,10 @@
 }
 
 /* ---------- terminal card ---------- */
+.cta__terminal-reveal {
+  max-width: 34rem;
+}
+
 .cta-term {
   width: 100%;
   max-width: 34rem;

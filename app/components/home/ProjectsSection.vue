@@ -112,78 +112,82 @@ onBeforeUnmount(() => ro?.disconnect());
         <div
           ref="trackRef"
           class="projects__track"
-          :class="{ 'is-revealed': revealed }"
           @scroll.passive="update"
         >
           <div
             v-for="(p, i) in featured"
             :key="p.id"
             class="projects__slot"
-            :style="{ '--i': i }"
           >
-            <AnimationGlitchCard
-              :image="p.image"
-              :alt="p.name"
-              :interval="5200 + i * 900"
+            <CommonHackerReveal
+              :show="revealed"
+              :delay="i * 110"
+              class="projects__card-reveal"
             >
-              <template #media>
-                <span class="pcard__index">{{ hex(i) }}</span>
-                <span class="pcard__status" :class="`is-${p.status}`">
-                  ● {{ p.status.toUpperCase() }}
-                </span>
-              </template>
+              <AnimationGlitchCard
+                :image="p.image"
+                :alt="p.name"
+                :interval="5200 + i * 900"
+              >
+                <template #media>
+                  <span class="pcard__index">{{ hex(i) }}</span>
+                  <span class="pcard__status" :class="`is-${p.status}`">
+                    ● {{ p.status.toUpperCase() }}
+                  </span>
+                </template>
 
-              <p class="pcard__meta">{{ p.year }} · {{ p.role }}</p>
+                <p class="pcard__meta">{{ p.year }} · {{ p.role }}</p>
 
-              <h3 class="pcard__name">
-                <AnimationGlitchTextTimer
-                  :text="p.name"
-                  :interval="4800 + i * 700"
-                />
-              </h3>
+                <h3 class="pcard__name">
+                  <AnimationGlitchTextTimer
+                    :text="p.name"
+                    :interval="4800 + i * 700"
+                  />
+                </h3>
 
-              <p class="pcard__summary">{{ p.summary }}</p>
+                <p class="pcard__summary">{{ p.summary }}</p>
 
-              <div class="pcard__stack">
-                <q-chip
-                  v-for="s in p.stack.slice(0, 3)"
-                  :key="s"
-                  dense
-                  square
-                  outline
-                  class="pcard__chip"
-                >
-                  {{ s }}
-                </q-chip>
-              </div>
+                <div class="pcard__stack">
+                  <q-chip
+                    v-for="s in p.stack.slice(0, 3)"
+                    :key="s"
+                    dense
+                    square
+                    outline
+                    class="pcard__chip"
+                  >
+                    {{ s }}
+                  </q-chip>
+                </div>
 
-              <div class="pcard__links">
-                <q-btn
-                  v-if="p.live"
-                  flat
-                  dense
-                  no-caps
-                  square
-                  :href="p.live"
-                  target="_blank"
-                  class="pcard__link"
-                >
-                  <AnimationGlitchText text="> live" />
-                </q-btn>
-                <q-btn
-                  v-if="p.repo"
-                  flat
-                  dense
-                  no-caps
-                  square
-                  :href="p.repo"
-                  target="_blank"
-                  class="pcard__link"
-                >
-                  <AnimationGlitchText text="> source" />
-                </q-btn>
-              </div>
-            </AnimationGlitchCard>
+                <div class="pcard__links">
+                  <q-btn
+                    v-if="p.live"
+                    flat
+                    dense
+                    no-caps
+                    square
+                    :href="p.live"
+                    target="_blank"
+                    class="pcard__link"
+                  >
+                    <AnimationGlitchText text="> live" />
+                  </q-btn>
+                  <q-btn
+                    v-if="p.repo"
+                    flat
+                    dense
+                    no-caps
+                    square
+                    :href="p.repo"
+                    target="_blank"
+                    class="pcard__link"
+                  >
+                    <AnimationGlitchText text="> source" />
+                  </q-btn>
+                </div>
+              </AnimationGlitchCard>
+            </CommonHackerReveal>
           </div>
         </div>
       </div>

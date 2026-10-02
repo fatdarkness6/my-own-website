@@ -114,38 +114,14 @@
   scroll-snap-align: start;
   container-type: inline-size;
   container-name: pcard;
-  opacity: 0;
-  clip-path: inset(0 0 100% 0);
 }
 .projects__slot > * {
   height: 100%;
   min-height: 0;
 }
-.projects__track.is-revealed .projects__slot {
-  animation: card-boot 0.55s steps(6, end) forwards;
-  animation-delay: calc(var(--i) * 140ms);
-}
-@keyframes card-boot {
-  0% {
-    opacity: 0;
-    clip-path: inset(0 0 100% 0);
-  }
-  30% {
-    opacity: 1;
-    clip-path: inset(0 0 60% 0);
-  }
-  55% {
-    clip-path: inset(0 0 30% 0);
-    filter: hue-rotate(90deg);
-  }
-  80% {
-    clip-path: inset(0 0 5% 0);
-  }
-  100% {
-    opacity: 1;
-    clip-path: inset(0);
-    filter: none;
-  }
+.projects__card-reveal {
+  height: 100%;
+  min-height: 0;
 }
 
 /* ---------- card content ---------- */
@@ -378,11 +354,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .projects__slot {
-    animation: none !important;
-    opacity: 1;
-    clip-path: none;
-  }
   .projects__foot {
     transition: none;
   }

@@ -76,12 +76,13 @@ const year = new Date().getFullYear();
         </p>
       </header>
 
-      <div
-        class="cta-term"
-        :class="{ 'cta-term--waiting': !terminalVisible }"
-        :aria-hidden="!terminalVisible ? 'true' : undefined"
-        :inert="!terminalVisible"
-      >
+      <CommonHackerReveal :show="terminalVisible" class="cta__terminal-reveal">
+        <div
+          class="cta-term"
+          :class="{ 'cta-term--waiting': !terminalVisible }"
+          :aria-hidden="!terminalVisible ? 'true' : undefined"
+          :inert="!terminalVisible"
+        >
         <div class="cta-term__bar" aria-hidden="true">
           <span class="cta-term__dot" />
           <span class="cta-term__dot" />
@@ -141,7 +142,8 @@ const year = new Date().getFullYear();
             />
           </q-btn>
         </div>
-      </div>
+        </div>
+      </CommonHackerReveal>
 
       <footer class="cta__foot" :class="{ 'is-revealed': finished }">
         <span>// EOF</span>

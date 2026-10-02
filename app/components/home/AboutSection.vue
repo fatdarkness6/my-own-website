@@ -74,12 +74,14 @@ watch(
         </p>
       </div>
 
-      <HomeDetailsAboutInfoCardMobile
-        v-if="$q.screen.lt.sm"
-        ref="cardRef"
-        class="about__card"
-      />
-      <HomeDetailsAboutInfoCard v-else ref="cardRef" class="about__card" />
+      <CommonHackerReveal :show="copyFinished" class="about__card-reveal">
+        <HomeDetailsAboutInfoCardMobile
+          v-if="$q.screen.lt.sm"
+          ref="cardRef"
+          class="about__card"
+        />
+        <HomeDetailsAboutInfoCard v-else ref="cardRef" class="about__card" />
+      </CommonHackerReveal>
     </div>
   </section>
 </template>

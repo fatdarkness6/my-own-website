@@ -41,6 +41,7 @@
 }
 
 .resume__copy,
+.resume__card-reveal,
 .resume-index {
   min-width: 0;
   width: 100%;

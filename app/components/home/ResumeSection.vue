@@ -92,12 +92,13 @@ watch(
         </p>
       </header>
 
-      <div
-        class="resume-index"
-        :class="{ 'resume-index--waiting': !previewVisible }"
-        :aria-hidden="!previewVisible ? 'true' : undefined"
-        :inert="!previewVisible"
-      >
+      <CommonHackerReveal :show="previewVisible" class="resume__card-reveal">
+        <div
+          class="resume-index"
+          :class="{ 'resume-index--waiting': !previewVisible }"
+          :aria-hidden="!previewVisible ? 'true' : undefined"
+          :inert="!previewVisible"
+        >
         <div class="resume-index__bar">
           <svg
             class="resume-index__document"
@@ -196,7 +197,8 @@ watch(
             <path d="M4 12h16M14 6l6 6-6 6" />
           </svg>
         </q-btn>
-      </div>
+        </div>
+      </CommonHackerReveal>
     </div>
   </section>
 </template>
