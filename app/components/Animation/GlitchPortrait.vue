@@ -9,9 +9,6 @@ const props = defineProps({
   backgroundThreshold: { type: Number, default: 30 },
   sampleWidth: { type: Number, default: 300 },
   pointSize: { type: Number, default: 0.95 },
-  repelRadius: { type: Number, default: 8 },
-  repelStrength: { type: Number, default: 1.8 },
-  tilt: { type: Number, default: 0.12 },
   fit: { type: String, default: "cover" },
   zoom: { type: Number, default: 1 },
   opacity: { type: Number, default: 1 },
@@ -38,15 +35,20 @@ const props = defineProps({
   autoGlitch: { type: Boolean, default: true },
   autoGlitchInterval: { type: Number, default: 8000 },
   autoGlitchRandomness: { type: Number, default: 6000 },
-  autoGlitchDuration: { type: Number, default: 800 },
+  autoGlitchDuration: { type: Number, default: 340 },
   autoGlitchStyles: {
     type: Array,
-    default: () => ["scatter", "wave", "slice", "flicker"],
+    default: () => ["crash", "slice", "flicker"],
   },
   autoGlitchScatterRadius: { type: Number, default: 18 },
   autoGlitchWaveAmplitude: { type: Number, default: 2.5 },
   autoGlitchSliceMaxOffset: { type: Number, default: 6 },
   autoGlitchFlashIntensity: { type: Number, default: 0.6 },
+
+  // ---- Desktop pointer micro-glitch (never changes the resting position) ----
+  pointerGlitch: { type: Boolean, default: true },
+  pointerGlitchCooldown: { type: Number, default: 150 },
+  pointerGlitchDuration: { type: Number, default: 110 },
 
   // ---- Mobile performance ----
   mobileSampleScale: { type: Number, default: 0.74 }, // ~220 samples on phones
@@ -54,8 +56,8 @@ const props = defineProps({
   mobileAmbientSpacingScale: { type: Number, default: 1.5 }, // sparser bg dots on phones
   desktopAmbientBrightnessScale: { type: Number, default: 0.65 },
   mobileAmbientBrightnessScale: { type: Number, default: 0.3 },
-  desktopGlitchStrengthScale: { type: Number, default: 0.65 },
-  mobileGlitchStrengthScale: { type: Number, default: 0.55 },
+  desktopGlitchStrengthScale: { type: Number, default: 0.9 },
+  mobileGlitchStrengthScale: { type: Number, default: 0.75 },
   mobilePixelRatio: { type: Number, default: 2 },
   mobileMaxFps: { type: Number, default: 30 },
 });
@@ -70,16 +72,12 @@ const renderedOpacity = computed(() =>
 );
 
 let scene, camera, renderer, material, points, geometry, ro, io;
+let ghostRed, ghostCyan, ghostRedMaterial, ghostCyanMaterial;
 let homes = new Float32Array(0);
 let raf = 0;
 let worldWidth = 100;
 let worldHeight = 100;
-let hasPointer = false;
-let tiltX = 0;
-let tiltY = 0;
 let dotWorldSize = 1;
-let repelRadiusWorld = 1;
-let repelStrengthWorld = 1;
 let glitchTimer = null;
 let disposed = false;
 
@@ -101,11 +99,8 @@ let lastBandUpdateTime = 0;
 let lastFlickerToggle = 0;
 let flashValue = 0;
 let flashTarget = 0;
-
-const mouseNDC = new THREE.Vector2(-10, -10);
-const mouseWorld = new THREE.Vector3();
-const raycaster = new THREE.Raycaster();
-const groundPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+let portraitCorrupted = false;
+let lastPointerGlitchAt = 0;
 
 const reduceMotion =
   typeof window !== "undefined" &&
@@ -139,6 +134,7 @@ function buildMaterial() {
       uDotPixelSize: { value: 1 },
       uRevealProgress: { value: props.revealed ? 1 : 0 },
       uFlashIntensity: { value: 0 },
+      uLayerOpacity: { value: 1 },
     },
     vertexShader: `
       attribute float aSize;
@@ -163,11 +159,12 @@ function buildMaterial() {
       uniform vec3 uAccent;
       uniform float uRevealProgress;
       uniform float uFlashIntensity;
+      uniform float uLayerOpacity;
       void main() {
         vec2 uv = gl_PointCoord - vec2(0.5);
         float dist = length(uv);
         if (dist > 0.5) discard;
-        float alpha = smoothstep(0.5, 0.42, dist) * vOpacity * uRevealProgress;
+        float alpha = smoothstep(0.5, 0.42, dist) * vOpacity * uRevealProgress * uLayerOpacity;
         alpha = clamp(alpha * (1.0 + uFlashIntensity * 0.7), 0.0, 1.0);
         float mixAmount = clamp(vHighlight + uFlashIntensity * 0.6, 0.0, 1.0);
         vec3 color = mix(uColor, uAccent, mixAmount);
@@ -179,6 +176,16 @@ function buildMaterial() {
     depthTest: false,
     blending: THREE.NormalBlending,
   });
+}
+
+function buildGhostMaterial(color) {
+  const ghost = material.clone();
+  ghost.uniforms = THREE.UniformsUtils.clone(material.uniforms);
+  ghost.uniforms.uColor.value.set(color);
+  ghost.uniforms.uAccent.value.set(color);
+  ghost.uniforms.uFlashIntensity.value = 0;
+  ghost.uniforms.uLayerOpacity.value = 0.25;
+  return ghost;
 }
 
 // ---- Distance Transform ----
@@ -412,6 +419,14 @@ function fitCamera() {
   if (material) {
     material.uniforms.uDotPixelSize.value =
       dotWorldSize * pixelsPerWorldUnit * pixelRatio;
+    if (ghostRedMaterial) {
+      ghostRedMaterial.uniforms.uDotPixelSize.value =
+        material.uniforms.uDotPixelSize.value;
+    }
+    if (ghostCyanMaterial) {
+      ghostCyanMaterial.uniforms.uDotPixelSize.value =
+        material.uniforms.uDotPixelSize.value;
+    }
   }
 
   renderer.setSize(w, h);
@@ -419,36 +434,33 @@ function fitCamera() {
   if (reduceMotion && points) renderer.render(scene, camera);
 }
 
-function onPointerMove(e) {
-  const rect = containerEl.value.getBoundingClientRect();
-  mouseNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-  mouseNDC.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-  hasPointer = true;
-  wake();
-}
-
-function onPointerLeave() {
-  hasPointer = false;
-  wake();
-}
-
-// Touch: pointerleave often never fires, so drop the "mouse" when the finger lifts
-function onPointerUp(e) {
-  if (e.pointerType !== "mouse") onPointerLeave();
-}
-
 // ---- Ambient glitch helpers ----
-function randomizeBandOffsets() {
+function randomizeBandOffsets(multiplier = 1, density = 0.55) {
   const strength = activeGlitchStrength();
   for (let b = 0; b < NUM_BANDS; b++) {
     bandOffsets[b] =
-      Math.random() > 0.55
+      Math.random() > density
         ? (Math.random() - 0.5) *
           2 *
           props.autoGlitchSliceMaxOffset *
-          strength
+          strength *
+          multiplier
         : 0;
   }
+}
+
+// Deliberately discontinuous: a corrupted signal jumps between frames instead
+// of easing through them like a normal UI animation.
+function crashPulse(t) {
+  if (t < 0.08) return 1;
+  if (t < 0.14) return 0.08;
+  if (t < 0.27) return 0.9;
+  if (t < 0.34) return 0;
+  if (t < 0.5) return 0.72;
+  if (t < 0.58) return 0.18;
+  if (t < 0.76) return 1;
+  if (t < 0.84) return 0;
+  return 0.55;
 }
 
 function pickGlitchStyle() {
@@ -463,6 +475,23 @@ function pickGlitchStyle() {
   return next;
 }
 
+function onPointerMove(event) {
+  if (
+    !props.pointerGlitch ||
+    isMobile ||
+    event.pointerType !== "mouse" ||
+    glitchActive ||
+    !isVisible
+  ) {
+    return;
+  }
+
+  const now = performance.now();
+  if (now - lastPointerGlitchAt < props.pointerGlitchCooldown) return;
+  lastPointerGlitchAt = now;
+  triggerGlitchBurst("cursor");
+}
+
 function triggerGlitchBurst(styleOverride) {
   if (!homes.length) return;
   const style = styleOverride || pickGlitchStyle();
@@ -471,7 +500,10 @@ function triggerGlitchBurst(styleOverride) {
   glitchActive = {
     style,
     start: now,
-    duration: props.autoGlitchDuration,
+    duration:
+      style === "cursor"
+        ? props.pointerGlitchDuration
+        : props.autoGlitchDuration * (style === "crash" ? 1 : 0.82),
     freq: 0.1 + Math.random() * 0.12,
     speed: 0.015 + Math.random() * 0.015,
     phase: Math.random() * Math.PI * 2,
@@ -480,8 +512,10 @@ function triggerGlitchBurst(styleOverride) {
   lastBandUpdateTime = 0;
   lastFlickerToggle = 0;
 
-  if (style === "slice") randomizeBandOffsets();
-  if (style === "flicker") {
+  if (style === "slice") randomizeBandOffsets(1.35, 0.38);
+  if (style === "crash") randomizeBandOffsets(2.2, 0.25);
+  if (style === "cursor") randomizeBandOffsets(0.42, 0.62);
+  if (style === "flicker" || style === "crash") {
     flashTarget =
       props.autoGlitchFlashIntensity * activeGlitchStrength();
   }
@@ -523,16 +557,9 @@ function animate(now) {
   lastFrameAt = now;
 
   // Nothing moving and everything is home -> skip the work entirely
-  const busy =
-    hasPointer || !!glitchActive || flashValue > 0.005 || flashTarget > 0;
+  const busy = !!glitchActive || portraitCorrupted || flashTarget > 0;
   if (busy) settledFrames = 0;
   else if (++settledFrames > SETTLE_FRAMES) return;
-
-  let repelActive = false;
-  if (hasPointer) {
-    raycaster.setFromCamera(mouseNDC, camera);
-    repelActive = !!raycaster.ray.intersectPlane(groundPlane, mouseWorld);
-  }
 
   // ---- Update ambient glitch per-frame state ----
   let glitchEnvelope = 0;
@@ -542,16 +569,28 @@ function animate(now) {
       1,
       (now - glitchActive.start) / glitchActive.duration,
     );
-    glitchEnvelope = Math.sin(Math.PI * tNorm);
+    glitchEnvelope = crashPulse(tNorm);
     glitchStyle = glitchActive.style;
 
-    if (glitchStyle === "slice" && now - lastBandUpdateTime > 70) {
-      randomizeBandOffsets();
+    if (
+      (glitchStyle === "slice" ||
+        glitchStyle === "crash" ||
+        glitchStyle === "cursor") &&
+      now - lastBandUpdateTime >
+        (glitchStyle === "crash" ? 34 : glitchStyle === "cursor" ? 46 : 52)
+    ) {
+      randomizeBandOffsets(
+        glitchStyle === "crash" ? 2.2 : glitchStyle === "cursor" ? 0.42 : 1.35,
+        glitchStyle === "crash" ? 0.25 : glitchStyle === "cursor" ? 0.62 : 0.38,
+      );
       lastBandUpdateTime = now;
     }
-    if (glitchStyle === "flicker" && now - lastFlickerToggle > 90) {
+    if (
+      (glitchStyle === "flicker" || glitchStyle === "crash") &&
+      now - lastFlickerToggle > (glitchStyle === "crash" ? 42 : 64)
+    ) {
       flashTarget =
-        Math.random() > 0.4
+        Math.random() > 0.46
           ? props.autoGlitchFlashIntensity *
             activeGlitchStrength()
           : 0;
@@ -565,48 +604,97 @@ function animate(now) {
       flashTarget = 0;
     }
   }
-  flashValue += (flashTarget - flashValue) * 0.25;
-  if (flashValue < 0.001) flashValue = 0;
+  flashValue = flashTarget;
   if (material) material.uniforms.uFlashIntensity.value = flashValue;
+
+  const ghostActive =
+    glitchStyle === "crash" ||
+    glitchStyle === "slice" ||
+    glitchStyle === "cursor";
+  if (ghostRed && ghostCyan) {
+    ghostRed.visible = ghostActive;
+    ghostCyan.visible = ghostActive;
+
+    if (ghostActive) {
+      const split =
+        (glitchStyle === "crash"
+          ? 2.4
+          : glitchStyle === "cursor"
+            ? 0.55
+            : 1.25) *
+        activeGlitchStrength() *
+        glitchEnvelope;
+      ghostRed.position.set(-split, split * 0.08, -0.02);
+      ghostCyan.position.set(split, -split * 0.08, -0.01);
+      const ghostBase = glitchStyle === "cursor" ? 0.08 : 0.2;
+      const ghostGain = glitchStyle === "cursor" ? 0.12 : 0.22;
+      ghostRedMaterial.uniforms.uLayerOpacity.value =
+        ghostBase + glitchEnvelope * ghostGain;
+      ghostCyanMaterial.uniforms.uLayerOpacity.value =
+        ghostBase + glitchEnvelope * (ghostGain * 0.9);
+    }
+  }
 
   const posAttr = geometry.attributes.position;
   const hlAttr = geometry.attributes.aHighlight;
   const pos = posAttr.array;
   const hl = hlAttr.array;
-  const R = repelRadiusWorld;
-  const R2 = R * R;
-  const S = repelStrengthWorld;
-  const ease = isMobile ? 0.16 : 0.09; // fewer frames on mobile -> bigger steps
-  const mx = mouseWorld.x;
-  const my = mouseWorld.y;
   const glitchStrength = activeGlitchStrength();
   const scatterR = props.autoGlitchScatterRadius * glitchStrength;
   const waveA = props.autoGlitchWaveAmplitude * glitchStrength;
   const seed = glitchActive ? glitchActive.start * 0.001 : 0;
+  const shouldUpdateGeometry = !!glitchStyle || portraitCorrupted;
 
-  for (let i = 0, j = 0; i < homes.length; i += 3, j++) {
+  for (
+    let i = 0, j = 0;
+    shouldUpdateGeometry && i < homes.length;
+    i += 3, j++
+  ) {
     const hx = homes[i];
     const hy = homes[i + 1];
     let tx = hx;
     let ty = hy;
     let th = 0;
 
-    if (repelActive) {
-      const dx = hx - mx;
-      const dy = hy - my;
-      const d2 = dx * dx + dy * dy;
-      if (d2 < R2) {
-        const dist = Math.sqrt(d2);
-        const force = 1 - dist / R;
-        th = force;
-        const invDist = dist > 0.0001 ? 1 / dist : 0;
-        tx = hx + dx * invDist * force * S;
-        ty = hy + dy * invDist * force * S;
-      }
-    }
-
     if (glitchStyle) {
       switch (glitchStyle) {
+        case "cursor": {
+          const band = Math.min(
+            NUM_BANDS - 1,
+            Math.max(
+              0,
+              Math.floor(((hy + worldHeight / 2) / worldHeight) * NUM_BANDS),
+            ),
+          );
+          tx += bandOffsets[band] * glitchEnvelope;
+          th = band % 5 === 0 ? glitchEnvelope * 0.35 : 0;
+          break;
+        }
+        case "crash": {
+          const band = Math.min(
+            NUM_BANDS - 1,
+            Math.max(
+              0,
+              Math.floor(((hy + worldHeight / 2) / worldHeight) * NUM_BANDS),
+            ),
+          );
+          const block = pseudoRandom(Math.floor(j / 12) * 19.19 + seed);
+          tx += bandOffsets[band] * glitchEnvelope;
+          if (block > 0.82) {
+            tx +=
+              (pseudoRandom(j * 12.9898 + seed) - 0.5) *
+              scatterR *
+              1.8 *
+              glitchEnvelope;
+            ty +=
+              (pseudoRandom(j * 78.233 + seed) - 0.5) *
+              scatterR *
+              0.65 *
+              glitchEnvelope;
+          }
+          th = band % 3 === 0 ? glitchEnvelope : 0;
+          break;
+        }
         case "scatter": {
           const rx = pseudoRandom(j * 12.9898 + seed);
           const ry = pseudoRandom(j * 78.233 + seed);
@@ -634,6 +722,7 @@ function animate(now) {
             ),
           );
           tx += bandOffsets[band] * glitchEnvelope;
+          th = band % 4 === 0 ? glitchEnvelope * 0.8 : 0;
           break;
         }
         case "flicker": {
@@ -644,21 +733,14 @@ function animate(now) {
       }
     }
 
-    pos[i] += (tx - pos[i]) * ease;
-    pos[i + 1] += (ty - pos[i + 1]) * ease;
-    hl[j] += (th - hl[j]) * ease;
+    pos[i] = tx;
+    pos[i + 1] = ty;
+    hl[j] = th;
   }
-  posAttr.needsUpdate = true;
-  hlAttr.needsUpdate = true;
-
-  // tilt only makes sense with a real mouse
-  if (!isMobile) {
-    const targetTiltX = hasPointer ? -mouseNDC.y * props.tilt : 0;
-    const targetTiltY = hasPointer ? mouseNDC.x * props.tilt : 0;
-    tiltX += (targetTiltX - tiltX) * 0.06;
-    tiltY += (targetTiltY - tiltY) * 0.06;
-    points.rotation.x = tiltX;
-    points.rotation.y = tiltY;
+  if (shouldUpdateGeometry) {
+    posAttr.needsUpdate = true;
+    hlAttr.needsUpdate = true;
+    portraitCorrupted = !!glitchStyle;
   }
 
   renderer.render(scene, camera);
@@ -774,11 +856,20 @@ onMounted(() => {
     const spacing = worldWidth / built.sw;
     dotWorldSize =
       spacing * props.pointSize * (isMobile ? props.mobilePointSizeScale : 1);
-    repelRadiusWorld = spacing * props.repelRadius;
-    repelStrengthWorld = spacing * props.repelStrength;
+
+    ghostRedMaterial = buildGhostMaterial("#ff1744");
+    ghostCyanMaterial = buildGhostMaterial("#00e5ff");
+    ghostRed = new THREE.Points(geometry, ghostRedMaterial);
+    ghostCyan = new THREE.Points(geometry, ghostCyanMaterial);
+    ghostRed.visible = false;
+    ghostCyan.visible = false;
+    ghostRed.frustumCulled = false;
+    ghostCyan.frustumCulled = false;
+
     points = new THREE.Points(geometry, material);
     points.frustumCulled = false;
-    scene.add(points);
+    points.renderOrder = 2;
+    scene.add(ghostRed, ghostCyan, points);
     lastWidth = 0; // force a full refit now that world size + dot size are known
     fitCamera();
 
@@ -788,9 +879,6 @@ onMounted(() => {
       containerEl.value.addEventListener("pointermove", onPointerMove, {
         passive: true,
       });
-      containerEl.value.addEventListener("pointerleave", onPointerLeave);
-      containerEl.value.addEventListener("pointerup", onPointerUp);
-      containerEl.value.addEventListener("pointercancel", onPointerLeave);
       startLoop();
       scheduleNextGlitch();
     }
@@ -829,12 +917,8 @@ onBeforeUnmount(() => {
   ro?.disconnect();
   io?.disconnect();
   document.removeEventListener("visibilitychange", onVisibilityChange);
+  containerEl.value?.removeEventListener("pointermove", onPointerMove);
 
-  const el = containerEl.value;
-  el?.removeEventListener("pointermove", onPointerMove);
-  el?.removeEventListener("pointerleave", onPointerLeave);
-  el?.removeEventListener("pointerup", onPointerUp);
-  el?.removeEventListener("pointercancel", onPointerLeave);
   canvasEl.value?.removeEventListener("webglcontextlost", onContextLost);
   canvasEl.value?.removeEventListener(
     "webglcontextrestored",
@@ -842,8 +926,12 @@ onBeforeUnmount(() => {
   );
 
   if (points) scene?.remove(points);
+  if (ghostRed) scene?.remove(ghostRed);
+  if (ghostCyan) scene?.remove(ghostCyan);
   geometry?.dispose();
   material?.dispose();
+  ghostRedMaterial?.dispose();
+  ghostCyanMaterial?.dispose();
   // THE important one: actually release the WebGL context.
   // Without this, every navigation back to "/" leaks a context and iOS reloads the tab.
   renderer?.forceContextLoss();
@@ -852,6 +940,10 @@ onBeforeUnmount(() => {
   scene = null;
   geometry = null;
   points = null;
+  ghostRed = null;
+  ghostCyan = null;
+  ghostRedMaterial = null;
+  ghostCyanMaterial = null;
   homes = new Float32Array(0);
 });
 </script>
@@ -874,7 +966,7 @@ onBeforeUnmount(() => {
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
-  /* let the page scroll vertically on touch while still getting pointer events */
+  /* Keep touch scrolling native; the portrait itself is intentionally static. */
   touch-action: pan-y;
 }
 
