@@ -17,32 +17,7 @@ const state = ref<MainMusicState>({
 
 // Module-level audio: keeps playing when the header remounts during navigation.
 let audioEl: HTMLAudioElement | null = null;
-let audioContext: AudioContext | null = null;
-let sourceNode: MediaElementAudioSourceNode | null = null;
-let gainNode: GainNode | null = null;
 let volumeRestored = false;
-
-function ensureAudioGraph(audio: HTMLAudioElement) {
-  if (!import.meta.client || gainNode) return;
-
-  try {
-    const AudioContextClass =
-      window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-
-    audioContext = new AudioContextClass();
-    sourceNode = audioContext.createMediaElementSource(audio);
-    gainNode = audioContext.createGain();
-    gainNode.gain.value = state.value.volume;
-    sourceNode.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-  } catch {
-    // Older browsers keep using HTMLMediaElement.volume as a fallback.
-    audioContext = null;
-    sourceNode = null;
-    gainNode = null;
-  }
-}
 
 function restoreVolume() {
   if (!import.meta.client || volumeRestored) return;
@@ -74,6 +49,7 @@ function ensureAudio(src: string) {
   audio.preload = "auto";
   audio.loop = true;
   audio.volume = state.value.volume;
+  audio.muted = state.value.volume === 0;
 
   audio.addEventListener("play", () => {
     state.value.playing = true;
@@ -95,13 +71,15 @@ async function play(src: string) {
   if (!audio) return;
 
   try {
-    // iOS ignores HTMLMediaElement.volume. A GainNode provides real volume
-    // control and must be resumed from the user's play/tap gesture.
-    ensureAudioGraph(audio);
-    const resume = audioContext?.state === "suspended"
-      ? audioContext.resume()
-      : Promise.resolve();
-    await Promise.all([resume, audio.play()]);
+    // Keep playback on the native media path. In particular, iOS can leave a
+    // MediaElementAudioSource routed through a suspended AudioContext, which
+    // silences both the music and other Web Audio effects.
+    const audioSession = (navigator as Navigator & {
+      audioSession?: { type: string };
+    }).audioSession;
+    if (audioSession) audioSession.type = "playback";
+
+    await audio.play();
   } catch (error) {
     // Don't retry on a random future click elsewhere on the website.
     // The user can press Play again if playback fails.
@@ -134,10 +112,9 @@ function setVolume(value: number) {
 
   if (audioEl) {
     audioEl.volume = volume;
-  }
-
-  if (gainNode) {
-    gainNode.gain.value = volume;
+    // iOS deliberately ignores programmatic media volume, but it does honor
+    // mute. Non-zero volume remains controlled by the device volume buttons.
+    audioEl.muted = volume === 0;
   }
 
   if (import.meta.client) {
