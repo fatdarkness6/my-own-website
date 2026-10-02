@@ -53,10 +53,9 @@ function run() {
 
   const runDuration = props.duration * (0.8 + Math.random() * 0.6);
 
-  const original = Array.from(props.text);
-  const total = original.length;
   const start = performance.now();
-  let last = 0;
+  let lastScramble = 0;
+  const original = Array.from(props.text);
 
   lockedWidth.value = el.value.getBoundingClientRect().width;
   active.value = true;
@@ -67,13 +66,17 @@ function run() {
       stop();
       return;
     }
-    if (now - last >= props.speed) {
-      last = now;
-      const revealed = Math.floor((elapsed / runDuration) * total);
+
+    if (now - lastScramble >= props.speed) {
+      lastScramble = now;
+      const revealed = Math.floor((elapsed / runDuration) * original.length);
       display.value = original
-        .map((ch, i) => (ch === " " || i < revealed ? ch : randomChar()))
+        .map((char, index) =>
+          char === " " || index < revealed ? char : randomChar(),
+        )
         .join("");
     }
+
     raf = requestAnimationFrame(frame);
   };
   raf = requestAnimationFrame(frame);
@@ -115,7 +118,8 @@ watch(
     :data-text="text"
     :style="lockedWidth ? { width: lockedWidth + 'px' } : null"
   >
-    <span aria-hidden="true">{{ display }}</span>
+    <span class="glitch-text__reserve" aria-hidden="true">{{ text }}</span>
+    <span class="glitch-text__visual" aria-hidden="true">{{ display }}</span>
     <span class="glitch-text__sr">{{ text }}</span>
   </span>
 </template>
@@ -123,10 +127,33 @@ watch(
 <style scoped>
 .glitch-text {
   position: relative;
-  display: inline-block;
+  display: inline-grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "text";
+  max-width: 100%;
   white-space: pre;
-  overflow: hidden;
+  overflow: clip;
+  contain: paint;
+  isolation: isolate;
   vertical-align: bottom;
+}
+
+.glitch-text__reserve {
+  grid-area: text;
+  min-width: 0;
+  visibility: hidden;
+  white-space: inherit;
+  overflow-wrap: inherit;
+}
+
+.glitch-text__visual {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  overflow: clip;
+  color: inherit;
+  white-space: inherit;
+  overflow-wrap: inherit;
 }
 
 .glitch-text__sr {

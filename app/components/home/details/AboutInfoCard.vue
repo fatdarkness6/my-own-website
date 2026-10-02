@@ -90,7 +90,7 @@ const order = computed(() => [
 ]);
 
 const { play, line, isActive, isDone, started, finished } =
-  useTypingSequence(order);
+  useTypingSequence(order, { onceKey: "home-about-card" });
 
 defineExpose({ play });
 </script>

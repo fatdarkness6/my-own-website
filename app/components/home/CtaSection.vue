@@ -1,9 +1,9 @@
 <script setup>
+import { homeCopy } from "~/assets/data/homeCopy";
+
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
-const titleLead = "GOT A MISSION?";
-const titleAccent = "LET'S BUILD IT.";
-const title = `${titleLead} ${titleAccent}`;
+const titleSegments = homeCopy.cta.title;
 const description =
   "Have a project, a role, or just an idea? Open a secure channel and send me a message.";
 
@@ -25,6 +25,7 @@ const order = [
 ];
 
 const { play, line, isActive, isDone, finished } = useTypingSequence(order, {
+  onceKey: "home-contact",
   gap: () => 60 + Math.random() * 120,
 });
 
@@ -57,16 +58,12 @@ const year = new Date().getFullYear();
           />
         </p>
 
-        <h2 id="cta-title" class="cta__title title">
-          <AnimationTypedLine :text="title" :speed="16" v-bind="line('title')">
-            <AnimationGlitchTextTimer :text="titleLead" :interval="5000" />
-            {{ " " }}
-            <AnimationGlitchTextTimer
-              :text="titleAccent"
-              :interval="6200"
-              class="cta__accent"
-            />
-          </AnimationTypedLine>
+        <h2 id="cta-title" class="cta__title section-title">
+          <AnimationSegmentedLine
+            :segments="titleSegments"
+            :speed="16"
+            v-bind="line('title')"
+          />
         </h2>
 
         <p class="cta__desc description">

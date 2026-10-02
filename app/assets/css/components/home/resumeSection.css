@@ -50,6 +50,7 @@
   margin: 0 0 1rem;
   font-family: var(--eyebrow-font, sans-serif);
   font-size: var(--eyebrow-size, 0.8125rem);
+  font-weight: 650;
   line-height: 1.5;
   letter-spacing: 0.12em;
   color: var(--eyebrow-color, #3b82f6);
@@ -58,24 +59,6 @@
 .resume__title {
   margin: 0 0 clamp(1rem, 2vw, 1.75rem);
   max-width: 21ch;
-  font-family: var(--title-font, sans-serif);
-  font-size: clamp(1.875rem, 1.4rem + 1.15vw, 3rem);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: 0.005em;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-}
-
-.resume__title :deep(.glitch-text) {
-  display: inline;
-  font: inherit;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.resume__accent {
-  color: var(--eyebrow-color, #3b82f6);
 }
 
 .resume__desc {
@@ -127,8 +110,9 @@
 .resume-index__filename,
 .resume-index__bar-mark,
 .resume-index__number {
-  font-family: var(--eyebrow-font, monospace);
+  font-family: var(--ui-font, monospace);
   font-size: 0.875rem;
+  font-weight: 600;
   line-height: 1.5;
   letter-spacing: 0.06em;
 }
@@ -165,19 +149,21 @@
 
 .resume-index__heading {
   margin: 0;
-  font-family: var(--title-font, sans-serif);
+  font-family: var(--ui-font, monospace);
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 750;
   line-height: 1.35;
+  letter-spacing: -0.02em;
   color: var(--title-color, #f8fafc);
   overflow-wrap: anywhere;
 }
 
 .resume-index__detail {
   margin: 4px 0 0;
-  font-family: var(--description-font, sans-serif);
+  font-family: var(--ui-font, monospace);
   font-size: 1rem;
-  line-height: 1.6;
+  font-weight: 450;
+  line-height: 1.55;
   color: var(--description-color, #a8b3c4);
   overflow-wrap: anywhere;
 }
@@ -187,8 +173,9 @@
   min-width: 0;
   min-height: 48px;
   padding: 10px 14px;
-  font-family: var(--eyebrow-font, sans-serif);
+  font-family: var(--ui-font, monospace);
   font-size: 1rem;
+  font-weight: 700;
   line-height: 1.4;
   letter-spacing: 0.035em;
   color: #020617;
@@ -250,7 +237,6 @@
 
   .resume__title {
     max-width: 27ch;
-    font-size: clamp(1.875rem, 1.25rem + 2vw, 2.75rem);
   }
 }
 
@@ -286,7 +272,6 @@
 
   .resume__title {
     max-width: 100%;
-    font-size: clamp(1.375rem, 1rem + 2vw, 1.75rem);
   }
 
   .resume-index {
@@ -368,10 +353,6 @@
   .resume__inner {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
-  }
-
-  .resume__title {
-    font-size: clamp(1.125rem, 3.5vw, 1.25rem);
   }
 
   .resume__desc {

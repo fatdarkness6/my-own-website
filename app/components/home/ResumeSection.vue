@@ -1,9 +1,9 @@
 <script setup>
+import { homeCopy } from "~/assets/data/homeCopy";
+
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
-const titleLead = "THE EXPERIENCE";
-const titleAccent = "BEHIND THE CODE.";
-const title = `${titleLead} ${titleAccent}`;
+const titleSegments = homeCopy.resume.title;
 const description =
   "Explore my experience, technical skills, and education—all in one place.";
 const linkText = "View my résumé";
@@ -41,7 +41,7 @@ const order = [
 ];
 
 const { play, line, isActive, isDone, started, finished } =
-  useTypingSequence(order);
+  useTypingSequence(order, { onceKey: "home-resume" });
 
 const inView = computed(
   () => sections[currentIndex.value]?.id === "resume" && !isAnimating.value,
@@ -74,16 +74,12 @@ watch(
           />
         </p>
 
-        <h2 id="resume-title" class="resume__title">
-          <AnimationTypedLine :text="title" :speed="18" v-bind="line('title')">
-            <AnimationGlitchTextTimer :text="titleLead" :interval="5000" />
-            {{ " " }}
-            <AnimationGlitchTextTimer
-              :text="titleAccent"
-              :interval="6200"
-              class="resume__accent"
-            />
-          </AnimationTypedLine>
+        <h2 id="resume-title" class="resume__title section-title">
+          <AnimationSegmentedLine
+            :segments="titleSegments"
+            :speed="18"
+            v-bind="line('title')"
+          />
         </h2>
 
         <p class="resume__desc">

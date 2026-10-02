@@ -101,7 +101,7 @@ onMounted(() => {
               :step="1"
               label
               color="primary"
-              @change="onVolumeChange"
+              @update:model-value="onVolumeChange"
               class="music-menu__slider"
             />
 

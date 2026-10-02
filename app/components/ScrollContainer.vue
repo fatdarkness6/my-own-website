@@ -326,7 +326,8 @@ onBeforeUnmount(() => {
 .scroll-container {
   position: relative;
   width: 100%;
-  height: 100dvh;
+  /* q-page already subtracts the fixed header from the viewport. */
+  height: 100%;
   min-height: 0;
   box-sizing: border-box;
   overflow: hidden;

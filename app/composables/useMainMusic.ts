@@ -7,7 +7,7 @@ type MainMusicState = {
 };
 
 const STORAGE_KEY_VOLUME = "mainMusic:volume";
-const DEFAULT_VOLUME = 0.3; // 50% for first-time visitors
+const DEFAULT_VOLUME = 0.3;
 
 const state = ref<MainMusicState>({
   ready: false,
@@ -17,7 +17,32 @@ const state = ref<MainMusicState>({
 
 // Module-level audio: keeps playing when the header remounts during navigation.
 let audioEl: HTMLAudioElement | null = null;
+let audioContext: AudioContext | null = null;
+let sourceNode: MediaElementAudioSourceNode | null = null;
+let gainNode: GainNode | null = null;
 let volumeRestored = false;
+
+function ensureAudioGraph(audio: HTMLAudioElement) {
+  if (!import.meta.client || gainNode) return;
+
+  try {
+    const AudioContextClass =
+      window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    audioContext = new AudioContextClass();
+    sourceNode = audioContext.createMediaElementSource(audio);
+    gainNode = audioContext.createGain();
+    gainNode.gain.value = state.value.volume;
+    sourceNode.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+  } catch {
+    // Older browsers keep using HTMLMediaElement.volume as a fallback.
+    audioContext = null;
+    sourceNode = null;
+    gainNode = null;
+  }
+}
 
 function restoreVolume() {
   if (!import.meta.client || volumeRestored) return;
@@ -70,7 +95,13 @@ async function play(src: string) {
   if (!audio) return;
 
   try {
-    await audio.play();
+    // iOS ignores HTMLMediaElement.volume. A GainNode provides real volume
+    // control and must be resumed from the user's play/tap gesture.
+    ensureAudioGraph(audio);
+    const resume = audioContext?.state === "suspended"
+      ? audioContext.resume()
+      : Promise.resolve();
+    await Promise.all([resume, audio.play()]);
   } catch (error) {
     // Don't retry on a random future click elsewhere on the website.
     // The user can press Play again if playback fails.
@@ -103,6 +134,10 @@ function setVolume(value: number) {
 
   if (audioEl) {
     audioEl.volume = volume;
+  }
+
+  if (gainNode) {
+    gainNode.gain.value = volume;
   }
 
   if (import.meta.client) {

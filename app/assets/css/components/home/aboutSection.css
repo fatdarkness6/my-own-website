@@ -50,6 +50,7 @@
   margin: 0 0 1rem;
   font-family: var(--eyebrow-font, sans-serif);
   font-size: var(--eyebrow-size, 0.8125rem);
+  font-weight: 650;
   line-height: 1.5;
   letter-spacing: 0.12em;
   color: var(--eyebrow-color, #3b82f6);
@@ -58,25 +59,6 @@
 .about__title {
   margin: 0 0 clamp(1rem, 2vw, 1.75rem);
   max-width: 21ch;
-  font-family: var(--title-font, sans-serif);
-  /* A section-specific scale: this heading shares a row with a card. */
-  font-size: clamp(1.875rem, 1.4rem + 1.15vw, 3rem);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: 0.005em;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-}
-
-/* Allow the glitch component roots to wrap with the heading. */
-.about__title :deep(.glitch-text) {
-  display: inline;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.about__accent {
-  color: var(--eyebrow-color, #3b82f6);
 }
 
 .about__desc {
@@ -112,7 +94,6 @@
 
   .about__title {
     max-width: 27ch;
-    font-size: clamp(1.875rem, 1.25rem + 2vw, 2.75rem);
   }
 }
 
@@ -125,48 +106,6 @@
   .about__inner {
     gap: 2rem;
   }
-}
-
-/* Reserve the completed text's space so the layout stays stable. */
-.typed-text {
-  position: relative;
-  display: block;
-  min-width: 0;
-  max-width: 100%;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-.typed-text__live {
-  position: absolute;
-  inset: 0;
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-}
-.typed-text__reserve {
-  display: block;
-  visibility: hidden;
-  pointer-events: none;
-  user-select: none;
-}
-.typed-text :deep(.typewriter),
-.typed-text :deep(.typewriter__text),
-.typed-text :deep(.glitch-text) {
-  display: inline;
-  font: inherit;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-.typed-text__accessible {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
 }
 
 @media (max-width: 599px) {
@@ -182,7 +121,6 @@
 
   .about__title {
     max-width: 100%;
-    font-size: clamp(1.375rem, 1rem + 2vw, 1.75rem);
   }
 }
 
@@ -207,7 +145,6 @@
 
   .about__title {
     max-width: 100%;
-    font-size: clamp(1.375rem, 1rem + 2vw, 1.75rem);
   }
 }
 
@@ -230,10 +167,6 @@
   .about__inner {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
-  }
-
-  .about__title {
-    font-size: clamp(1.125rem, 3.5vw, 1.25rem);
   }
 
   .about__desc {

@@ -4,7 +4,7 @@
 .hero {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
+  min-height: 100%;
   background: var(--bg);
   color: var(--title-color);
   font-family: "Chakra Petch", "Rajdhani", system-ui, sans-serif;
@@ -27,7 +27,7 @@
 ============================================================ */
 .hero {
   position: relative;
-  min-height: 100dvh;
+  min-height: 100%;
   background: var(--bg);
   color: var(--title-color);
   font-family: "Chakra Petch", "Rajdhani", system-ui, sans-serif;
@@ -106,9 +106,20 @@
 
 .hero .hero__tagline {
   margin: 0 0 clamp(20px, 3vw, 32px);
-  max-width: 40ch;
+  max-width: none;
   font-size: clamp(16px, 1.2vw + 11px, 28px);
   line-height: 1.5;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.hero .hero__tagline :deep(.typed-text),
+.hero .hero__tagline :deep(.typed-text__reserve),
+.hero .hero__tagline :deep(.typed-text__live),
+.hero .hero__tagline :deep(.typewriter),
+.hero .hero__tagline :deep(.typewriter__text) {
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 .hero .hero__name {
@@ -149,8 +160,20 @@
   }
 
   .hero .hero__tagline {
-    max-width: none;
-    font-size: clamp(15px, 4.6vw, 20px);
+    max-width: 32rem;
+    font-size: clamp(0.9375rem, 4vw, 1.125rem);
+    line-height: 1.55;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .hero .hero__tagline :deep(.typed-text),
+  .hero .hero__tagline :deep(.typed-text__reserve),
+  .hero .hero__tagline :deep(.typed-text__live),
+  .hero .hero__tagline :deep(.typewriter),
+  .hero .hero__tagline :deep(.typewriter__text) {
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .hero .hero__name :deep(.hero__name-row) {

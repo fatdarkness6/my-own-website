@@ -1,13 +1,12 @@
 <script setup>
 import { projects } from "~/assets/data/projects";
+import { homeCopy } from "~/assets/data/homeCopy";
 
 /* ---------- scroll section state ---------- */
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
 /* ---------- copy ---------- */
-const titleLead = "DEPLOYED PAYLOADS";
-const titleAccent = "& SHIPPED SYSTEMS.";
-const title = `${titleLead} ${titleAccent}`;
+const titleSegments = homeCopy.projects.title;
 const description = "Production builds, experiments and tools I've shipped.";
 
 const featured = projects.slice(0, 4);
@@ -15,6 +14,7 @@ const featured = projects.slice(0, 4);
 const revealed = ref(false);
 
 const { play, line } = useTypingSequence(["eyebrow", "title", "desc"], {
+  onceKey: "home-projects",
   onFinish: () => {
     revealed.value = true;
     nextTick(update);
@@ -90,16 +90,12 @@ onBeforeUnmount(() => ro?.disconnect());
           />
         </p>
 
-        <h2 id="projects-title" class="projects__title title">
-          <AnimationTypedLine :text="title" :speed="14" v-bind="line('title')">
-            <AnimationGlitchTextTimer :text="titleLead" :interval="5000" />
-            {{ " " }}
-            <AnimationGlitchTextTimer
-              :text="titleAccent"
-              :interval="6200"
-              class="projects__accent"
-            />
-          </AnimationTypedLine>
+        <h2 id="projects-title" class="projects__title section-title">
+          <AnimationSegmentedLine
+            :segments="titleSegments"
+            :speed="14"
+            v-bind="line('title')"
+          />
         </h2>
 
         <p class="projects__desc description">

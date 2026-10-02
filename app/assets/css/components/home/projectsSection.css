@@ -48,22 +48,17 @@
 .projects__eyebrow {
   margin-bottom: clamp(4px, 1dvh, 12px) !important;
 }
-.projects__title {
-  font-size: min(var(--title-size), 5.5dvh);
-}
-.projects__accent {
-  color: var(--eyebrow-color);
-}
 .projects__desc {
   max-width: 60ch;
   margin-top: clamp(4px, 1.2dvh, 14px) !important;
-  font-size: min(var(--description-size), 2.4dvh);
+  font-size: var(--description-size, 1rem);
 }
 
 /* The rail gets ONLY the height remaining after the head/footer. */
 .projects__rail {
   display: grid;
-  align-items: center;
+  /* Keep the cards visually attached to the section copy. */
+  align-items: start;
   min-width: 0;
   min-height: 0;
   height: 100%;
@@ -161,8 +156,9 @@
   top: 10px;
   padding: 2px 8px;
   font-family: var(--eyebrow-font);
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
   background: rgba(0, 0, 0, 0.75);
 }
 .pcard__index {
@@ -183,16 +179,19 @@
 }
 .pcard__meta {
   margin: 0 0 4px;
-  font-family: var(--eyebrow-font);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  color: #64748b;
+  font-family: var(--ui-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
 }
 .pcard__name {
   margin: 0;
-  font-family: var(--title-font);
+  font-family: var(--ui-font);
   color: var(--title-color);
   font-size: clamp(1rem, 6cqw, 1.35rem);
+  font-weight: 750;
+  letter-spacing: -0.02em;
   line-height: 1.2;
   /* Stable two-line space: a glitch must not change the card layout. */
   height: 2.4em;
@@ -209,10 +208,11 @@
 }
 .pcard__summary {
   margin: 6px 0 8px;
-  font-family: var(--description-font);
+  font-family: var(--ui-font);
   color: var(--description-color);
   font-size: clamp(0.8rem, 4.2cqw, 0.92rem);
-  line-height: 1.45;
+  font-weight: 450;
+  line-height: 1.55;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -225,8 +225,10 @@
 }
 .pcard__chip {
   margin: 0;
-  font-size: 0.64rem;
-  letter-spacing: 0.08em;
+  font-family: var(--ui-font);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--eyebrow-color);
   border-color: rgba(59, 130, 246, 0.4);
 }
@@ -237,8 +239,9 @@
 }
 .pcard__link {
   color: #22c55e;
-  font-family: var(--eyebrow-font);
-  font-size: 0.76rem;
+  font-family: var(--ui-font);
+  font-size: 0.8rem;
+  font-weight: 650;
 }
 @container pcard (max-width: 260px) {
   .pcard__chip:nth-child(n + 3) {
@@ -246,7 +249,7 @@
   }
   .pcard__index,
   .pcard__status {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     padding: 1px 6px;
   }
 }
@@ -283,8 +286,9 @@
 }
 .projects__count {
   flex: none;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
   color: var(--title-color);
 }
 .projects__count-sep {
@@ -317,9 +321,6 @@
   overflow-wrap: anywhere;
 }
 @media (max-width: 599px) {
-  .projects__title {
-    font-size: min(var(--title-size), 4.6dvh);
-  }
   .projects__nav {
     flex-basis: 100%;
     max-width: none;
@@ -352,9 +353,6 @@
   .projects__inner {
     gap: 8px;
     --projects-pad-y: 8px;
-  }
-  .projects__title {
-    font-size: min(var(--title-size), 7dvh);
   }
   .projects__track {
     --gcard-media-h: clamp(60px, 18dvh, 100px);
@@ -394,20 +392,35 @@
 @media (max-width: 599px) {
   .projects__inner {
     --projects-pad-y: clamp(10px, 2dvh, 18px);
+    grid-template-rows: auto auto auto;
+    align-content: start;
     gap: clamp(8px, 1.5dvh, 12px);
+  }
+
+  .projects__rail,
+  .projects__track,
+  .projects__slot,
+  .projects__slot > * {
+    height: auto;
+  }
+
+  .projects__track {
+    max-height: none;
+  }
+
+  .projects__slot :deep(.gcard) {
+    height: auto;
+  }
+
+  .projects__slot :deep(.gcard__media) {
+    flex: 0 0 var(--gcard-media-h);
+    min-height: var(--gcard-media-h);
   }
 
   /* Restore the description beneath the section heading */
   .projects__desc {
     display: block;
-    font-size: 0.875rem;
-    line-height: 1.45;
     margin-top: 6px !important;
-  }
-
-  /* Lower the existing 460px cap; still shrink to fit the rail */
-  .projects__track {
-    --projects-card-max-height: 360px;
   }
 
   /* Compact the card body without shrinking its description */
@@ -433,11 +446,6 @@
   .projects__inner {
     --projects-pad-y: 8px;
     gap: 8px;
-  }
-
-  /* Stop the existing 7dvh heading from taking too much space */
-  .projects__title {
-    font-size: clamp(1.25rem, 5.8vw, 1.625rem);
   }
 
   /* Keep a summary preview instead of hiding it entirely */

@@ -38,26 +38,13 @@
 }
 
 .cta__title {
-  max-width: 22ch;
+  max-width: 100%;
   margin-inline: auto !important;
-  font-size: min(var(--title-size), 6.5dvh);
-  text-wrap: balance;
-}
-
-.cta__title :deep(.glitch-text) {
-  display: inline;
-  font: inherit;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.cta__accent {
-  color: var(--eyebrow-color);
 }
 
 .cta__desc {
   max-width: 48ch;
-  margin: clamp(0.5rem, 1.5dvh, 1.25rem) auto 0 !important;
+  margin: clamp(0.25rem, 0.75dvh, 0.625rem) auto 0 !important;
   font-size: min(var(--description-size), 2.6dvh);
 }
 
@@ -106,8 +93,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--eyebrow-font);
+  font-family: var(--ui-font);
   font-size: 0.75rem;
+  font-weight: 600;
   letter-spacing: 0.08em;
   color: #64748b;
 }
@@ -125,8 +113,9 @@
   display: flex;
   gap: 10px;
   margin: 0 0 12px;
-  font-family: var(--eyebrow-font);
+  font-family: var(--ui-font);
   font-size: 0.95rem;
+  font-weight: 600;
   line-height: 1.5;
   letter-spacing: 0.04em;
   color: var(--title-color);
@@ -150,10 +139,11 @@
   align-items: baseline;
   gap: 8px;
   min-width: 0;
-  font-family: var(--eyebrow-font);
-  font-size: 0.8125rem;
+  font-family: var(--ui-font);
+  font-size: 0.875rem;
+  font-weight: 550;
   line-height: 1.5;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.035em;
 }
 
 .cta-term__key {
@@ -188,9 +178,10 @@
   width: 100%;
   min-height: 48px;
   padding: 10px 16px;
-  font-family: var(--eyebrow-font);
+  font-family: var(--ui-font);
   font-size: 1rem;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: #020617;
   background: var(--eyebrow-color);
   box-shadow: 0 0 18px rgb(59 130 246 / 0.45);
@@ -232,10 +223,11 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px 16px;
-  font-family: var(--eyebrow-font);
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
-  color: #475569;
+  font-family: var(--ui-font);
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0.06em;
+  color: #64748b;
   opacity: 0;
   transition: opacity 0.3s 0.3s steps(3);
 }
@@ -261,7 +253,7 @@
 /* ---------- tablet ---------- */
 @media (max-width: 1023px) {
   .cta__title {
-    max-width: 18ch;
+    max-width: 100%;
   }
 }
 
@@ -280,7 +272,6 @@
   .cta__title {
     max-width: 100%;
     margin-inline: 0 !important;
-    font-size: clamp(1.375rem, 1rem + 2vw, 1.75rem);
   }
 
   .cta__desc {
@@ -298,7 +289,7 @@
   }
 
   .cta-term__row {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
   }
 
   .cta-term__btn {
@@ -308,7 +299,7 @@
 
   .cta__foot {
     justify-content: flex-start;
-    font-size: 0.625rem;
+    font-size: 0.7rem;
   }
 }
 
@@ -342,7 +333,6 @@
 
   .cta__title {
     margin-inline: 0 !important;
-    font-size: clamp(1.25rem, 3.5vw, 1.75rem);
   }
 }
 

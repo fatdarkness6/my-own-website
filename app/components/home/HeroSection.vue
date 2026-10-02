@@ -1,4 +1,6 @@
 <script setup>
+import { homeCopy } from "~/assets/data/homeCopy";
+
 defineProps({
   avatarSrc: { type: String, default: "/images/background.png" },
   portraitSrc: { type: String, default: "/images/background.png" },
@@ -9,7 +11,7 @@ const introReady = useState("introReady", () => false);
 const introPlayed = useState("introPlayed", () => false);
 
 const eyebrow = "FULL-STACK DEVELOPER";
-const tagline = "Vue • Nuxt • Nodejs Crafting Interactive Experiences.";
+const taglineSegments = homeCopy.hero.tagline;
 
 const { play, complete, line, finished } = useTypingSequence(
   ["eyebrow", "tagline", "first-name", "last-name"],
@@ -58,30 +60,12 @@ watch(
       </p>
 
       <p class="hero__tagline description">
-        <AnimationTypedLine
-          :text="tagline"
+        <AnimationSegmentedLine
+          :segments="taglineSegments"
           :speed="45"
+          class="hero__tagline-line"
           v-bind="line('tagline')"
-        >
-          <AnimationGlitchTextTimer text="Vue" :interval="6000" />
-          <span class="text-accent"> • </span>
-          <AnimationGlitchTextTimer
-            text="Nuxt"
-            :interval="5500"
-            class="text-primary"
-          />
-          <span class="text-accent"> • </span>
-          <AnimationGlitchTextTimer text="Nodejs " :interval="6500" />
-          <AnimationGlitchTextTimer
-            text="Crafting "
-            :interval="5000"
-            class="text-primary"
-          />
-          <AnimationGlitchTextTimer
-            text="Interactive Experiences."
-            :interval="7000"
-          />
-        </AnimationTypedLine>
+        />
       </p>
 
       <h1 class="hero__name title">
@@ -96,6 +80,7 @@ watch(
           text="SARKHOSH"
           :speed="45"
           :glitch="5200"
+          :accent-terms="['SARKHOSH']"
           class="hero__name-row text-primary"
           v-bind="line('last-name')"
         />

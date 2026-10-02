@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, onMounted, onBeforeUnmount } from "vue";
 import { useTypeSound } from "~/composables/useTypeSound";
 
 const props = defineProps({
@@ -13,6 +13,7 @@ const props = defineProps({
   // minimum time (ms) between two clicks so each one is actually heard
   soundMinInterval: { type: Number, default: 70 },
   cursor: { type: Boolean, default: true },
+  accentTerms: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(["done"]);
@@ -22,6 +23,27 @@ const showCursor = ref(true);
 const isTyping = ref(false);
 
 const { load, tick } = useTypeSound();
+
+const characters = computed(() => Array.from(props.text));
+const revealedCount = computed(() => Array.from(displayed.value).length);
+const accentIndexes = computed(() => {
+  const indexes = new Set();
+
+  for (const term of props.accentTerms) {
+    if (!term) continue;
+    let from = 0;
+    let match = props.text.indexOf(term, from);
+    while (match !== -1) {
+      for (let index = match; index < match + term.length; index += 1) {
+        indexes.add(index);
+      }
+      from = match + term.length;
+      match = props.text.indexOf(term, from);
+    }
+  }
+
+  return indexes;
+});
 
 let timeouts = [];
 let cursorInterval = null;
@@ -88,20 +110,59 @@ onBeforeUnmount(() => {
 <template>
   <span class="typewriter">
     <span class="typewriter__prefix" v-if="prefix">{{ prefix }}</span>
-    <span class="typewriter__text">{{ displayed }}</span>
-    <span
-      v-if="cursor"
-      class="typewriter__cursor"
-      :class="{ 'is-hidden': !showCursor }"
-      >█</span
-    >
+    <span class="typewriter__text">
+      <template v-for="(character, index) in characters" :key="index">
+        <span
+          v-if="cursor && index === revealedCount"
+          class="typewriter__cursor-anchor"
+          aria-hidden="true"
+        >
+          <span
+            class="typewriter__cursor"
+            :class="{ 'is-hidden': !showCursor }"
+            >█</span
+          >
+        </span>
+        <span
+          class="typewriter__char"
+          :class="{
+            'is-visible': index < revealedCount,
+            'is-accent': accentIndexes.has(index),
+          }"
+          >{{ character }}</span
+        >
+      </template>
+      <span
+        v-if="cursor && revealedCount >= characters.length"
+        class="typewriter__cursor-anchor"
+        aria-hidden="true"
+      >
+        <span
+          class="typewriter__cursor"
+          :class="{ 'is-hidden': !showCursor }"
+          >█</span
+        >
+      </span>
+    </span>
   </span>
 </template>
 
 <style scoped>
 .typewriter {
-  display: inline-block;
+  display: inline;
   white-space: pre-wrap;
+}
+
+.typewriter__char {
+  visibility: hidden;
+}
+
+.typewriter__char.is-visible {
+  visibility: visible;
+}
+
+.typewriter__char.is-accent {
+  color: var(--eyebrow-color, #3b82f6);
 }
 
 .typewriter__prefix {
@@ -109,9 +170,17 @@ onBeforeUnmount(() => {
   margin-right: 4px;
 }
 
+.typewriter__cursor-anchor {
+  position: relative;
+  display: inline;
+  width: 0;
+}
+
 .typewriter__cursor {
-  display: inline-block;
-  margin-left: 2px;
+  position: absolute;
+  inset-inline-start: 0.08em;
+  bottom: 0;
+  line-height: 1;
   color: var(--eyebrow-color, #3b82f6);
   transition: opacity 0.1s;
 }

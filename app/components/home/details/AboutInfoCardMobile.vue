@@ -12,14 +12,17 @@ const details = [
   { id: "focus", label: "Focus", text: "Clean architecture · UI/UX" },
 ];
 
-const { play, line, isActive, isDone, started, finished } = useTypingSequence([
-  "name",
-  "role",
-  "mission",
-  ...details.map((detail) => detail.id),
-  "stack",
-  "link",
-]);
+const { play, line, isActive, isDone, started, finished } = useTypingSequence(
+  [
+    "name",
+    "role",
+    "mission",
+    ...details.map((detail) => detail.id),
+    "stack",
+    "link",
+  ],
+  { onceKey: "home-about-card" },
+);
 
 defineExpose({ play });
 </script>

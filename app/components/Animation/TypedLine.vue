@@ -7,6 +7,7 @@ const props = defineProps({
   done: { type: Boolean, default: false },
   speed: { type: Number, default: 12 },
   glitch: { type: Number, default: 0 },
+  accentTerms: { type: Array, default: () => [] },
 });
 const emit = defineEmits(["done"]);
 const typer = ref(null);
@@ -27,6 +28,7 @@ watch(
         ref="typer"
         :text="text"
         :speed="speed"
+        :accent-terms="accentTerms"
         prefix=""
         @done="emit('done')"
       />

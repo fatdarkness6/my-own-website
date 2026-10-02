@@ -1,4 +1,6 @@
 <script setup>
+import { homeCopy } from "~/assets/data/homeCopy";
+
 const $q = useQuasar();
 const { sections, currentIndex, isAnimating } = useScrollSections();
 const cardRef = ref(null);
@@ -6,13 +8,12 @@ const copyFinished = ref(false);
 let copyStarted = false;
 const playedCards = new WeakSet();
 
-const titleLead = "ARCHITECTING HIGH-SPEED WEB SOLUTIONS WITH CLEAN CODE";
-const titleAccent = "& MODERN TECH.";
-const title = `${titleLead} ${titleAccent}`;
+const titleSegments = homeCopy.about.title;
 const description =
   "Full-stack developer specializing in reactive Nuxt 3 interfaces and robust Node.js architectures.";
 
 const { play, line } = useTypingSequence(["eyebrow", "title", "desc"], {
+  onceKey: "home-about-copy",
   onFinish: () => {
     copyFinished.value = true;
   },
@@ -56,16 +57,12 @@ watch(
           />
         </p>
 
-        <h2 id="about-title" class="about__title">
-          <AnimationTypedLine :text="title" :speed="14" v-bind="line('title')">
-            <AnimationGlitchTextTimer :text="titleLead" :interval="5000" />
-            {{ " " }}
-            <AnimationGlitchTextTimer
-              :text="titleAccent"
-              :interval="6200"
-              class="about__accent"
-            />
-          </AnimationTypedLine>
+        <h2 id="about-title" class="about__title section-title">
+          <AnimationSegmentedLine
+            :segments="titleSegments"
+            :speed="14"
+            v-bind="line('title')"
+          />
         </h2>
 
         <p class="about__desc">

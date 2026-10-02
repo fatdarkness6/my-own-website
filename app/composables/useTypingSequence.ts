@@ -3,6 +3,7 @@ import {
   reactive,
   toValue,
   readonly,
+  onMounted,
   onBeforeUnmount,
   type MaybeRefOrGetter,
 } from "vue";
@@ -12,6 +13,8 @@ export interface TypingSequenceOptions {
   onFinish?: () => void;
   /** Pause (ms) before the next step. A function gives random pauses. */
   gap?: number | (() => number);
+  /** Play once per client visit. A full browser reload starts a fresh visit. */
+  onceKey?: string;
 }
 
 export interface TypedLineBinding {
@@ -22,7 +25,7 @@ export interface TypedLineBinding {
 
 export function useTypingSequence(
   steps: MaybeRefOrGetter<readonly string[]>,
-  { onFinish, gap = 0 }: TypingSequenceOptions = {},
+  { onFinish, gap = 0, onceKey }: TypingSequenceOptions = {},
 ) {
   const current = ref<string | null>(null);
   const completed = reactive(new Set<string>());
@@ -30,11 +33,15 @@ export function useTypingSequence(
   const finished = ref(false);
   let gapTimer: ReturnType<typeof setTimeout> | undefined;
   let disposed = false;
+  const visitComplete = onceKey
+    ? useState<boolean>(`typing-sequence:${onceKey}`, () => false)
+    : null;
 
   function finish(): void {
     current.value = null;
     if (finished.value) return;
     finished.value = true;
+    if (visitComplete) visitComplete.value = true;
     onFinish?.();
   }
 
@@ -79,6 +86,13 @@ export function useTypingSequence(
     done: isDone(id),
     onDone: () => next(id),
   });
+
+  if (visitComplete?.value) {
+    started.value = true;
+    toValue(steps).forEach((step) => completed.add(step));
+    finished.value = true;
+    onMounted(() => onFinish?.());
+  }
 
   onBeforeUnmount(() => {
     disposed = true;
