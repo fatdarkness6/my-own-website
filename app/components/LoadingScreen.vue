@@ -7,6 +7,7 @@ import {
   onMounted,
   onBeforeUnmount,
 } from "vue";
+
 import { useMainMusic } from "~/composables/useMainMusic";
 import { useTypeSound } from "~/composables/useTypeSound";
 
@@ -15,15 +16,19 @@ const props = defineProps({
   sound: { type: Boolean, default: true },
   soundSrc: { type: String, default: "/sound/type-01.mp3" },
   typeSpeed: { type: Number, default: 14 },
+
   musicSrc: { type: String, default: "/sound/main-song.mp3" },
   autoplayMusic: { type: Boolean, default: true },
 });
 
 const { play: playMainMusic } = useMainMusic();
+
 const { load: loadTypeSound, unlock: unlockAudio } = useTypeSound();
+
 const introReady = useState("introReady", () => false);
 
 /* ---------------- data ---------------- */
+
 const bootLines = [
   { label: "Initializing kernel modules", tag: "OK" },
   { label: "Mounting filesystem [/dev/sda1]", tag: "OK" },
@@ -36,44 +41,82 @@ const bootLines = [
 ];
 
 const lines = reactive(
-  bootLines.map((l) => ({ ...l, shown: false, tagRevealed: false })),
+  bootLines.map((l) => ({
+    ...l,
+    shown: false,
+    tagRevealed: false,
+  })),
 );
+
 const typers = [];
 
-const phase = ref("booting"); // booting | granted | ready | bursting
+const phase = ref("booting");
+// booting | granted | ready | bursting
+
 const current = ref(-1);
 const done = ref(false);
 const isTouch = ref(false);
 
+/*
+ * Mobile audio state.
+ *
+ * On mobile we intentionally wait for the first user gesture before
+ * starting the boot sequence so Safari can unlock Web Audio first.
+ */
+const audioActivated = ref(false);
+const bootStarted = ref(false);
+const autoEnterAfterReady = ref(false);
+
 const grantedText = ref("");
 const welcomeText = ref("");
+
 const hexRows = ref([]);
 const rainCanvas = ref(null);
 
+/*
+ * Promise created while preloading the typing sound.
+ * Calling load() again returns the same cached/in-progress request.
+ */
+let typeSoundLoadPromise = null;
+
 /* ---------------- progress bar ---------------- */
+
 const BAR_CELLS = 22;
+
 const progress = computed(() =>
   Math.round((lines.filter((l) => l.tagRevealed).length / lines.length) * 100),
 );
+
 const bar = computed(() => {
   const filled = Math.round((progress.value / 100) * BAR_CELLS);
+
   return "█".repeat(filled) + "░".repeat(BAR_CELLS - filled);
 });
 
 /* ---------------- timer bookkeeping ---------------- */
+
 const timeouts = new Set();
+
 let disposed = false;
+
 let maxTimer = 0;
 let hexTimer = 0;
+
 let stopRain = () => {};
 let restoreScroll = () => {};
 
 function later(fn, ms) {
   const id = window.setTimeout(() => {
     timeouts.delete(id);
-    if (!disposed) fn();
+
+    if (!disposed) {
+      fn();
+    }
   }, ms);
+
   timeouts.add(id);
+
+  return id;
 }
 
 function clearAllTimeouts() {
@@ -82,18 +125,51 @@ function clearAllTimeouts() {
 }
 
 /* ---------------- boot sequence ---------------- */
+
+function startBoot() {
+  if (bootStarted.value || disposed || phase.value !== "booting") {
+    return;
+  }
+
+  bootStarted.value = true;
+
+  clearTimeout(maxTimer);
+
+  maxTimer = window.setTimeout(forceComplete, props.maxBootDuration);
+
+  /*
+   * On mobile audio has already been unlocked at this point,
+   * so we can start almost immediately.
+   *
+   * Desktop keeps the original CRT delay.
+   */
+  later(() => typeLine(0), isTouch.value ? 150 : 700);
+}
+
 function typeLine(i) {
-  if (i >= lines.length) return grant();
+  if (i >= lines.length) {
+    grant();
+    return;
+  }
+
   current.value = i;
+
   lines[i].shown = true;
-  nextTick(() => typers[i]?.start());
+
+  nextTick(() => {
+    typers[i]?.start?.();
+  });
 }
 
 function onLineTyped(i) {
-  if (phase.value !== "booting") return;
+  if (phase.value !== "booting") {
+    return;
+  }
+
   later(
     () => {
       lines[i].tagRevealed = true;
+
       later(() => typeLine(i + 1), 120 + Math.random() * 220);
     },
     160 + Math.random() * 180,
@@ -101,86 +177,248 @@ function onLineTyped(i) {
 }
 
 function forceComplete() {
-  if (phase.value !== "booting") return;
-  phase.value = "granted"; // set first so onLineTyped ignores finish() events
+  if (phase.value !== "booting") {
+    return;
+  }
+
+  /*
+   * Set phase FIRST so TypewriterText finish events
+   * cannot continue the normal boot sequence.
+   */
+  phase.value = "granted";
+
   clearAllTimeouts();
-  lines.forEach((l, i) => {
-    l.shown = true;
+  clearTimeout(maxTimer);
+
+  lines.forEach((line, i) => {
+    line.shown = true;
+
     typers[i]?.finish?.();
-    l.tagRevealed = true;
+
+    line.tagRevealed = true;
   });
+
   current.value = -1;
+
   grant();
 }
 
 /* ---------------- access granted ---------------- */
-const GLYPHS = "!<>-_\\/[]{}=+*^?#@$%&01ABCDEF";
+
+const GLYPHS = "!<>-_\\\\/[]{}=+*^?#@$%&01ABCDEF";
 
 function scramble(target, text, duration, onDone) {
   const start = performance.now();
+
   const step = (now) => {
-    if (disposed) return;
+    if (disposed) {
+      return;
+    }
+
     const t = Math.min((now - start) / duration, 1);
+
     const revealed = Math.floor(t * text.length);
+
     target.value = Array.from(text)
-      .map((ch, i) =>
-        ch === " " || i < revealed
-          ? ch
-          : GLYPHS[(Math.random() * GLYPHS.length) | 0],
-      )
+      .map((ch, i) => {
+        if (ch === " " || i < revealed) {
+          return ch;
+        }
+
+        return GLYPHS[(Math.random() * GLYPHS.length) | 0];
+      })
       .join("");
-    if (t < 1) requestAnimationFrame(step);
-    else onDone?.();
+
+    if (t < 1) {
+      requestAnimationFrame(step);
+    } else {
+      onDone?.();
+    }
   };
+
   requestAnimationFrame(step);
 }
 
 function grant() {
   clearTimeout(maxTimer);
+
   phase.value = "granted";
   current.value = -1;
+
   later(() => {
     scramble(grantedText, "ACCESS GRANTED", 750, () => {
-      later(
-        () =>
-          scramble(
-            welcomeText,
-            "WELCOME, OPERATOR",
-            600,
-            () => (phase.value = "ready"),
-          ),
-        150,
-      );
+      later(() => {
+        scramble(welcomeText, "WELCOME, OPERATOR", 600, () => {
+          phase.value = "ready";
+
+          /*
+           * IMPORTANT:
+           *
+           * Mobile audio was already started from
+           * the first real user gesture.
+           *
+           * Therefore we can now enter automatically
+           * without asking for another tap.
+           */
+          if (isTouch.value && autoEnterAfterReady.value) {
+            later(() => {
+              if (phase.value === "ready") {
+                triggerBurst(false);
+              }
+            }, 350);
+          }
+        });
+      }, 150);
     });
   }, 250);
 }
 
 /* ---------------- exit ---------------- */
 
-function triggerBurst() {
-  unlockAudio();
-  // must stay in the same user-gesture call stack so the browser allows sound
-  if (props.autoplayMusic) playMainMusic(props.musicSrc);
+/**
+ * startAudioAgain:
+ *
+ * true:
+ *   this function is being called directly from a
+ *   real user gesture.
+ *
+ * false:
+ *   audio has already been activated earlier and
+ *   we're only finishing the loader.
+ */
+function triggerBurst(startAudioAgain = true) {
+  if (done.value || phase.value === "bursting") {
+    return;
+  }
+
+  if (startAudioAgain) {
+    /*
+     * Calling unlock repeatedly is safe.
+     */
+    void unlockAudio();
+
+    /*
+     * playMainMusic MUST happen directly inside a
+     * user gesture whenever we're relying on browser
+     * autoplay permission.
+     */
+    if (props.autoplayMusic) {
+      void playMainMusic(props.musicSrc);
+    }
+  }
 
   phase.value = "bursting";
+
   clearInterval(hexTimer);
 
   later(() => {
     done.value = true;
     introReady.value = true;
+
     stopRain();
     restoreScroll();
   }, 520);
 }
 
+/* ---------------- activation ---------------- */
+
+function activateMobileAudio() {
+  if (audioActivated.value) {
+    return;
+  }
+
+  /*
+   * Mark this immediately so pointer/click events
+   * cannot initialize the sequence twice.
+   */
+  audioActivated.value = true;
+
+  /*
+   * Once the first gesture happened, mobile should
+   * automatically enter after ACCESS GRANTED.
+   */
+  autoEnterAfterReady.value = true;
+
+  /*
+   * IMPORTANT:
+   *
+   * These calls are made immediately from pointerdown.
+   *
+   * Do NOT await before calling playMainMusic().
+   */
+  const unlockPromise = unlockAudio();
+
+  if (props.autoplayMusic) {
+    void playMainMusic(props.musicSrc);
+  }
+
+  /*
+   * Wait for both Web Audio unlock and the typing
+   * sound buffer before starting the terminal.
+   *
+   * This greatly reduces missing typing sounds on
+   * iPhone/Safari.
+   */
+  const waitFor = [Promise.resolve(unlockPromise)];
+
+  if (typeSoundLoadPromise) {
+    waitFor.push(Promise.resolve(typeSoundLoadPromise));
+  }
+
+  Promise.allSettled(waitFor).finally(() => {
+    startBoot();
+  });
+}
+
 function handleActivate() {
-  // every gesture is a chance to unlock audio on mobile (must be sync, in the handler)
-  unlockAudio();
-  if (phase.value === "booting") forceComplete();
-  else if (phase.value === "ready") triggerBurst();
+  if (done.value || phase.value === "bursting") {
+    return;
+  }
+
+  /*
+   * FIRST MOBILE TAP
+   *
+   * Unlock both audio systems and start the boot.
+   */
+  if (isTouch.value && !audioActivated.value) {
+    activateMobileAudio();
+
+    return;
+  }
+
+  /*
+   * Every later user gesture is another chance
+   * to resume Web Audio if Safari suspended it.
+   */
+  void unlockAudio();
+
+  /*
+   * MOBILE:
+   * second tap while booting = skip animation.
+   * It will STILL automatically enter afterward.
+   *
+   * DESKTOP:
+   * this preserves the old skip behavior.
+   */
+  if (phase.value === "booting") {
+    forceComplete();
+
+    return;
+  }
+
+  /*
+   * Desktop enters manually.
+   *
+   * Mobile can also enter manually if the user taps
+   * during the short ready window before auto-entry.
+   */
+  if (phase.value === "ready") {
+    triggerBurst(true);
+  }
 }
 
 /* ---------------- hex dump ---------------- */
+
 const hex = (n) =>
   Math.floor(Math.random() * 16 ** n)
     .toString(16)
@@ -189,94 +427,161 @@ const hex = (n) =>
 
 function startHex() {
   hexTimer = window.setInterval(() => {
-    const row = `0x${hex(4)}  ${Array.from({ length: 6 }, () => hex(2)).join(" ")}`;
+    const row =
+      `0x${hex(4)}  ` + Array.from({ length: 6 }, () => hex(2)).join(" ");
+
     hexRows.value = [...hexRows.value.slice(-15), row];
   }, 90);
 }
 
 /* ---------------- matrix rain ---------------- */
+
 function startRain(el) {
-  if (!el) return () => {};
+  if (!el) {
+    return () => {};
+  }
+
   const ctx = el.getContext("2d");
+
+  if (!ctx) {
+    return () => {};
+  }
+
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   const chars = "アカサタナハマヤラワ0123456789ABCDEF<>/{}[]#$";
+
   const size = 16;
+
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
   let cols = [];
+
   let w = 0;
   let h = 0;
+
   let raf = 0;
   let last = 0;
 
   function resize() {
     w = el.clientWidth;
     h = el.clientHeight;
+
     el.width = w * dpr;
     el.height = h * dpr;
+
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
     cols = Array.from(
-      { length: Math.ceil(w / size) },
+      {
+        length: Math.ceil(w / size),
+      },
       () => Math.random() * -(h / size),
     );
   }
 
   function draw(now) {
     raf = requestAnimationFrame(draw);
-    if (now - last < 50) return;
+
+    if (now - last < 50) {
+      return;
+    }
+
     last = now;
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
+
     ctx.fillRect(0, 0, w, h);
+
     ctx.font = `${size}px "JetBrains Mono", monospace`;
 
     cols.forEach((y, i) => {
       const ch = chars[(Math.random() * chars.length) | 0];
+
       ctx.fillStyle =
         Math.random() > 0.97 ? "#e0f2fe" : "rgba(59, 130, 246, 0.55)";
+
       ctx.fillText(ch, i * size, y * size);
+
       cols[i] = y * size > h && Math.random() > 0.975 ? 0 : y + 1;
     });
   }
 
   resize();
+
   window.addEventListener("resize", resize);
-  if (!reduce) raf = requestAnimationFrame(draw);
+
+  if (!reduce) {
+    raf = requestAnimationFrame(draw);
+  }
 
   return () => {
     cancelAnimationFrame(raf);
+
     window.removeEventListener("resize", resize);
   };
 }
 
 /* ---------------- lifecycle ---------------- */
+
 onMounted(() => {
   isTouch.value = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-  if (props.sound) loadTypeSound(props.soundSrc);
+  /*
+   * Start fetching/decoding the typing sound early.
+   *
+   * AudioContext may be suspended on iOS here,
+   * which is fine. First pointerdown will resume it.
+   */
+  if (props.sound) {
+    typeSoundLoadPromise = loadTypeSound(props.soundSrc);
+  }
 
   const html = document.documentElement;
+
   const prevOverflow = html.style.overflow;
+
   html.style.overflow = "hidden";
-  restoreScroll = () => (html.style.overflow = prevOverflow);
+
+  restoreScroll = () => {
+    html.style.overflow = prevOverflow;
+  };
 
   window.addEventListener("keydown", handleActivate);
+
   window.addEventListener("pointerdown", handleActivate);
 
   stopRain = startRain(rainCanvas.value);
+
   startHex();
 
-  maxTimer = window.setTimeout(forceComplete, props.maxBootDuration);
-  later(() => typeLine(0), 700); // wait for the CRT power-on animation
+  /*
+   * DESKTOP:
+   * preserve existing automatic boot.
+   *
+   * MOBILE:
+   * wait for the first tap so Web Audio can be
+   * unlocked BEFORE the typewriters begin.
+   */
+  if (!isTouch.value) {
+    startBoot();
+  }
 });
 
 onBeforeUnmount(() => {
   disposed = true;
+
   clearAllTimeouts();
+
   clearTimeout(maxTimer);
   clearInterval(hexTimer);
+
   stopRain();
+
   window.removeEventListener("keydown", handleActivate);
+
   window.removeEventListener("pointerdown", handleActivate);
+
   restoreScroll();
 });
 </script>
@@ -291,22 +596,32 @@ onBeforeUnmount(() => {
       aria-label="Loading"
     >
       <canvas ref="rainCanvas" class="loader__rain" aria-hidden="true" />
+
       <div class="loader__vignette" aria-hidden="true" />
+
       <div class="loader__scanlines" aria-hidden="true" />
+
       <div class="loader__flash" aria-hidden="true" />
 
       <div class="term">
         <header class="term__bar">
-          <span class="term__dots" aria-hidden="true"><i /><i /><i /></span>
-          <span class="term__cmd"
-            >root@arsam-sarkhosh:~# ./breach --target=portfolio</span
-          >
-          <span class="term__rec">● REC</span>
+          <span class="term__dots" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+
+          <span class="term__cmd">
+            root@arsam-sarkhosh:~# ./breach --target=portfolio
+          </span>
+
+          <span class="term__rec"> ● REC </span>
         </header>
 
         <div class="term__body">
           <section class="boot">
             <p class="boot__head">ARSAM_SARKHOSH_OS [v3.11.24]</p>
+
             <p class="boot__head boot__head--dim">
               (c) Full-Stack Systems. All rights reserved.
             </p>
@@ -318,7 +633,8 @@ onBeforeUnmount(() => {
                 :key="i"
                 class="boot-line"
               >
-                <span class="boot-line__prompt" aria-hidden="true">$</span>
+                <span class="boot-line__prompt" aria-hidden="true"> $ </span>
+
                 <AnimationTypewriterText
                   :ref="(el) => (typers[i] = el)"
                   :text="line.label"
@@ -329,29 +645,37 @@ onBeforeUnmount(() => {
                   :cursor="i === current && !line.tagRevealed"
                   @done="onLineTyped(i)"
                 />
+
                 <span
                   v-if="line.tagRevealed"
                   class="boot-line__dots"
                   aria-hidden="true"
                 />
+
                 <span
                   v-if="line.tagRevealed"
                   class="boot-line__tag"
                   :class="`boot-line__tag--${line.tag.toLowerCase()}`"
-                  >[{{ line.tag }}]</span
                 >
+                  [{{ line.tag }}]
+                </span>
               </div>
             </div>
 
             <div class="progress" aria-hidden="true">
-              <span class="progress__label">BREACH</span>
-              <span class="progress__bar">{{ bar }}</span>
-              <span class="progress__pct">{{ progress }}%</span>
+              <span class="progress__label"> BREACH </span>
+
+              <span class="progress__bar">
+                {{ bar }}
+              </span>
+
+              <span class="progress__pct"> {{ progress }}% </span>
             </div>
           </section>
 
           <aside class="hex" aria-hidden="true">
             <p class="hex__title">// PACKET STREAM</p>
+
             <p v-for="(row, i) in hexRows" :key="i" class="hex__row">
               {{ row }}
             </p>
@@ -359,7 +683,13 @@ onBeforeUnmount(() => {
         </div>
 
         <p v-if="phase === 'booting'" class="term__skip">
-          {{ isTouch ? "tap to skip" : "press any key to skip" }}
+          {{
+            isTouch
+              ? audioActivated
+                ? "tap to skip"
+                : "tap to initialize system"
+              : "press any key to skip"
+          }}
         </p>
 
         <Transition name="granted">
@@ -367,13 +697,23 @@ onBeforeUnmount(() => {
             <p class="granted__title" :data-text="grantedText">
               {{ grantedText }}
             </p>
-            <p class="granted__sub">{{ welcomeText }}</p>
+
+            <p class="granted__sub">
+              {{ welcomeText }}
+            </p>
+
             <p
               v-if="phase === 'ready' || phase === 'bursting'"
               class="granted__prompt"
             >
-              {{ isTouch ? "TAP ANYWHERE TO ENTER" : "PRESS ANY KEY TO ENTER"
-              }}<span class="caret">_</span>
+              {{
+                isTouch && autoEnterAfterReady
+                  ? "ENTERING SYSTEM"
+                  : isTouch
+                    ? "TAP ANYWHERE TO ENTER"
+                    : "PRESS ANY KEY TO ENTER"
+              }}
+              <span class="caret"> _ </span>
             </p>
           </div>
         </Transition>
