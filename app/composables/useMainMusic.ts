@@ -24,6 +24,7 @@ const {
   unlock: unlockAudio,
   connectMediaElement,
   setMediaElementVolume,
+  isMediaElementRunning,
 } = useTypeSound();
 
 function restoreVolume() {
@@ -58,8 +59,8 @@ function ensureAudio(src: string) {
   audio.volume = state.value.volume;
   audio.muted = state.value.volume === 0;
 
-  audio.addEventListener("play", () => {
-    state.value.playing = true;
+  audio.addEventListener("playing", () => {
+    state.value.playing = isMediaElementRunning(audio);
   });
 
   audio.addEventListener("pause", () => {
@@ -93,7 +94,10 @@ async function play(src: string) {
     const playPromise = audio.play();
 
     await Promise.all([unlockPromise, playPromise]);
+    // A running media element can still be silent behind a suspended context.
+    state.value.playing = !audio.paused && isMediaElementRunning(audio);
   } catch (error) {
+    state.value.playing = false;
     // Don't retry on a random future click elsewhere on the website.
     // The user can press Play again if playback fails.
     console.warn("Background music could not start:", error);
@@ -108,7 +112,7 @@ function toggle(src: string) {
   const audio = ensureAudio(src);
   if (!audio) return;
 
-  if (audio.paused) {
+  if (audio.paused || !isMediaElementRunning(audio)) {
     void play(src);
   } else {
     pause();

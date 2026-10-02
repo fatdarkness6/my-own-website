@@ -45,9 +45,7 @@ onMounted(() => {
       no-ripple
       :icon="icon"
       aria-label="Toggle background music"
-      @pointerdown="onToggle"
-      @keydown.enter.prevent="onToggle"
-      @keydown.space.prevent="onToggle"
+      @click="onToggle"
     >
       <q-tooltip>Background music: {{ label }}</q-tooltip>
     </q-btn>

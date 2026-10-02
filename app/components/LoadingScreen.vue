@@ -148,7 +148,7 @@ function typeLine(i) {
   lines[i].shown = true;
 
   nextTick(() => {
-    typers[i]?.start?.();
+    if (!disposed && phase.value === "booting") typers[i]?.start?.();
   });
 }
 
@@ -202,7 +202,7 @@ function scramble(target, text, duration, onDone) {
   const start = performance.now();
 
   const step = (now) => {
-    if (disposed) {
+    if (disposed || done.value || phase.value === "bursting") {
       return;
     }
 
@@ -305,7 +305,11 @@ function activateAndEnter() {
   triggerBurst();
 }
 
-function handleActivate() {
+function handleActivate(event) {
+  if (event?.type === "keydown" &&
+      (event.repeat || event.key === "Tab" || event.key === "Escape" ||
+       event.ctrlKey || event.metaKey || event.altKey)) return;
+
   if (done.value || phase.value === "bursting") {
     return;
   }
@@ -427,7 +431,7 @@ onMounted(() => {
    * Start fetching/decoding the typing sound early.
    *
    * AudioContext may be suspended on iOS here,
-   * which is fine. First pointerdown will resume it.
+   * which is fine. A completed click/tap will resume it.
    */
   if (props.sound) {
     typeSoundLoadPromise = loadTypeSound(props.soundSrc);
@@ -444,8 +448,6 @@ onMounted(() => {
   };
 
   window.addEventListener("keydown", handleActivate);
-
-  window.addEventListener("pointerdown", handleActivate);
 
   stopRain = startRain(rainCanvas.value);
 
@@ -466,8 +468,6 @@ onBeforeUnmount(() => {
 
   window.removeEventListener("keydown", handleActivate);
 
-  window.removeEventListener("pointerdown", handleActivate);
-
   restoreScroll();
 });
 </script>
@@ -480,6 +480,7 @@ onBeforeUnmount(() => {
       :class="`is-${phase}`"
       role="status"
       aria-label="Loading"
+      @click="handleActivate"
     >
       <canvas ref="rainCanvas" class="loader__rain" aria-hidden="true" />
 

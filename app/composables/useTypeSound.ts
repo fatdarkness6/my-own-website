@@ -113,10 +113,9 @@ async function load(src: string): Promise<AudioBuffer | null> {
  * IMPORTANT:
  * Call this directly inside:
  *
- * pointerdown
- * touchstart
- * click
- * keydown
+ * click (including completed touchscreen taps), touchend, or keydown.
+ * Touch pointerdown/touchstart can run BEFORE browser user activation;
+ * calling resume() there may leave the context suspended indefinitely.
  *
  * Do NOT wait/setTimeout before calling it.
  */
@@ -283,6 +282,11 @@ function setMediaElementVolume(
   return true;
 }
 
+function isMediaElementRunning(element: HTMLMediaElement): boolean {
+  const graph = mediaGraphs.get(element);
+  return !graph || graph.source.context.state === "running";
+}
+
 function tick(src: string, volume = 0.35, minIntervalMs = 70) {
   const c = ctx;
   const buffer = buffers.get(src);
@@ -352,5 +356,6 @@ export function useTypeSound() {
     tick,
     connectMediaElement,
     setMediaElementVolume,
+    isMediaElementRunning,
   };
 }
