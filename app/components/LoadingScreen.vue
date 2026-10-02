@@ -12,10 +12,10 @@ import { useMainMusic } from "~/composables/useMainMusic";
 import { useTypeSound } from "~/composables/useTypeSound";
 
 const props = defineProps({
-  maxBootDuration: { type: Number, default: 7000 },
+  maxBootDuration: { type: Number, default: 2200 },
   sound: { type: Boolean, default: true },
   soundSrc: { type: String, default: "/sound/type-01.mp3" },
-  typeSpeed: { type: Number, default: 14 },
+  typeSpeed: { type: Number, default: 10 },
 
   musicSrc: { type: String, default: "/sound/main-song.mp3" },
   autoplayMusic: { type: Boolean, default: true },
@@ -23,7 +23,11 @@ const props = defineProps({
 
 const { play: playMainMusic } = useMainMusic();
 
-const { load: loadTypeSound, unlock: unlockAudio } = useTypeSound();
+const {
+  load: loadTypeSound,
+  unlock: unlockAudio,
+  tick: playTypeTick,
+} = useTypeSound();
 
 const introReady = useState("introReady", () => false);
 
@@ -57,15 +61,8 @@ const current = ref(-1);
 const done = ref(false);
 const isTouch = ref(false);
 
-/*
- * Mobile audio state.
- *
- * On mobile we intentionally wait for the first user gesture before
- * starting the boot sequence so Safari can unlock Web Audio first.
- */
 const audioActivated = ref(false);
 const bootStarted = ref(false);
-const autoEnterAfterReady = ref(false);
 
 const grantedText = ref("");
 const welcomeText = ref("");
@@ -137,13 +134,7 @@ function startBoot() {
 
   maxTimer = window.setTimeout(forceComplete, props.maxBootDuration);
 
-  /*
-   * On mobile audio has already been unlocked at this point,
-   * so we can start almost immediately.
-   *
-   * Desktop keeps the original CRT delay.
-   */
-  later(() => typeLine(0), isTouch.value ? 150 : 700);
+  later(() => typeLine(0), 250);
 }
 
 function typeLine(i) {
@@ -246,70 +237,31 @@ function grant() {
   current.value = -1;
 
   later(() => {
-    scramble(grantedText, "ACCESS GRANTED", 750, () => {
+    scramble(grantedText, "ACCESS GRANTED", 350, () => {
       later(() => {
-        scramble(welcomeText, "WELCOME, OPERATOR", 600, () => {
+        scramble(welcomeText, "WELCOME, OPERATOR", 300, () => {
           phase.value = "ready";
-
-          /*
-           * IMPORTANT:
-           *
-           * Mobile audio was already started from
-           * the first real user gesture.
-           *
-           * Therefore we can now enter automatically
-           * without asking for another tap.
-           */
-          if (isTouch.value && autoEnterAfterReady.value) {
-            later(() => {
-              if (phase.value === "ready") {
-                triggerBurst(false);
-              }
-            }, 350);
-          }
         });
-      }, 150);
+      }, 80);
     });
-  }, 250);
+  }, 100);
 }
 
 /* ---------------- exit ---------------- */
 
-/**
- * startAudioAgain:
- *
- * true:
- *   this function is being called directly from a
- *   real user gesture.
- *
- * false:
- *   audio has already been activated earlier and
- *   we're only finishing the loader.
- */
-function triggerBurst(startAudioAgain = true) {
+function triggerBurst() {
   if (done.value || phase.value === "bursting") {
     return;
   }
 
-  if (startAudioAgain) {
-    /*
-     * Calling unlock repeatedly is safe.
-     */
-    void unlockAudio();
-
-    /*
-     * playMainMusic MUST happen directly inside a
-     * user gesture whenever we're relying on browser
-     * autoplay permission.
-     */
-    if (props.autoplayMusic) {
-      void playMainMusic(props.musicSrc);
-    }
-  }
-
   phase.value = "bursting";
 
+  clearAllTimeouts();
+  clearTimeout(maxTimer);
   clearInterval(hexTimer);
+  current.value = -1;
+
+  typers.forEach((typer) => typer?.finish?.());
 
   later(() => {
     done.value = true;
@@ -317,57 +269,40 @@ function triggerBurst(startAudioAgain = true) {
 
     stopRain();
     restoreScroll();
-  }, 520);
+  }, 360);
 }
 
 /* ---------------- activation ---------------- */
 
-function activateMobileAudio() {
+function activateAndEnter() {
   if (audioActivated.value) {
     return;
   }
 
-  /*
-   * Mark this immediately so pointer/click events
-   * cannot initialize the sequence twice.
-   */
   audioActivated.value = true;
 
-  /*
-   * Once the first gesture happened, mobile should
-   * automatically enter after ACCESS GRANTED.
-   */
-  autoEnterAfterReady.value = true;
-
-  /*
-   * IMPORTANT:
-   *
-   * These calls are made immediately from pointerdown.
-   *
-   * Do NOT await before calling playMainMusic().
-   */
   const unlockPromise = unlockAudio();
 
   if (props.autoplayMusic) {
     void playMainMusic(props.musicSrc);
   }
 
-  /*
-   * Wait for both Web Audio unlock and the typing
-   * sound buffer before starting the terminal.
-   *
-   * This greatly reduces missing typing sounds on
-   * iPhone/Safari.
-   */
-  const waitFor = [Promise.resolve(unlockPromise)];
+  // Give immediate audio feedback once the small typing sample is ready.
+  // This never blocks the loader from closing.
+  if (props.sound) {
+    const soundPromise =
+      typeSoundLoadPromise || loadTypeSound(props.soundSrc);
 
-  if (typeSoundLoadPromise) {
-    waitFor.push(Promise.resolve(typeSoundLoadPromise));
+    void Promise.all([Promise.resolve(unlockPromise), soundPromise]).then(
+      ([unlocked, buffer]) => {
+        if (unlocked && buffer) {
+          playTypeTick(props.soundSrc, 0.35, 0);
+        }
+      },
+    );
   }
 
-  Promise.allSettled(waitFor).finally(() => {
-    startBoot();
-  });
+  triggerBurst();
 }
 
 function handleActivate() {
@@ -375,46 +310,7 @@ function handleActivate() {
     return;
   }
 
-  /*
-   * FIRST MOBILE TAP
-   *
-   * Unlock both audio systems and start the boot.
-   */
-  if (isTouch.value && !audioActivated.value) {
-    activateMobileAudio();
-
-    return;
-  }
-
-  /*
-   * Every later user gesture is another chance
-   * to resume Web Audio if Safari suspended it.
-   */
-  void unlockAudio();
-
-  /*
-   * MOBILE:
-   * second tap while booting = skip animation.
-   * It will STILL automatically enter afterward.
-   *
-   * DESKTOP:
-   * this preserves the old skip behavior.
-   */
-  if (phase.value === "booting") {
-    forceComplete();
-
-    return;
-  }
-
-  /*
-   * Desktop enters manually.
-   *
-   * Mobile can also enter manually if the user taps
-   * during the short ready window before auto-entry.
-   */
-  if (phase.value === "ready") {
-    triggerBurst(true);
-  }
+  activateAndEnter();
 }
 
 /* ---------------- hex dump ---------------- */
@@ -555,17 +451,7 @@ onMounted(() => {
 
   startHex();
 
-  /*
-   * DESKTOP:
-   * preserve existing automatic boot.
-   *
-   * MOBILE:
-   * wait for the first tap so Web Audio can be
-   * unlocked BEFORE the typewriters begin.
-   */
-  if (!isTouch.value) {
-    startBoot();
-  }
+  startBoot();
 });
 
 onBeforeUnmount(() => {
@@ -682,13 +568,11 @@ onBeforeUnmount(() => {
           </aside>
         </div>
 
-        <p v-if="phase === 'booting'" class="term__skip">
+        <p v-if="phase === 'booting'" class="term__enter">
           {{
             isTouch
-              ? audioActivated
-                ? "tap to skip"
-                : "tap to initialize system"
-              : "press any key to skip"
+              ? "TAP ONCE TO ENTER"
+              : "CLICK OR PRESS ANY KEY TO ENTER"
           }}
         </p>
 
@@ -706,13 +590,7 @@ onBeforeUnmount(() => {
               v-if="phase === 'ready' || phase === 'bursting'"
               class="granted__prompt"
             >
-              {{
-                isTouch && autoEnterAfterReady
-                  ? "ENTERING SYSTEM"
-                  : isTouch
-                    ? "TAP ANYWHERE TO ENTER"
-                    : "PRESS ANY KEY TO ENTER"
-              }}
+              {{ isTouch ? "TAP ONCE TO ENTER" : "PRESS ANY KEY TO ENTER" }}
               <span class="caret"> _ </span>
             </p>
           </div>

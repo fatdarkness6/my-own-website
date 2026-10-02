@@ -14,7 +14,7 @@
   overflow: hidden;
   background: #000;
   font-family: var(--mono);
-  cursor: default;
+  cursor: pointer;
 }
 
 /* ---------- atmosphere ---------- */
@@ -185,13 +185,15 @@
   padding: clamp(14px, 2.5vw, 26px);
 }
 
-.term__skip {
+.term__enter {
   margin: 0;
   padding: 0 clamp(14px, 2.5vw, 26px) 14px;
-  color: #334155;
+  color: #93c5fd;
   font-size: 11px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.65);
+  animation: prompt-pulse 1.2s ease-in-out infinite;
 }
 
 /* ---------- boot log ---------- */

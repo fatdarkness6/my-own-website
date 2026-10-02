@@ -1,4 +1,5 @@
 import { readonly, ref } from "vue";
+import { useTypeSound } from "~/composables/useTypeSound";
 
 type MainMusicState = {
   ready: boolean;
@@ -18,6 +19,12 @@ const state = ref<MainMusicState>({
 // Module-level audio: keeps playing when the header remounts during navigation.
 let audioEl: HTMLAudioElement | null = null;
 let volumeRestored = false;
+
+const {
+  unlock: unlockAudio,
+  connectMediaElement,
+  setMediaElementVolume,
+} = useTypeSound();
 
 function restoreVolume() {
   if (!import.meta.client || volumeRestored) return;
@@ -71,15 +78,21 @@ async function play(src: string) {
   if (!audio) return;
 
   try {
-    // Keep playback on the native media path. In particular, iOS can leave a
-    // MediaElementAudioSource routed through a suspended AudioContext, which
-    // silences both the music and other Web Audio effects.
-    const audioSession = (navigator as Navigator & {
-      audioSession?: { type: string };
-    }).audioSession;
-    if (audioSession) audioSession.type = "playback";
+    // Both calls happen before the first await so mobile browsers see them as
+    // part of the user's tap. Music and typing sounds share this one context.
+    const unlockPromise = unlockAudio();
+    const mediaGain = connectMediaElement(audio, state.value.volume);
 
-    await audio.play();
+    if (mediaGain) {
+      // The GainNode owns volume after routing. Keeping the native media
+      // element unmuted avoids iOS applying a second, uncontrollable volume.
+      audio.volume = 1;
+      audio.muted = false;
+    }
+
+    const playPromise = audio.play();
+
+    await Promise.all([unlockPromise, playPromise]);
   } catch (error) {
     // Don't retry on a random future click elsewhere on the website.
     // The user can press Play again if playback fails.
@@ -111,10 +124,14 @@ function setVolume(value: number) {
   state.value.volume = volume;
 
   if (audioEl) {
-    audioEl.volume = volume;
-    // iOS deliberately ignores programmatic media volume, but it does honor
-    // mute. Non-zero volume remains controlled by the device volume buttons.
-    audioEl.muted = volume === 0;
+    if (setMediaElementVolume(audioEl, volume)) {
+      audioEl.volume = 1;
+      audioEl.muted = false;
+    } else {
+      // Native fallback for browsers without Web Audio support.
+      audioEl.volume = volume;
+      audioEl.muted = volume === 0;
+    }
   }
 
   if (import.meta.client) {

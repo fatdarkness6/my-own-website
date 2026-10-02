@@ -9,7 +9,7 @@ const props = defineProps({
   buttonDense: { type: Boolean, default: true },
 });
 
-const { state, ensureAudio, toggle, setVolume, play } = useMainMusic();
+const { state, ensureAudio, toggle, setVolume } = useMainMusic();
 
 const volUi = ref(Math.round(state.value.volume * 100));
 

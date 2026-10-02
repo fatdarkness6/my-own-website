@@ -1,6 +1,13 @@
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 
+type MediaGraph = {
+  source: MediaElementAudioSourceNode;
+  gain: GainNode;
+};
+
+const mediaGraphs = new WeakMap<HTMLMediaElement, MediaGraph>();
+
 const buffers = new Map<string, AudioBuffer>();
 
 const loading = new Map<string, Promise<AudioBuffer | null>>();
@@ -213,6 +220,69 @@ function unlock(): Promise<boolean> {
   }
 }
 
+/**
+ * Route long-form media through the same AudioContext used by typing sounds.
+ * iOS ignores HTMLMediaElement.volume, but it does respect this GainNode.
+ * Sharing one context also avoids the competing-context silence seen on Safari.
+ */
+function connectMediaElement(
+  element: HTMLMediaElement,
+  volume = 1,
+): GainNode | null {
+  const existing = mediaGraphs.get(element);
+
+  if (existing) {
+    existing.gain.gain.value = Math.max(0, Math.min(volume, 1));
+    return existing.gain;
+  }
+
+  const c = getCtx();
+  const destination = master;
+
+  if (!c || !destination || c.state === "closed") {
+    return null;
+  }
+
+  try {
+    const source = c.createMediaElementSource(element);
+    const gain = c.createGain();
+
+    gain.gain.value = Math.max(0, Math.min(volume, 1));
+    source.connect(gain);
+    gain.connect(destination);
+
+    mediaGraphs.set(element, { source, gain });
+
+    return gain;
+  } catch (error) {
+    console.warn("Media audio routing failed:", error);
+    return null;
+  }
+}
+
+function setMediaElementVolume(
+  element: HTMLMediaElement,
+  volume: number,
+): boolean {
+  const graph = mediaGraphs.get(element);
+
+  if (!graph) {
+    return false;
+  }
+
+  const nextVolume = Math.max(0, Math.min(volume, 1));
+  const c = ctx;
+
+  if (c && c.state !== "closed") {
+    graph.gain.gain.cancelScheduledValues(c.currentTime);
+    graph.gain.gain.setValueAtTime(nextVolume, c.currentTime);
+  } else {
+    graph.gain.gain.value = nextVolume;
+  }
+
+  return true;
+}
+
 function tick(src: string, volume = 0.35, minIntervalMs = 70) {
   const c = ctx;
   const buffer = buffers.get(src);
@@ -280,5 +350,7 @@ export function useTypeSound() {
     load,
     unlock,
     tick,
+    connectMediaElement,
+    setMediaElementVolume,
   };
 }
