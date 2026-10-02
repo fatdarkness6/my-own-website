@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import * as THREE from "three";
 
 const props = defineProps({
@@ -7,7 +7,7 @@ const props = defineProps({
   particleColor: { type: String, default: "#F8FAFC" },
   accentColor: { type: String, default: "#3B82F6" },
   backgroundThreshold: { type: Number, default: 30 },
-  sampleWidth: { type: Number, default: 220 },
+  sampleWidth: { type: Number, default: 300 },
   pointSize: { type: Number, default: 0.95 },
   repelRadius: { type: Number, default: 8 },
   repelStrength: { type: Number, default: 1.8 },
@@ -15,6 +15,9 @@ const props = defineProps({
   fit: { type: String, default: "cover" },
   zoom: { type: Number, default: 1 },
   opacity: { type: Number, default: 1 },
+  mobileOpacity: { type: Number, default: null },
+  mobileOffsetX: { type: Number, default: 0 },
+  mobileOffsetY: { type: Number, default: 0 },
 
   // ---- Ambient background dots ----
   ambientDots: { type: Boolean, default: true },
@@ -46,13 +49,25 @@ const props = defineProps({
   autoGlitchFlashIntensity: { type: Number, default: 0.6 },
 
   // ---- Mobile performance ----
-  mobileSampleScale: { type: Number, default: 0.5 }, // fraction of sampleWidth on phones
+  mobileSampleScale: { type: Number, default: 0.74 }, // ~220 samples on phones
+  mobilePointSizeScale: { type: Number, default: 0.85 },
   mobileAmbientSpacingScale: { type: Number, default: 1.5 }, // sparser bg dots on phones
+  desktopAmbientBrightnessScale: { type: Number, default: 0.65 },
+  mobileAmbientBrightnessScale: { type: Number, default: 0.3 },
+  desktopGlitchStrengthScale: { type: Number, default: 0.65 },
+  mobileGlitchStrengthScale: { type: Number, default: 0.55 },
+  mobilePixelRatio: { type: Number, default: 2 },
   mobileMaxFps: { type: Number, default: 30 },
 });
 
 const containerEl = ref(null);
 const canvasEl = ref(null);
+const mobileMode = ref(false);
+const renderedOpacity = computed(() =>
+  mobileMode.value && props.mobileOpacity != null
+    ? props.mobileOpacity
+    : props.opacity,
+);
 
 let scene, camera, renderer, material, points, geometry, ro, io;
 let homes = new Float32Array(0);
@@ -108,6 +123,12 @@ function pseudoRandom(n) {
 
 function wake() {
   settledFrames = 0;
+}
+
+function activeGlitchStrength() {
+  return isMobile
+    ? props.mobileGlitchStrengthScale
+    : props.desktopGlitchStrengthScale;
 }
 
 function buildMaterial() {
@@ -282,9 +303,12 @@ function buildParticlesFromImage(img) {
         const distWorld =
           sampleDistanceField(distField, sw, sh, wx, wy) * worldPerSample;
         const t = 1 - smoothstep(0, props.ambientFalloff, distWorld);
-        const opacity =
-          props.ambientMinOpacity +
-          (props.ambientBrightness - props.ambientMinOpacity) * t;
+        const brightnessScale = isMobile
+          ? props.mobileAmbientBrightnessScale
+          : props.desktopAmbientBrightnessScale;
+        const minOpacity = props.ambientMinOpacity * brightnessScale;
+        const maxOpacity = props.ambientBrightness * brightnessScale;
+        const opacity = minOpacity + (maxOpacity - minOpacity) * t;
         const sizeScale = 0.55 + t * 0.75;
 
         positions.push(wx, wy, 0);
@@ -375,10 +399,12 @@ function fitCamera() {
   viewW /= z;
   viewH /= z;
 
-  camera.left = -viewW / 2;
-  camera.right = viewW / 2;
-  camera.top = viewH / 2;
-  camera.bottom = -viewH / 2;
+  const offsetX = isMobile ? props.mobileOffsetX : 0;
+  const offsetY = isMobile ? props.mobileOffsetY : 0;
+  camera.left = -viewW / 2 + offsetX;
+  camera.right = viewW / 2 + offsetX;
+  camera.top = viewH / 2 + offsetY;
+  camera.bottom = -viewH / 2 + offsetY;
   camera.updateProjectionMatrix();
 
   const pixelRatio = renderer.getPixelRatio();
@@ -413,10 +439,14 @@ function onPointerUp(e) {
 
 // ---- Ambient glitch helpers ----
 function randomizeBandOffsets() {
+  const strength = activeGlitchStrength();
   for (let b = 0; b < NUM_BANDS; b++) {
     bandOffsets[b] =
       Math.random() > 0.55
-        ? (Math.random() - 0.5) * 2 * props.autoGlitchSliceMaxOffset
+        ? (Math.random() - 0.5) *
+          2 *
+          props.autoGlitchSliceMaxOffset *
+          strength
         : 0;
   }
 }
@@ -451,7 +481,10 @@ function triggerGlitchBurst(styleOverride) {
   lastFlickerToggle = 0;
 
   if (style === "slice") randomizeBandOffsets();
-  if (style === "flicker") flashTarget = props.autoGlitchFlashIntensity;
+  if (style === "flicker") {
+    flashTarget =
+      props.autoGlitchFlashIntensity * activeGlitchStrength();
+  }
   wake();
 }
 
@@ -517,7 +550,11 @@ function animate(now) {
       lastBandUpdateTime = now;
     }
     if (glitchStyle === "flicker" && now - lastFlickerToggle > 90) {
-      flashTarget = Math.random() > 0.4 ? props.autoGlitchFlashIntensity : 0;
+      flashTarget =
+        Math.random() > 0.4
+          ? props.autoGlitchFlashIntensity *
+            activeGlitchStrength()
+          : 0;
       lastFlickerToggle = now;
     }
 
@@ -542,8 +579,9 @@ function animate(now) {
   const ease = isMobile ? 0.16 : 0.09; // fewer frames on mobile -> bigger steps
   const mx = mouseWorld.x;
   const my = mouseWorld.y;
-  const scatterR = props.autoGlitchScatterRadius;
-  const waveA = props.autoGlitchWaveAmplitude;
+  const glitchStrength = activeGlitchStrength();
+  const scatterR = props.autoGlitchScatterRadius * glitchStrength;
+  const waveA = props.autoGlitchWaveAmplitude * glitchStrength;
   const seed = glitchActive ? glitchActive.start * 0.001 : 0;
 
   for (let i = 0, j = 0; i < homes.length; i += 3, j++) {
@@ -695,6 +733,7 @@ onMounted(() => {
 
   isMobile =
     window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
+  mobileMode.value = isMobile;
 
   scene = new THREE.Scene();
   camera = new THREE.OrthographicCamera(-50, 50, 50, -50, 0.1, 1000);
@@ -710,7 +749,10 @@ onMounted(() => {
     preserveDrawingBuffer: false,
   });
   renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2),
+    Math.min(
+      window.devicePixelRatio || 1,
+      isMobile ? props.mobilePixelRatio : 2,
+    ),
   );
 
   canvasEl.value.addEventListener("webglcontextlost", onContextLost, false);
@@ -730,7 +772,8 @@ onMounted(() => {
     geometry = built.geo;
     homes = built.homes;
     const spacing = worldWidth / built.sw;
-    dotWorldSize = spacing * props.pointSize;
+    dotWorldSize =
+      spacing * props.pointSize * (isMobile ? props.mobilePointSizeScale : 1);
     repelRadiusWorld = spacing * props.repelRadius;
     repelStrengthWorld = spacing * props.repelStrength;
     points = new THREE.Points(geometry, material);
@@ -814,7 +857,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="containerEl" class="glitch-portrait" :style="{ opacity }">
+  <div
+    ref="containerEl"
+    class="glitch-portrait"
+    :style="{ opacity: renderedOpacity }"
+  >
     <canvas ref="canvasEl" class="glitch-portrait__canvas" />
   </div>
 </template>

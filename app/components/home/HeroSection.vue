@@ -35,6 +35,8 @@ watch(
       <AnimationGlitchPortrait
         :src="portraitSrc"
         :opacity="portraitOpacity"
+        :mobile-opacity="Math.min(1, portraitOpacity + 0.1)"
+        :mobile-offset-x="10"
         :repel-radius="20"
         :repel-strength="1.5"
         :ambient-dots="true"
