@@ -1,0 +1,65 @@
+/* Shared Quasar button geometry. Individual components still own their colors. */
+.q-btn {
+  --button-cut: 9px;
+
+  border-radius: 0 !important;
+  clip-path: polygon(
+    var(--button-cut) 0,
+    100% 0,
+    100% calc(100% - var(--button-cut)),
+    calc(100% - var(--button-cut)) 100%,
+    0 100%,
+    0 var(--button-cut)
+  );
+  isolation: isolate;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 24%, transparent);
+}
+
+.q-btn.q-btn--round {
+  border-radius: 0 !important;
+}
+
+/* Buttons already using GlitchText retain that richer component animation. */
+.q-btn:not(:has(.glitch-text)):not(.disabled):not([aria-disabled="true"]):hover
+  .q-btn__content,
+.q-btn:not(:has(.glitch-text)):not(.disabled):not(
+    [aria-disabled="true"]
+  ):focus-visible
+  .q-btn__content {
+  animation: shared-button-glitch 0.34s steps(1, end);
+}
+
+@keyframes shared-button-glitch {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translate(0);
+    filter: none;
+  }
+  18% {
+    opacity: 0.72;
+    transform: translate(-2px, 1px);
+    filter: drop-shadow(2px 0 #00e5ff) drop-shadow(-2px 0 #ff004c);
+  }
+  36% {
+    opacity: 1;
+    transform: translate(2px, -1px);
+    filter: drop-shadow(-2px 0 #00e5ff);
+  }
+  54% {
+    opacity: 0.45;
+    transform: translate(-1px, 0);
+    filter: drop-shadow(2px 0 #ff004c);
+  }
+  72% {
+    opacity: 1;
+    transform: translate(1px, 1px);
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .q-btn .q-btn__content {
+    animation: none !important;
+  }
+}

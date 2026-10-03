@@ -213,7 +213,7 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   .app-header__panel {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    background: rgba(22, 27, 34, 0.94) !important;
+    background: rgb(5 10 18 / 0.96) !important;
   }
 
   /* full-screen SVG turbulence noise + overlay blend on every section change */
