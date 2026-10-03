@@ -1,0 +1,37 @@
+.app-header-menu {
+  min-width: min(230px, calc(100vw - 20px));
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgb(59 130 246 / 0.12), transparent 60%),
+    #050a12;
+  color: #f8fafc;
+  border: 1px solid rgb(59 130 246 / 0.5);
+  border-top: 2px solid #3b82f6;
+  border-radius: 0;
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  box-shadow:
+    0 20px 45px rgb(0 0 0 / 0.72),
+    0 0 24px rgb(59 130 246 / 0.16);
+}
+
+.app-header-menu .q-item {
+  min-height: 48px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgb(59 130 246 / 0.12);
+  font-family: var(--ui-font, monospace);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-header-menu .q-item:hover,
+.app-header-menu .q-item:focus-visible {
+  color: #93c5fd;
+  background: rgb(59 130 246 / 0.12);
+}
+
+.app-header-menu .q-item.q-router-link--exact-active {
+  color: #93c5fd;
+  background: rgb(59 130 246 / 0.09);
+  box-shadow: inset 3px 0 #3b82f6;
+}

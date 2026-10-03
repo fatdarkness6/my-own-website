@@ -1,0 +1,108 @@
+.music-ctrl {
+  --audio-accent: #3b82f6;
+  --audio-accent-light: #93c5fd;
+  --audio-panel: rgb(5 10 18 / 0.88);
+
+  position: relative;
+  flex: none;
+  height: 42px;
+  padding: 2px;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--audio-accent-light);
+  background: var(--audio-panel);
+  border: 1px solid rgb(59 130 246 / 0.3);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  box-shadow:
+    inset 0 0 14px rgb(59 130 246 / 0.05),
+    0 0 16px rgb(59 130 246 / 0.08);
+}
+
+.music-ctrl::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--audio-accent), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.music-ctrl__signal {
+  position: absolute;
+  z-index: 2;
+  top: 5px;
+  left: 5px;
+  width: 4px;
+  height: 4px;
+  background: #64748b;
+  box-shadow: 0 0 0 transparent;
+  transition: background-color 0.16s, box-shadow 0.16s;
+  pointer-events: none;
+}
+
+.music-ctrl--playing .music-ctrl__signal {
+  background: #22c55e;
+  box-shadow: 0 0 7px rgb(34 197 94 / 0.9);
+  animation: music-signal-pulse 1.1s steps(2, end) infinite;
+}
+
+.music-ctrl__btn {
+  position: relative;
+  z-index: 1;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 0;
+  color: var(--audio-accent-light);
+  transition: color 0.16s, background-color 0.16s;
+}
+
+.music-ctrl__btn--settings {
+  border-left: 1px solid rgb(59 130 246 / 0.2);
+}
+
+.music-ctrl__btn:hover,
+.music-ctrl__btn:focus-visible,
+.music-ctrl--playing .music-ctrl__btn:first-of-type {
+  color: #f8fafc;
+  background: rgb(59 130 246 / 0.16);
+}
+
+.music-ctrl__btn:focus-visible {
+  outline: 1px solid var(--audio-accent-light);
+  outline-offset: -3px;
+}
+
+.music-ctrl__btn :deep(.q-focus-helper) {
+  display: none;
+}
+
+@keyframes music-signal-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (max-width: 420px) {
+  .music-ctrl {
+    height: 38px;
+  }
+
+  .music-ctrl__btn {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-ctrl--playing .music-ctrl__signal {
+    animation: none;
+  }
+}

@@ -45,7 +45,7 @@ const accentIndexes = computed(() => {
   return indexes;
 });
 
-let timeouts = [];
+let typingTimeout = null;
 let cursorInterval = null;
 let disposed = false;
 
@@ -55,6 +55,7 @@ function playTick() {
 }
 
 function typeChar(index) {
+  typingTimeout = null;
   if (disposed) return;
   if (index >= props.text.length) {
     isTyping.value = false;
@@ -64,24 +65,21 @@ function typeChar(index) {
   displayed.value += props.text[index];
   // don't click on spaces, sounds more natural
   if (props.text[index] !== " ") playTick();
-  const t = setTimeout(() => typeChar(index + 1), props.speed);
-  timeouts.push(t);
+  typingTimeout = setTimeout(() => typeChar(index + 1), props.speed);
 }
 
 function start() {
-  timeouts.forEach(clearTimeout);
-  timeouts = [];
+  clearTimeout(typingTimeout);
   displayed.value = "";
   isTyping.value = true;
 
-  const t = setTimeout(() => typeChar(0), props.startDelay);
-  timeouts.push(t);
+  typingTimeout = setTimeout(() => typeChar(0), props.startDelay);
 }
 
 /** Instantly completes the text (used by safety-net / force-complete flows) */
 function finish() {
-  timeouts.forEach(clearTimeout);
-  timeouts = [];
+  clearTimeout(typingTimeout);
+  typingTimeout = null;
   const wasTyping = isTyping.value;
   displayed.value = props.text;
   isTyping.value = false;
@@ -102,7 +100,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   disposed = true;
-  timeouts.forEach(clearTimeout);
+  clearTimeout(typingTimeout);
   clearInterval(cursorInterval);
 });
 </script>

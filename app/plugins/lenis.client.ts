@@ -10,7 +10,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Phones already have native momentum scrolling and Lenis doesn't smooth touch
   // by default, so on touch devices it was just burning a rAF loop for nothing.
   if (reduceMotion || isTouch) {
-    nuxtApp.hook("page:finish", () => window.scrollTo(0, 0));
+    const removePageHook = nuxtApp.hook("page:finish", () => window.scrollTo(0, 0));
+    if (import.meta.hot) import.meta.hot.dispose(removePageHook);
     return { provide: { lenis: null } };
   }
 
@@ -30,19 +31,29 @@ export default defineNuxtPlugin((nuxtApp) => {
   rafId = requestAnimationFrame(raf);
 
   // Don't spin while the tab is in the background
-  document.addEventListener("visibilitychange", () => {
+  function onVisibilityChange() {
     if (document.hidden) {
       cancelAnimationFrame(rafId);
       rafId = 0;
     } else if (!rafId) {
       rafId = requestAnimationFrame(raf);
     }
-  });
+  }
+  document.addEventListener("visibilitychange", onVisibilityChange);
 
-  nuxtApp.hook("page:finish", () => {
+  const removePageHook = nuxtApp.hook("page:finish", () => {
     lenis.scrollTo(0, { immediate: true });
     lenis.resize();
   });
+
+  if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+      cancelAnimationFrame(rafId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      removePageHook();
+      lenis.destroy();
+    });
+  }
 
   return { provide: { lenis } };
 });

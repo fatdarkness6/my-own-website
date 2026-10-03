@@ -1,0 +1,290 @@
+.music-menu {
+  --audio-accent: #3b82f6;
+  --audio-accent-light: #93c5fd;
+  --audio-text: #f8fafc;
+  --audio-muted: #94a3b8;
+
+  max-width: calc(100vw - 20px) !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: var(--ui-font, "Chakra Petch", monospace);
+}
+
+.music-menu__card {
+  position: relative;
+  width: min(320px, calc(100vw - 20px));
+  overflow: hidden;
+  color: var(--audio-text);
+  background:
+    linear-gradient(135deg, rgb(59 130 246 / 0.1), transparent 58%),
+    rgb(3 8 15 / 0.98) !important;
+  border: 1px solid rgb(59 130 246 / 0.46) !important;
+  border-top: 2px solid var(--audio-accent) !important;
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  box-shadow:
+    0 22px 55px rgb(0 0 0 / 0.72),
+    0 0 24px rgb(59 130 246 / 0.18) !important;
+}
+
+.music-menu__card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  opacity: 0.28;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 4px);
+}
+
+.music-menu__header,
+.music-menu__body {
+  position: relative;
+  z-index: 1;
+}
+
+.music-menu__header {
+  padding: 15px 16px 12px !important;
+}
+
+.music-menu__body {
+  padding: 16px !important;
+}
+
+.music-menu__heading {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.music-menu__eyebrow,
+.music-menu__channel,
+.music-menu__scale,
+.music-menu__codec {
+  font-size: 0.625rem;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  color: var(--audio-accent-light);
+}
+
+.music-menu__title {
+  margin-top: 2px;
+  font-family: var(--title-font, "Chakra Petch", sans-serif);
+  font-size: 0.875rem;
+  font-weight: 750;
+  letter-spacing: 0.11em;
+  color: var(--audio-text);
+}
+
+.music-menu__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+.music-menu__status-dot {
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+}
+
+.music-menu__status.is-live {
+  color: #22c55e;
+}
+
+.music-menu__status.is-live .music-menu__status-dot {
+  box-shadow: 0 0 8px rgb(34 197 94 / 0.8);
+}
+
+.music-menu__meter {
+  display: flex;
+  align-items: end;
+  gap: 3px;
+  height: 18px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.music-menu__meter span {
+  flex: 1 1 0;
+  height: 42%;
+  min-height: 2px;
+  background: rgb(59 130 246 / 0.28);
+  transform-origin: bottom;
+}
+
+.music-menu__meter span:nth-child(3n + 1) {
+  height: 68%;
+}
+
+.music-menu__meter span:nth-child(4n + 2) {
+  height: 100%;
+}
+
+.music-menu__meter span:nth-child(5n) {
+  height: 26%;
+}
+
+.music-menu__meter.is-live span {
+  background: var(--audio-accent);
+  animation: music-meter 0.8s steps(4, end) infinite alternate;
+  animation-delay: calc(var(--bar) * -67ms);
+}
+
+.music-menu__sep {
+  background: rgb(59 130 246 / 0.22) !important;
+}
+
+.music-menu__volume-head {
+  min-width: 0;
+  margin-bottom: 8px;
+}
+
+.music-menu__label {
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  color: var(--audio-text);
+}
+
+.music-menu__channel {
+  margin-top: 3px;
+  color: var(--audio-muted);
+}
+
+.music-menu__percent {
+  flex: none;
+  font-family: var(--title-font, "Chakra Petch", sans-serif);
+  font-size: 1.75rem;
+  font-weight: 750;
+  line-height: 1;
+  color: var(--audio-accent-light);
+}
+
+.music-menu__percent small {
+  margin-left: 2px;
+  font-size: 0.6875rem;
+}
+
+.music-menu__slider {
+  width: 100%;
+  min-height: 34px;
+  color: var(--audio-accent) !important;
+}
+
+.music-menu__slider .q-slider__track {
+  background: rgb(148 163 184 / 0.2) !important;
+}
+
+.music-menu__slider .q-slider__selection {
+  background: var(--audio-accent) !important;
+  box-shadow: 0 0 10px rgb(59 130 246 / 0.5);
+}
+
+.music-menu__slider .q-slider__thumb {
+  color: var(--audio-accent-light) !important;
+  filter: drop-shadow(0 0 5px rgb(59 130 246 / 0.9));
+}
+
+.music-menu__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -3px;
+  color: #64748b;
+}
+
+.music-menu__source {
+  gap: 8px;
+  min-width: 0;
+  margin: 16px 0 12px;
+  padding: 9px 10px;
+  background: rgb(15 23 42 / 0.7);
+  border: 1px solid rgb(59 130 246 / 0.16);
+}
+
+.music-menu__icon {
+  flex: none;
+  color: var(--audio-accent-light);
+}
+
+.music-menu__hint {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.6875rem;
+  letter-spacing: 0.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--audio-muted);
+}
+
+.music-menu__codec {
+  flex: none;
+  padding-left: 8px;
+  color: var(--audio-accent-light);
+  border-left: 1px solid rgb(59 130 246 / 0.25);
+}
+
+.music-menu__btn {
+  min-height: 44px;
+  padding-inline: 14px;
+  border-radius: 0 !important;
+  color: #020617 !important;
+  background: var(--audio-accent) !important;
+  font-family: var(--ui-font, monospace);
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+}
+
+.music-menu__btn .q-btn__content {
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 12px;
+}
+
+.music-menu__btn:hover,
+.music-menu__btn:focus-visible {
+  background: #60a5fa !important;
+  box-shadow: 0 0 18px rgb(59 130 246 / 0.35);
+}
+
+@keyframes music-meter {
+  0% {
+    transform: scaleY(0.32);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .music-menu__card {
+    width: min(294px, calc(100vw - 16px));
+  }
+
+  .music-menu__header {
+    padding: 13px 14px 10px !important;
+  }
+
+  .music-menu__body {
+    padding: 14px !important;
+  }
+
+  .music-menu__source {
+    margin-top: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-menu__meter.is-live span {
+    animation: none;
+  }
+}

@@ -13,4 +13,12 @@ export default defineNuxtPlugin(() => {
   };
 
   window.addEventListener("scroll", onScroll, { passive: true });
+
+  if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+      window.removeEventListener("scroll", onScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      document.documentElement.classList.remove("is-scrolling");
+    });
+  }
 });
