@@ -1,4 +1,6 @@
 .project-archive {
+  position: relative;
+  isolation: isolate;
   --archive-line: rgb(96 165 250 / 24%);
   --archive-accent: #60a5fa;
   color: var(--title-color);
@@ -16,6 +18,8 @@
 .archive-filebar > span:last-child { display: flex; align-items: center; gap: 10px; }
 .archive-filebar i { width: 5px; height: 5px; background: var(--archive-accent); box-shadow: 0 0 12px #3b82f6; }
 .archive-intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: center; padding: 32px 0; }
+.archive-intro > div:first-child { position: relative; isolation: isolate; }
+.archive-intro > div:first-child::before { content: ""; position: absolute; inset: -32px -64px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse, rgb(0 0 0 / 92%) 55%, transparent 75%); }
 .archive-label { font: 500 .72rem/1.65 var(--ui-font); color: var(--archive-accent); letter-spacing: .06em; }
 .project-archive .archive-title { font: 650 clamp(2.5rem, 4vw, 4rem)/1.1 var(--title-font); margin: 12px 0 16px; letter-spacing: -.02em; }
 .archive-lead { max-width: 58ch; font: 400 clamp(1rem, 1vw + .5rem, 1.125rem)/1.85 var(--ui-font); color: #bac7d9; }

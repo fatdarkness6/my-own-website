@@ -26,6 +26,7 @@ watch(
 
 <template>
   <article id="about-main" class="dossier">
+    <AboutBackground :active="started" />
     <a class="dossier-skip" href="#profile">Skip to engineering profile</a>
     <div class="dossier-filebar">
       <span>PERSONNEL FILE / AS-001</span>

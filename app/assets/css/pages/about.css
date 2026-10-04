@@ -2,6 +2,7 @@
   --dossier-line: rgb(96 165 250 / 0.22);
   --dossier-panel: #060b13;
   position: relative;
+  isolation: isolate;
   padding-top: 28px;
   scroll-margin-top: 112px;
   color: var(--title-color);

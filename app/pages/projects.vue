@@ -50,6 +50,7 @@ watch(introReady, (ready) => {
 
 <template>
   <article id="projects-main" class="project-archive">
+    <ProjectsBackground :active="started" :file-number="fileNumber(current.id)" />
     <div class="archive-filebar">
       <span>ARSAM / PROJECT FILESYSTEM</span>
       <span><i aria-hidden="true" /> {{ String(projects.length).padStart(2, '0') }} FILES INDEXED</span>
