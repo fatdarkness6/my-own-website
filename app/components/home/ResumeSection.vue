@@ -1,22 +1,23 @@
 <script setup>
+const { c, localePath } = usePortfolioI18n();
 import { homeCopy } from "~/assets/data/homeCopy";
 import { resumeSections } from "~/assets/data/resume";
 
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
-const titleSegments = homeCopy.resume.title;
+const titleSegments = usePortfolioI18n().content(homeCopy.resume.title);
 const description =
   "A closer look at the applications I've built, the tools I use and how I work.";
 const linkText = "View my résumé";
 
-const entries = resumeSections;
+const entries = usePortfolioI18n().content(resumeSections);
 
 const order = [
   "eyebrow",
   "title",
   "desc",
   "document",
-  ...entries.flatMap((entry) => [`${entry.id}-title`, `${entry.id}-detail`]),
+  ...entries.value.flatMap((entry) => [`${entry.id}-title`, `${entry.id}-detail`]),
   "link",
 ];
 
@@ -47,7 +48,7 @@ watch(
       <header class="resume__copy">
         <p class="resume__eyebrow">
           <AnimationTypedLine
-            text="// 04. RESUME"
+            :text="c(&quot;// 04. RESUME&quot;)"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"
@@ -64,7 +65,7 @@ watch(
 
         <p class="resume__desc">
           <AnimationTypedLine
-            :text="description"
+            :text="c(description)"
             :speed="14"
             :glitch="7000"
             v-bind="line('desc')"
@@ -100,7 +101,7 @@ watch(
           </svg>
           <span class="resume-index__filename">
             <AnimationTypedLine
-              text="resume.index"
+              :text="c(&quot;resume.index&quot;)"
               :speed="20"
               :glitch="5800"
               v-bind="line('document')"
@@ -109,7 +110,7 @@ watch(
           <span class="resume-index__bar-mark" aria-hidden="true">[ ]</span>
         </div>
 
-        <ol class="resume-index__list" aria-label="Résumé contents">
+        <ol class="resume-index__list" :aria-label="c(&quot;Résumé contents&quot;)">
           <li
             v-for="entry in entries"
             :key="entry.id"
@@ -130,14 +131,14 @@ watch(
             <div class="resume-index__entry">
               <h3 class="resume-index__heading">
                 <AnimationTypedLine
-                  :text="entry.title"
+                  :text="c(entry.title)"
                   :speed="18"
                   v-bind="line(`${entry.id}-title`)"
                 />
               </h3>
               <p class="resume-index__detail">
                 <AnimationTypedLine
-                  :text="entry.detail"
+                  :text="c(entry.detail)"
                   :speed="12"
                   v-bind="line(`${entry.id}-detail`)"
                 />
@@ -151,12 +152,12 @@ watch(
           square
           no-caps
           no-ripple
-          to="/resume"
+          :to="localePath(&quot;/resume&quot;)"
           :disable="!finished"
           class="resume-index__link"
         >
           <AnimationTypedLine
-            :text="linkText"
+            :text="c(linkText)"
             :speed="20"
             v-bind="line('link')"
           />

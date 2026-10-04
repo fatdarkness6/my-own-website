@@ -1,4 +1,5 @@
 <script setup>
+import { graphemes, glitchAlphabet, scrambleGrapheme, textDirection } from "~/utils/animatedText";
 const props = defineProps({
   segments: { type: Array, required: true },
   active: { type: Boolean, default: false },
@@ -24,7 +25,7 @@ const accentTerms = computed(() =>
 
 const characters = computed(() =>
   props.segments.flatMap((segment) =>
-    Array.from(segment.text).map((character) => ({
+    graphemes(segment.text).map((character) => ({
       character,
       accent: Boolean(segment.accent),
       glitch: segment.glitch !== false,
@@ -39,6 +40,7 @@ const glitchInterval = computed(() => {
 });
 
 const displayedCharacters = ref([]);
+const alphabet = computed(() => glitchAlphabet(text.value, props.chars));
 const glitching = ref(false);
 let timer;
 let raf = 0;
@@ -47,8 +49,15 @@ const resetCharacters = () => {
   displayedCharacters.value = characters.value.map(({ character }) => character);
 };
 
-const randomCharacter = () =>
-  props.chars[Math.floor(Math.random() * props.chars.length)];
+const completedSegments = computed(() => {
+  let offset = 0;
+  return props.segments.map((segment) => {
+    const count = graphemes(segment.text).length;
+    const display = displayedCharacters.value.slice(offset, offset + count).join("");
+    offset += count;
+    return { ...segment, display: display || segment.text };
+  });
+});
 
 function stopGlitch() {
   if (raf && typeof cancelAnimationFrame !== "undefined") {
@@ -81,9 +90,9 @@ function runGlitch() {
       );
       displayedCharacters.value = characters.value.map(
         ({ character, glitch }, index) =>
-          character === " " || !glitch || index < revealed
+          !/\p{Letter}|\p{Number}/u.test(character) || !glitch || index < revealed
             ? character
-            : randomCharacter(),
+            : scrambleGrapheme(character, alphabet.value),
       );
     }
 
@@ -95,7 +104,7 @@ function runGlitch() {
 
 function scheduleGlitch() {
   clearTimeout(timer);
-  if (!props.done) return;
+  if (!props.done || !import.meta.client) return;
   timer = setTimeout(() => {
     runGlitch();
     scheduleGlitch();
@@ -129,14 +138,15 @@ onBeforeUnmount(() => {
     <span
       class="segmented-line__complete"
       :class="{ 'is-glitching': glitching }"
+      :dir="textDirection(text)"
       aria-hidden="true"
     >
       <span
-        v-for="(item, index) in characters"
+        v-for="(item, index) in completedSegments"
         :key="index"
         class="segmented-line__character"
         :class="{ 'segmented-line__accent': item.accent }"
-        >{{ displayedCharacters[index] ?? item.character }}</span
+        >{{ item.display }}</span
       >
     </span>
   </AnimationTypedLine>

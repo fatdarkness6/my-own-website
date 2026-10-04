@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { aboutPageCopy } from "~/assets/data/aboutPage";
+const { c, localePath } = usePortfolioI18n();
+import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
+const aboutPageCopy = usePortfolioI18n().content(sourceCopy);
 
-const selected = ref(aboutPageCopy.tools[0]!.id);
+const selected = ref(aboutPageCopy.value.tools[0]!.id);
 const current = computed(
-  () => aboutPageCopy.tools.find((tool) => tool.id === selected.value)!,
+  () => aboutPageCopy.value.tools.find((tool) => tool.id === selected.value)!,
 );
 </script>
 
@@ -11,11 +13,11 @@ const current = computed(
   <div class="dossier-toolkit">
     <div class="dossier-toolkit__map">
       <div class="dossier-toolkit__hub" aria-hidden="true">
-        <span class="dossier-label">ARSAM / STACK</span>
-        <strong>INTERFACE → SYSTEM → DELIVERY</strong>
+        <span class="dossier-label">{{ c("ARSAM / STACK") }}</span>
+        <strong>{{ c("INTERFACE → SYSTEM → DELIVERY") }}</strong>
         <span class="dossier-toolkit__hub-line" />
       </div>
-      <div class="dossier-toolkit__nodes" role="group" aria-label="Explore my tools">
+      <div class="dossier-toolkit__nodes" role="group" :aria-label="c(&quot;Explore my tools&quot;)">
         <q-btn
           v-for="tool in aboutPageCopy.tools"
           :key="tool.id"
@@ -54,15 +56,15 @@ const current = computed(
           </span>
           <q-icon :name="current.icon" size="30px" aria-hidden="true" />
         </div>
-        <h3 class="dossier-lead"><CommonPageGlitch :key="current.id" :text="current.title" /></h3>
-        <p class="dossier-body"><CommonPageGlitch :text="current.text" :interval="14000" /></p>
+        <h3 class="dossier-lead"><CommonPageGlitch :key="current.id" :text="c(current.title)" /></h3>
+        <p class="dossier-body"><CommonPageGlitch :text="c(current.text)" :interval="14000" /></p>
         <div class="dossier-tags">
           <q-badge v-for="tag in current.tags" :key="tag" outline>{{ tag }}</q-badge>
         </div>
       </q-card-section>
       <q-separator dark />
       <q-card-section class="dossier-toolkit__evidence">
-        <span class="dossier-label">CONTEXT / IN PRACTICE</span>
+        <span class="dossier-label">{{ c("CONTEXT / IN PRACTICE") }}</span>
         <p class="dossier-body">{{ current.evidence }}</p>
       </q-card-section>
     </q-card>

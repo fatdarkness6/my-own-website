@@ -1,14 +1,16 @@
 <script setup>
+const { c, localePath, rtl } = usePortfolioI18n();
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useScrollSections } from "~/composables/useScrollSections";
 
-const links = [
+const routeBaseName = useRouteBaseName();
+const links = computed(() => [
   { label: "Home", to: "/" },
   { label: "About", to: "/about" },
   { label: "Projects", to: "/projects" },
   { label: "Resume", to: "/resume" },
-];
+].map((link) => ({ ...link, label: c(link.label), to: localePath(link.to) })));
 
 const menuIcon = "M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z";
 
@@ -30,7 +32,8 @@ watch(
 );
 
 const currentLabel = computed(() => {
-  if (route.path !== "/") return route.path.slice(1) || "home";
+  const name = String(routeBaseName() || "index");
+  if (name !== "index") return c({ about: "About", projects: "Projects", resume: "Resume", contact: "Contact" }[name] || "Home");
   return sections[currentIndex.value]?.id || "hero";
 });
 
@@ -55,7 +58,7 @@ const sectionCounter = computed(
           round
           no-ripple
           :icon="menuIcon"
-          aria-label="Open menu"
+          :aria-label="c(&quot;Open menu&quot;)"
         >
           <q-menu
             class="app-header-menu"
@@ -73,22 +76,22 @@ const sectionCounter = computed(
                 :to="link.to"
               >
                 <q-item-section>
-                  <AnimationGlitchText :text="link.label" />
+                  <AnimationGlitchText :text="c(link.label)" />
                 </q-item-section>
               </q-item>
             </q-list>
           </q-menu>
         </q-btn>
 
-        <div class="app-header__identity" aria-label="Arsam Sarkhosh portfolio">
-          <span class="app-header__monogram" aria-hidden="true">A/S</span>
+        <div class="app-header__identity" :aria-label="c(&quot;Arsam Sarkhosh portfolio&quot;)">
+          <span class="app-header__monogram" aria-hidden="true">{{ c("A/S") }}</span>
           <span class="app-header__identity-copy gt-sm">
-            <strong>ARSAM.SYS</strong>
-            <small>PORTFOLIO NODE</small>
+            <strong>{{ c("ARSAM.SYS") }}</strong>
+            <small>{{ c("PORTFOLIO NODE") }}</small>
           </span>
         </div>
 
-        <nav class="gt-sm" aria-label="Main">
+        <nav class="gt-sm" :aria-label="c(&quot;Main&quot;)">
           <q-tabs
             v-model="activeTab"
             class="app-header__nav"
@@ -105,7 +108,7 @@ const sectionCounter = computed(
               :exact="route.path !== link.to || !route.hash"
               class="nav-link"
             >
-              <AnimationGlitchText :text="link.label" />
+              <AnimationGlitchText :text="c(link.label)" />
             </q-route-tab>
           </q-tabs>
         </nav>
@@ -114,13 +117,13 @@ const sectionCounter = computed(
 
         <div class="app-header__telemetry gt-md" aria-hidden="true">
           <span class="app-header__telemetry-state">
-            <i /> ONLINE
-          </span>
+            <i />{{ c("ONLINE") }}</span>
           <span class="app-header__telemetry-route">
-            <template v-if="route.path === '/' && sections.length">{{ sectionCounter }} </template>// {{ currentLabel.toUpperCase() }}
+            <template v-if="routeBaseName() === 'index' && sections.length"><bdi dir="ltr">{{ sectionCounter }}</bdi> </template>// {{ currentLabel.toUpperCase() }}
           </span>
         </div>
 
+        <AppLanguageControl />
         <AppMusicControl class="q-mr-sm" />
 
         <q-btn
@@ -128,9 +131,9 @@ const sectionCounter = computed(
           unelevated
           no-caps
           no-ripple
-          to="/contact"
+          :to="localePath(&quot;/contact&quot;)"
         >
-          <AnimationGlitchText text="Get in touch" />
+          <AnimationGlitchText :text="c(&quot;Get in touch&quot;)" />
         </q-btn>
       </q-toolbar>
 
@@ -145,7 +148,7 @@ const sectionCounter = computed(
             :key="index"
             class="app-header__progress-node"
             :class="{ 'is-passed': index <= currentIndex }"
-            :style="{ left: `${(index / Math.max(sections.length - 1, 1)) * 100}%` }"
+            :style="{ [rtl ? 'right' : 'left']: `${(index / Math.max(sections.length - 1, 1)) * 100}%` }"
           />
         </div>
       </div>

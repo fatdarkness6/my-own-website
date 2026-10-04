@@ -20,10 +20,11 @@
 
 <script lang="ts" setup>
 definePageMeta({ layout: "scroll" });
+const { c } = usePortfolioI18n();
 
 useSeoMeta({
-  title: "Arsam Sarkhosh — Full-Stack Engineer",
+  title: () => c("Arsam Sarkhosh — Full-Stack Engineer"),
   description:
-    "Full-stack engineer specializing in Vue, Nuxt, Node.js and Python, building production web applications, backend APIs, interactive experiences and AI-powered systems.",
+    () => c("Full-stack engineer specializing in Vue, Nuxt, Node.js and Python, building production web applications, backend APIs, interactive experiences and AI-powered systems."),
 });
 </script>

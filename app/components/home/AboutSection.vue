@@ -1,4 +1,5 @@
 <script setup>
+const { c, localePath } = usePortfolioI18n();
 import { homeCopy } from "~/assets/data/homeCopy";
 
 const $q = useQuasar();
@@ -8,7 +9,7 @@ const copyFinished = ref(false);
 let copyStarted = false;
 const playedCards = new WeakSet();
 
-const titleSegments = homeCopy.about.title;
+const titleSegments = usePortfolioI18n().content(homeCopy.about.title);
 const description =
   "Full-stack engineer building production apps, APIs and interactive experiences with Vue, Nuxt, Node.js and Python.";
 
@@ -50,7 +51,7 @@ watch(
       <div class="about__copy">
         <p class="about__eyebrow">
           <AnimationTypedLine
-            text="// 02. ABOUT"
+            :text="c(&quot;// 02. ABOUT&quot;)"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"
@@ -67,7 +68,7 @@ watch(
 
         <p class="about__desc">
           <AnimationTypedLine
-            :text="description"
+            :text="c(description)"
             :glitch="7000"
             v-bind="line('desc')"
           />

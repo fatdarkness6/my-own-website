@@ -33,7 +33,8 @@ npm run preview
 
 ## Where to make changes
 
-- Headings and accent segments: `app/assets/data/homeCopy.js`.
+- Headings and accent segments: `app/assets/data/homeCopy.ts`.
+- Translations, RTL and localized routes: see [i18n/README.md](i18n/README.md).
 - Project cards: `app/assets/data/projects.ts`.
 - About-page story, principles, and toolkit: `app/assets/data/about.ts`.
 - About-page sections: `app/components/about/`; styling: `app/assets/css/pages/about.css`.

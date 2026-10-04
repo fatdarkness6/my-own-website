@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { aboutPageCopy } from "~/assets/data/aboutPage";
+const { c, localePath } = usePortfolioI18n();
+import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
+const aboutPageCopy = usePortfolioI18n().content(sourceCopy);
 </script>
 
 <template>
@@ -13,10 +15,10 @@ import { aboutPageCopy } from "~/assets/data/aboutPage";
     >
       <q-card-section>
         <div class="dossier-principle__meta">
-          <span class="dossier-label">SCOPE / {{ capability.code }}</span>
+          <span class="dossier-label">{{ c("SCOPE /") }}{{ capability.code }}</span>
           <q-icon :name="capability.icon" size="26px" aria-hidden="true" />
         </div>
-        <h3><CommonPageGlitch :text="capability.title" /></h3>
+        <h3><CommonPageGlitch :text="c(capability.title)" /></h3>
         <ul class="dossier-body dossier-capability__skills">
           <li v-for="skill in capability.skills" :key="skill">{{ skill }}</li>
         </ul>

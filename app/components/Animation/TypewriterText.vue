@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { useTypeSound } from "~/composables/useTypeSound";
+import { graphemes, textDirection } from "~/utils/animatedText";
 
 const props = defineProps({
   text: { type: String, required: true },
@@ -25,8 +26,9 @@ const isTyping = ref(false);
 
 const { load, tick } = useTypeSound();
 
-const characters = computed(() => Array.from(props.text));
-const revealedCount = computed(() => Array.from(displayed.value).length);
+const characters = computed(() => graphemes(props.text));
+const revealedCount = computed(() => graphemes(displayed.value).length);
+const direction = computed(() => textDirection(props.text));
 const accentIndexes = computed(() => {
   const indexes = new Set();
 
@@ -46,6 +48,27 @@ const accentIndexes = computed(() => {
   return indexes;
 });
 
+// Reserve complete words instead of wrapping each Arabic letter in a span.
+// This preserves cursive shaping and keeps word positions stable while typing.
+const words = computed(() => {
+  let offset = 0;
+  let index = 0;
+  return (props.text.match(/\S+|\s+/gu) ?? []).map((text) => {
+    const count = graphemes(text).length;
+    const item = {
+      text, start: index, count, whitespace: /^\s+$/u.test(text),
+      accent: Array.from({ length: text.length }, (_, i) => offset + i)
+        .some((i) => accentIndexes.value.has(i)),
+      direction: textDirection(text),
+    };
+    offset += text.length;
+    index += count;
+    return item;
+  });
+});
+const visibleWord = (word) => graphemes(word.text)
+  .slice(0, Math.max(0, revealedCount.value - word.start)).join("");
+
 let typingTimeout = null;
 let cursorInterval = null;
 let disposed = false;
@@ -58,14 +81,14 @@ function playTick() {
 function typeChar(index) {
   typingTimeout = null;
   if (disposed) return;
-  if (index >= props.text.length) {
+  if (index >= characters.value.length) {
     isTyping.value = false;
     emit("done");
     return;
   }
-  displayed.value += props.text[index];
+  displayed.value += characters.value[index];
   // don't click on spaces, sounds more natural
-  if (props.text[index] !== " ") playTick();
+  if (characters.value[index].trim()) playTick();
   typingTimeout = setTimeout(() => typeChar(index + 1), props.speed);
 }
 
@@ -92,7 +115,12 @@ defineExpose({ start, finish });
 
 onMounted(() => {
   // Start from the child's lifecycle, never from an unbound parent ref.
-  if (props.autoStart) start();
+  if (props.autoStart) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      isTyping.value = true;
+      finish();
+    } else start();
+  }
   // shared + cached: loads once no matter how many typewriters exist
   if (props.sound) load(props.soundSrc);
   if (props.cursor) {
@@ -100,6 +128,11 @@ onMounted(() => {
       showCursor.value = !showCursor.value;
     }, 500);
   }
+});
+
+watch(() => props.text, () => {
+  if (isTyping.value) start();
+  else displayed.value = props.text;
 });
 
 onBeforeUnmount(() => {
@@ -110,41 +143,19 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <span class="typewriter">
-    <span class="typewriter__prefix" v-if="prefix">{{ prefix }}</span>
+  <span class="typewriter" :dir="direction">
+    <bdi class="typewriter__prefix" v-if="prefix" dir="ltr">{{ prefix }}</bdi>
     <span class="typewriter__text">
-      <template v-for="(character, index) in characters" :key="index">
-        <span
-          v-if="cursor && index === revealedCount"
-          class="typewriter__cursor-anchor"
-          aria-hidden="true"
-        >
-          <span
-            class="typewriter__cursor"
-            :class="{ 'is-hidden': !showCursor }"
-            >█</span
-          >
+      <template v-for="(word, index) in words" :key="index">
+        <template v-if="word.whitespace">{{ word.text }}</template>
+        <span v-else class="typewriter__word" :dir="word.direction" :class="{ 'is-accent': word.accent }">
+          <span class="typewriter__word-reserve" aria-hidden="true">{{ word.text }}</span>
+          <span class="typewriter__word-live">{{ visibleWord(word) }}<span
+            v-if="cursor && revealedCount > word.start && revealedCount <= word.start + word.count"
+            class="typewriter__cursor-anchor" aria-hidden="true"
+          ><span class="typewriter__cursor" :class="{ 'is-hidden': !showCursor }">█</span></span></span>
         </span>
-        <span
-          class="typewriter__char"
-          :class="{
-            'is-visible': index < revealedCount,
-            'is-accent': accentIndexes.has(index),
-          }"
-          >{{ character }}</span
-        >
       </template>
-      <span
-        v-if="cursor && revealedCount >= characters.length"
-        class="typewriter__cursor-anchor"
-        aria-hidden="true"
-      >
-        <span
-          class="typewriter__cursor"
-          :class="{ 'is-hidden': !showCursor }"
-          >█</span
-        >
-      </span>
     </span>
   </span>
 </template>
@@ -155,21 +166,31 @@ onBeforeUnmount(() => {
   white-space: pre-wrap;
 }
 
-.typewriter__char {
+.typewriter__word {
+  position: relative;
+  display: inline-grid;
+  max-width: 100%;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.typewriter__word-reserve {
   visibility: hidden;
 }
 
-.typewriter__char.is-visible {
-  visibility: visible;
+.typewriter__word-live {
+  position: absolute;
+  inset: 0;
+  text-align: start;
 }
 
-.typewriter__char.is-accent {
+.typewriter__word.is-accent {
   color: var(--eyebrow-color, #3b82f6);
 }
 
 .typewriter__prefix {
   color: var(--eyebrow-color, #3b82f6);
-  margin-right: 4px;
+  margin-inline-end: 4px;
 }
 
 .typewriter__cursor-anchor {

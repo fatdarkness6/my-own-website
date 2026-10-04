@@ -1,5 +1,6 @@
 <script setup>
-import { homeCopy } from "~/assets/data/homeCopy";
+const { c, content, rtl } = usePortfolioI18n();
+import { homeCopy as sourceCopy } from "~/assets/data/homeCopy";
 
 defineProps({
   avatarSrc: { type: String, default: "/images/background.png" },
@@ -11,14 +12,14 @@ const introReady = useState("introReady", () => false);
 const introPlayed = useState("introPlayed", () => false);
 
 const eyebrow = "FULL-STACK ENGINEER";
-const taglineSegments = homeCopy.hero.tagline;
+// Keep Latin technology names separate from localized prose for stable bidi layout.
+const technologySegments = sourceCopy.hero.technologies;
+const taglineSegments = content(sourceCopy.hero.tagline);
 
 const { play, complete, line, finished } = useTypingSequence(
-  ["eyebrow", "tagline", "first-name", "last-name"],
-  { onFinish: () => (introPlayed.value = true) },
+  ["eyebrow", "technologies", "tagline", "first-name", "last-name"],
+  { onceKey: "home-hero", onFinish: () => (introPlayed.value = true) },
 );
-
-if (introPlayed.value) complete();
 
 watch(
   introReady,
@@ -55,32 +56,40 @@ watch(
     <div class="hero__text">
       <p class="hero__eyebrow eyebrow text-accent">
         <AnimationTypedLine
-          :text="eyebrow"
+          :text="c(eyebrow)"
           :speed="45"
           :glitch="4000"
           v-bind="line('eyebrow')"
         />
       </p>
 
-      <p class="hero__tagline description">
-        <AnimationSegmentedLine
-          :segments="taglineSegments"
-          :speed="45"
-          class="hero__tagline-line"
-          v-bind="line('tagline')"
-        />
+      <p class="hero__tagline description" :class="{ 'hero__tagline--rtl': rtl }">
+        <bdi dir="ltr" class="hero__technologies">
+          <AnimationSegmentedLine
+            :segments="technologySegments"
+            :speed="45"
+            v-bind="line('technologies')"
+          />
+        </bdi>
+        <bdi :dir="rtl ? 'rtl' : 'ltr'" class="hero__tagline-copy">
+          <AnimationSegmentedLine
+            :segments="taglineSegments"
+            :speed="45"
+            v-bind="line('tagline')"
+          />
+        </bdi>
       </p>
 
       <h1 class="hero__name title">
         <AnimationTypedLine
-          text="ARSAM"
+          :text="c(&quot;ARSAM&quot;)"
           :speed="45"
           :glitch="4500"
           class="hero__name-row"
           v-bind="line('first-name')"
         />
         <AnimationTypedLine
-          text="SARKHOSH"
+          :text="c(&quot;SARKHOSH&quot;)"
           :speed="45"
           :glitch="5200"
           :accent-terms="['SARKHOSH']"

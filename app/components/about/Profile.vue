@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { aboutPageCopy } from "~/assets/data/aboutPage";
+const { c, localePath } = usePortfolioI18n();
+import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
+const aboutPageCopy = usePortfolioI18n().content(sourceCopy);
 const expanded = ref<string | null>("frontend");
 </script>
 
@@ -7,18 +9,18 @@ const expanded = ref<string | null>("frontend");
   <div class="dossier-profile">
     <div class="dossier-profile__intro">
       <p class="dossier-lead">
-        <CommonPageGlitch text="From interface" />
+        <CommonPageGlitch :text="c(&quot;From interface&quot;)" />
         <br />
-        <span class="dossier-accent"><CommonPageGlitch text="to production." :interval="10000" /></span>
+        <span class="dossier-accent"><CommonPageGlitch :text="c(&quot;to production.&quot;)" :interval="10000" /></span>
       </p>
-      <p class="dossier-body">Strong Vue/Nuxt experience, backed by work across services, data, integrations and production delivery.</p>
+      <p class="dossier-body">{{ c("Strong Vue/Nuxt experience, backed by work across services, data, integrations and production delivery.") }}</p>
       <div class="dossier-tags">
-        <q-badge outline>GREENFIELD</q-badge>
-        <q-badge outline>EXISTING SYSTEMS</q-badge>
+        <q-badge outline>{{ c("GREENFIELD") }}</q-badge>
+        <q-badge outline>{{ c("EXISTING SYSTEMS") }}</q-badge>
       </div>
-      <span class="dossier-label dossier-muted">EXPAND A RECORD FOR TECHNICAL CONTEXT ↓</span>
+      <span class="dossier-label dossier-muted">{{ c("EXPAND A RECORD FOR TECHNICAL CONTEXT ↓") }}</span>
     </div>
-    <q-list class="dossier-records" aria-label="Engineering responsibilities">
+    <q-list class="dossier-records" :aria-label="c(&quot;Engineering responsibilities&quot;)">
       <q-expansion-item
         v-for="(entry, index) in aboutPageCopy.profile"
         :key="entry.id"
@@ -35,8 +37,8 @@ const expanded = ref<string | null>("frontend");
           <q-item-section side class="dossier-record__number">{{ String(index + 1).padStart(2, '0') }}</q-item-section>
           <q-item-section>
             <span class="dossier-label">{{ entry.tag }}</span>
-            <h3 class="dossier-record__title"><CommonPageGlitch :text="entry.title" /></h3>
-            <p class="dossier-body dossier-record__summary"><CommonPageGlitch :text="entry.summary" :interval="14000" /></p>
+            <h3 class="dossier-record__title"><CommonPageGlitch :text="c(entry.title)" /></h3>
+            <p class="dossier-body dossier-record__summary"><CommonPageGlitch :text="c(entry.summary)" :interval="14000" /></p>
           </q-item-section>
         </template>
         <div class="dossier-record__detail">

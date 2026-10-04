@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { projects } from "~/assets/data/projects";
+const { c, localePath } = usePortfolioI18n();
+import { projects as sourceProjects } from "~/assets/data/projects";
+const projects = usePortfolioI18n().content(sourceProjects);
 
 useSeoMeta({
-  title: "Projects — Arsam Sarkhosh | Full-Stack Engineer",
+  title: () => c("Projects — Arsam Sarkhosh | Full-Stack Engineer"),
   description:
-    "Explore Arsam Sarkhosh's project files: multilingual web platforms, full-stack applications and AI document intelligence. Architecture, tools and contributions.",
+    () => c("Explore Arsam Sarkhosh's project files: multilingual web platforms, full-stack applications and AI document intelligence. Architecture, tools and contributions."),
 });
 const filters = [
   { id: "all", label: "All files" },
@@ -16,14 +18,14 @@ const route = useRoute();
 const router = useRouter();
 const selectedId = computed({
   get: () =>
-    projects.find((project) => project.id === route.query.project)?.id ??
-    projects[0]!.id,
+    projects.value.find((project) => project.id === route.query.project)?.id ??
+    projects.value[0]!.id,
   set: (id: string) => {
     void router.replace({ query: { ...route.query, project: id } });
   },
 });
 watch(selectedId, (id) => {
-  const project = projects.find((item) => item.id === id)!;
+  const project = projects.value.find((item) => item.id === id)!;
   if (filter.value !== "all" && project.category !== filter.value)
     filter.value = "all";
 });
@@ -32,15 +34,15 @@ watch(selectedId, () => {
   previewOpen.value = false;
 });
 const visibleProjects = computed(() =>
-  projects.filter(
+  projects.value.filter(
     (project) => filter.value === "all" || project.category === filter.value,
   ),
 );
 const current = computed(
-  () => projects.find((project) => project.id === selectedId.value)!,
+  () => projects.value.find((project) => project.id === selectedId.value)!,
 );
 const fileNumber = (id: string) =>
-  String(projects.findIndex((project) => project.id === id) + 1).padStart(
+  String(projects.value.findIndex((project) => project.id === id) + 1).padStart(
     2,
     "0",
   );
@@ -58,10 +60,10 @@ const { play, complete, line, started } = useTypingSequence(
     onceKey: "projects-archive",
   },
 );
-const title = [
+const title = usePortfolioI18n().content([
   { text: "BUILT. ", glitch: false },
   { text: "NOT JUST IMAGINED.", accent: true, interval: 8000 },
-];
+]);
 watch(
   introReady,
   (ready) => {
@@ -81,17 +83,17 @@ watch(
       :file-number="fileNumber(current.id)"
     />
     <div class="archive-filebar">
-      <span>ARSAM / PROJECT FILESYSTEM</span>
+      <span>{{ c("ARSAM / PROJECT FILESYSTEM") }}</span>
       <span
         ><i aria-hidden="true" />
-        {{ String(projects.length).padStart(2, "0") }} FILES INDEXED</span
+        {{ String(projects.length).padStart(2, "0") }} {{ c("FILES INDEXED") }}</span
       >
     </div>
     <header class="archive-intro">
       <div>
         <p class="archive-label">
           <AnimationTypedLine
-            text="// SELECTED WORK. OPEN FOR INSPECTION."
+            :text="c(&quot;// SELECTED WORK. OPEN FOR INSPECTION.&quot;)"
             :speed="12"
             :glitch="11000"
             v-bind="line('label')"
@@ -106,24 +108,24 @@ watch(
         </h1>
         <p class="archive-lead">
           <CommonPageGlitch
-            text="A quick look at what I build. Pick a project. See it in action."
+            :text="c(&quot;A quick look at what I build. Pick a project. See it in action.&quot;)"
             :interval="14000"
           />
         </p>
       </div>
       <div class="archive-stamp" aria-hidden="true">
-        <span>WORK ARCHIVE</span
+        <span>{{ c("WORK ARCHIVE") }}</span
         ><strong>{{ String(projects.length).padStart(2, "0") }}</strong
-        ><span>IDEA → IMPLEMENTATION</span>
+        ><span>{{ c("IDEA → IMPLEMENTATION") }}</span>
       </div>
     </header>
 
-    <section class="archive-workspace" aria-label="Interactive project archive">
+    <section class="archive-workspace" :aria-label="c(&quot;Interactive project archive&quot;)">
       <div class="archive-toolbar">
         <span class="archive-path"
-          ><span aria-hidden="true">~/</span> work /</span
+          ><span aria-hidden="true">~/</span>{{ c("work /") }}</span
         >
-        <div class="archive-filters" role="group" aria-label="Filter projects">
+        <div class="archive-filters" role="group" :aria-label="c(&quot;Filter projects&quot;)">
           <q-btn
             v-for="option in filters"
             :key="option.id"
@@ -133,14 +135,14 @@ watch(
             :aria-pressed="filter === option.id"
             :class="{ 'is-active': filter === option.id }"
             @click="filter = option.id"
-            >{{ option.label }}</q-btn
+            >{{ c(option.label) }}</q-btn
           >
         </div>
       </div>
       <div class="archive-browser">
-        <nav class="archive-directory" aria-label="Choose a project">
+        <nav class="archive-directory" :aria-label="c(&quot;Choose a project&quot;)">
           <div class="archive-directory__heading archive-label">
-            <span>PROJECT INDEX</span
+            <span>{{ c("PROJECT INDEX") }}</span
             ><span>{{ visibleProjects.length }} / {{ projects.length }}</span>
           </div>
           <q-btn
@@ -170,28 +172,27 @@ watch(
             >
           </q-btn>
           <p class="archive-directory__note">
-            <span aria-hidden="true">↳</span> Select a file. Inspect the build.
-          </p>
+            <span aria-hidden="true">↳</span>{{ c("Select a file. Inspect the build.") }}</p>
         </nav>
         <div
           id="project-file"
           class="archive-detail"
           role="region"
-          :aria-label="`${current.name} project details`"
+          :aria-label="`${c('View project')}: ${current.name}`"
         >
           <span class="archive-sr-only" role="status"
-            >Opened {{ current.name }}. {{ current.ownership }}.</span
+            >{{ c("Opened") }} {{ current.name }}. {{ current.ownership }}.</span
           >
           <CommonHackerReveal :key="current.id" :show="started" :duration="460">
             <q-card flat square class="archive-record">
               <div class="archive-record__bar">
-                <span>OPEN / {{ current.file }}</span
+                <span>{{ c("OPEN /") }} {{ current.file }}</span
                 ><q-badge
                   v-if="current.status === 'live'"
                   outline
                   class="archive-live"
-                  >{{ current.statusLabel ?? 'LIVE' }}</q-badge
-                ><span v-else>{{ current.statusLabel ?? 'PROJECT FILE' }}</span>
+                  >{{ current.statusLabel ?? c('LIVE') }}</q-badge
+                ><span v-else>{{ current.statusLabel ?? c('PROJECT FILE') }}</span>
               </div>
               <div class="archive-showcase">
                 <ProjectsPreview
@@ -206,12 +207,10 @@ watch(
                   no-caps
                   no-ripple
                   class="archive-enlarge"
-                  :aria-label="`Enlarge ${current.name} screenshot`"
+                  :aria-label="`${c('Enlarge')}: ${current.name} ${c('/ SCREENSHOT')}`"
                   @click="previewOpen = true"
                 >
-                  <q-icon name="fullscreen" size="20px" aria-hidden="true" />
-                  Enlarge
-                </q-btn>
+                  <q-icon name="fullscreen" size="20px" aria-hidden="true" />{{ c("Enlarge") }}</q-btn>
               </div>
               <q-card-section class="archive-record__intro">
                 <div class="archive-record__identity">
@@ -222,17 +221,17 @@ watch(
                         / {{ current.year }}</template
                       >
                     </p>
-                    <h2><CommonPageGlitch :text="current.name" /></h2>
+                    <h2><CommonPageGlitch :text="c(current.name)" /></h2>
                   </div>
                   <span class="archive-record__number" aria-hidden="true">{{
                     fileNumber(current.id)
                   }}</span>
                 </div>
                 <p class="archive-body">
-                  <CommonPageGlitch :text="current.summary" :interval="14000" />
+                  <CommonPageGlitch :text="c(current.summary)" :interval="14000" />
                 </p>
                 <p v-if="current.availability" class="archive-availability">{{ current.availability }}</p>
-                <div class="archive-tags" aria-label="Project technologies">
+                <div class="archive-tags" :aria-label="c(&quot;Project technologies&quot;)">
                   <q-badge v-for="tech in current.stack" :key="tech" outline>{{
                     tech
                   }}</q-badge>
@@ -249,11 +248,11 @@ watch(
                   no-ripple
                   class="archive-button archive-button--primary"
                 >
-                  <AnimationGlitchText text="Explore live project" /><q-icon
+                  <AnimationGlitchText :text="c(&quot;Explore live project&quot;)" /><q-icon
                     name="north_east"
                     size="18px"
                     aria-hidden="true"
-                  /><span class="archive-sr-only">(opens in a new tab)</span>
+                  /><span class="archive-sr-only">{{ c("(opens in a new tab)") }}</span>
                 </q-btn>
                 <q-btn
                   v-if="current.repo"
@@ -264,8 +263,8 @@ watch(
                   no-caps
                   no-ripple
                   class="archive-button"
-                  >Source code<span class="archive-sr-only"
-                    >(opens in a new tab)</span
+                  >{{ c("Source code") }}<span class="archive-sr-only"
+                    >{{ c("(opens in a new tab)") }}</span
                   ></q-btn
                 >
                 <span class="archive-record__end">{{ current.ownership }}</span>
@@ -273,23 +272,23 @@ watch(
               <q-expansion-item
                 :key="current.id"
                 class="archive-more"
-                label="Under the hood"
-                caption="My contribution, architecture & tools"
+                :label="c(&quot;Under the hood&quot;)"
+                :caption="c(&quot;My contribution, architecture &amp; tools&quot;)"
                 expand-icon="add"
                 expanded-icon="remove"
               >
                 <div class="archive-expanded-intro">
                   <p class="archive-record__headline">
-                    <CommonPageGlitch :text="current.headline" />
+                    <CommonPageGlitch :text="c(current.headline)" />
                   </p>
                   <p class="archive-body">{{ current.description }}</p>
                 </div>
                 <section class="archive-system" aria-labelledby="system-title">
                   <div class="archive-subheading">
                     <h3 id="system-title">
-                      <CommonPageGlitch text="01 / SYSTEM MAP" />
+                      <CommonPageGlitch :text="c(&quot;01 / SYSTEM MAP&quot;)" />
                     </h3>
-                    <span aria-hidden="true">[ CONNECTED LAYERS ]</span>
+                    <span aria-hidden="true">{{ c("[ CONNECTED LAYERS ]") }}</span>
                   </div>
                   <ol class="archive-nodes">
                     <li
@@ -313,7 +312,7 @@ watch(
                 >
                   <div class="archive-subheading">
                     <h3 id="contribution-title">
-                      <CommonPageGlitch text="02 / MY CONTRIBUTION" />
+                      <CommonPageGlitch :text="c(&quot;02 / MY CONTRIBUTION&quot;)" />
                     </h3>
                   </div>
                   <p class="archive-ownership">{{ current.ownership }}</p>
@@ -339,13 +338,13 @@ watch(
     <q-dialog v-model="previewOpen">
       <q-card class="archive-lightbox" flat square>
         <div class="archive-lightbox__bar">
-          <span>{{ current.name }} / SCREENSHOT</span
+          <span>{{ current.name }} {{ c("/ SCREENSHOT") }}</span
           ><q-btn
             v-close-popup
             flat
             round
             icon="close"
-            aria-label="Close screenshot"
+            :aria-label="c(&quot;Close screenshot&quot;)"
           />
         </div>
         <img
@@ -357,21 +356,21 @@ watch(
     </q-dialog>
     <footer class="archive-exit">
       <div>
-        <p class="archive-label">// THERE'S A PERSON BEHIND THESE BUILDS.</p>
+        <p class="archive-label">{{ c("// THERE'S A PERSON BEHIND THESE BUILDS.") }}</p>
         <h2 class="section-title">
-          <CommonPageGlitch text="MEET THE" />
-          <span><CommonPageGlitch text="ENGINEER." :interval="10000" /></span>
+          <CommonPageGlitch :text="c(&quot;MEET THE&quot;)" />
+          <span><CommonPageGlitch :text="c(&quot;ENGINEER.&quot;)" :interval="10000" /></span>
         </h2>
       </div>
-      <q-btn to="/about" flat no-caps no-ripple class="archive-button"
-        ><AnimationGlitchText text="Behind the signal" /><q-icon
+      <q-btn :to="localePath(&quot;/about&quot;)" flat no-caps no-ripple class="archive-button"
+        ><AnimationGlitchText :text="c(&quot;Behind the signal&quot;)" /><q-icon
           name="east"
           size="20px"
           aria-hidden="true"
       /></q-btn>
       <div class="archive-exit__bottom">
-        <span>ARSAM SARKHOSH / FULL-STACK ENGINEER</span
-        ><a href="#projects-main">BACK TO TOP ↑</a>
+        <span>{{ c("ARSAM SARKHOSH / FULL-STACK ENGINEER") }}</span
+        ><a href="#projects-main">{{ c("BACK TO TOP ↑") }}</a>
       </div>
     </footer>
   </article>

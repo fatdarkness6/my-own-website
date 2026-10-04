@@ -106,21 +106,34 @@
 }
 
 .hero .hero__tagline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.6em;
+  row-gap: 0.15em;
   margin: 0 0 clamp(20px, 3vw, 32px);
-  max-width: none;
+  max-width: 100%;
+  font-family: var(--description-font);
   font-size: clamp(16px, 1.2vw + 11px, 28px);
   line-height: 1.5;
-  white-space: nowrap;
-  overflow-wrap: normal;
+  white-space: normal;
 }
 
-.hero .hero__tagline :deep(.typed-text),
-.hero .hero__tagline :deep(.typed-text__reserve),
-.hero .hero__tagline :deep(.typed-text__live),
-.hero .hero__tagline :deep(.typewriter),
-.hero .hero__tagline :deep(.typewriter__text) {
+.hero .hero__tagline--rtl {
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: start;
+}
+
+.hero .hero__tagline > bdi {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.hero .hero__technologies {
+  flex-shrink: 0;
   white-space: nowrap;
-  overflow-wrap: normal;
+  unicode-bidi: isolate;
 }
 
 .hero .hero__name {

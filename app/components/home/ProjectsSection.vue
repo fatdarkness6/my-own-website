@@ -1,4 +1,5 @@
 <script setup>
+const { c, localePath } = usePortfolioI18n();
 import { projects, projectPlaceholder } from "~/assets/data/projects";
 import { homeCopy } from "~/assets/data/homeCopy";
 
@@ -6,11 +7,12 @@ import { homeCopy } from "~/assets/data/homeCopy";
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
 /* ---------- copy ---------- */
-const titleSegments = homeCopy.projects.title;
+const { rtl } = usePortfolioI18n();
+const titleSegments = usePortfolioI18n().content(homeCopy.projects.title);
 const description = "Selected platforms and systems I've built or worked on.";
 
-const featured = projects.slice(0, 4);
-const projectLocation = (id) => ({ path: "/projects", query: { project: id } });
+const featured = usePortfolioI18n().content(projects.slice(0, 4));
+const projectLocation = (id) => localePath({ path: "/projects", query: { project: id } });
 let cardPointerStart = null;
 function openProject(event, id) {
   // Preserve the live/source links and do not navigate after swiping the rail.
@@ -62,17 +64,18 @@ function update() {
   const el = trackRef.value;
   if (!el) return;
   const max = el.scrollWidth - el.clientWidth;
-  canPrev.value = el.scrollLeft > 4;
-  canNext.value = el.scrollLeft < max - 4;
-  progress.value = max > 0 ? el.scrollLeft / max : 1;
+  const position = Math.abs(el.scrollLeft);
+  canPrev.value = position > 4;
+  canNext.value = position < max - 4;
+  progress.value = max > 0 ? position / max : 1;
   const s = step();
   activeIdx.value = canNext.value
-    ? Math.round(el.scrollLeft / (s || 1))
-    : featured.length - 1;
+    ? Math.round(position / (s || 1))
+    : featured.value.length - 1;
 }
 
 const go = (dir) =>
-  trackRef.value?.scrollBy({ left: dir * step(), behavior: "smooth" });
+  trackRef.value?.scrollBy({ left: dir * step() * (rtl.value ? -1 : 1), behavior: "smooth" });
 
 let ro = null;
 
@@ -94,7 +97,7 @@ onBeforeUnmount(() => ro?.disconnect());
       <header class="projects__head">
         <p class="projects__eyebrow eyebrow">
           <AnimationTypedLine
-            text="// 03. PROJECTS"
+            :text="c(&quot;// 03. PROJECTS&quot;)"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"
@@ -111,7 +114,7 @@ onBeforeUnmount(() => ro?.disconnect());
 
         <p class="projects__desc description">
           <AnimationTypedLine
-            :text="description"
+            :text="c(description)"
             :glitch="7000"
             v-bind="line('desc')"
           />
@@ -146,7 +149,7 @@ onBeforeUnmount(() => ro?.disconnect());
                 <template #media>
                   <span class="pcard__index">{{ hex(i) }}</span>
                   <span v-if="p.status" class="pcard__status" :class="`is-${p.status}`">
-                    ● {{ p.status.toUpperCase() }}
+                    ● {{ c(p.status.toUpperCase()) }}
                   </span>
                 </template>
 
@@ -155,9 +158,9 @@ onBeforeUnmount(() => ro?.disconnect());
                 </p>
 
                 <h3 class="pcard__name">
-                  <NuxtLink :to="projectLocation(p.id)" :aria-label="`View ${p.name} project`" class="pcard__detail-link">
+                  <NuxtLink :to="projectLocation(p.id)" :aria-label="`${c('View project')}: ${p.name}`" class="pcard__detail-link">
                   <AnimationGlitchTextTimer
-                    :text="p.name"
+                    :text="c(p.name)"
                     :interval="4800 + i * 700"
                   />
                   </NuxtLink>
@@ -189,7 +192,7 @@ onBeforeUnmount(() => ro?.disconnect());
                     target="_blank"
                     class="pcard__link"
                   >
-                    <AnimationGlitchText text="> live" />
+                    <AnimationGlitchText :text="c(&quot;> live&quot;)" />
                   </q-btn>
                   <q-btn
                     v-if="p.repo"
@@ -201,7 +204,7 @@ onBeforeUnmount(() => ro?.disconnect());
                     target="_blank"
                     class="pcard__link"
                   >
-                    <AnimationGlitchText text="> source" />
+                    <AnimationGlitchText :text="c(&quot;> source&quot;)" />
                   </q-btn>
                 </div>
               </AnimationGlitchCard>
@@ -217,10 +220,10 @@ onBeforeUnmount(() => ro?.disconnect());
             flat
             square
             dense
-            icon="chevron_left"
+            :icon="rtl ? 'chevron_right' : 'chevron_left'"
             class="projects__arrow gt-xs"
             :disable="!canPrev"
-            aria-label="Previous project"
+            :aria-label="c(&quot;Previous project&quot;)"
             @click="go(-1)"
           />
 
@@ -241,16 +244,16 @@ onBeforeUnmount(() => ro?.disconnect());
             flat
             square
             dense
-            icon="chevron_right"
+            :icon="rtl ? 'chevron_left' : 'chevron_right'"
             class="projects__arrow gt-xs"
             :disable="!canNext"
-            aria-label="Next project"
+            :aria-label="c(&quot;Next project&quot;)"
             @click="go(1)"
           />
         </div>
 
-        <q-btn unelevated square no-caps to="/projects" class="projects__cta">
-          <AnimationGlitchText text="> cd ./projects --all" />
+        <q-btn unelevated square no-caps :to="localePath(&quot;/projects&quot;)" class="projects__cta">
+          <AnimationGlitchText :text="c(&quot;> cd ./projects --all&quot;)" />
           <q-icon name="arrow_forward" size="18px" class="q-ml-sm" />
         </q-btn>
       </footer>

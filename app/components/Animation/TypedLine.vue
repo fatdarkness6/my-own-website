@@ -1,4 +1,5 @@
 <script setup>
+import { textDirection } from "~/utils/animatedText";
 const props = defineProps({
   text: { type: String, required: true },
   active: { type: Boolean, default: false },
@@ -11,11 +12,12 @@ const emit = defineEmits(["done"]);
 </script>
 
 <template>
-  <span class="typed-text">
+  <span class="typed-text" :dir="textDirection(text)">
     <span class="typed-text__reserve" aria-hidden="true">{{ text }}█</span>
     <span class="typed-text__live" aria-hidden="true">
       <AnimationTypewriterText
         v-if="active"
+        :key="text"
         auto-start
         :text="text"
         :speed="speed"

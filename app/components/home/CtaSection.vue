@@ -1,9 +1,10 @@
 <script setup>
+const { c, localePath } = usePortfolioI18n();
 import { homeCopy } from "~/assets/data/homeCopy";
 
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
-const titleSegments = homeCopy.cta.title;
+const titleSegments = usePortfolioI18n().content(homeCopy.cta.title);
 const description =
   "Have a project, a role, or just an idea? Open a secure channel and send me a message.";
 
@@ -51,7 +52,7 @@ const year = new Date().getFullYear();
       <header class="cta__copy">
         <p class="cta__eyebrow eyebrow">
           <AnimationTypedLine
-            text="// 05. CONTACT"
+            :text="c(&quot;// 05. CONTACT&quot;)"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"
@@ -68,7 +69,7 @@ const year = new Date().getFullYear();
 
         <p class="cta__desc description">
           <AnimationTypedLine
-            :text="description"
+            :text="c(description)"
             :speed="14"
             :glitch="7000"
             v-bind="line('desc')"
@@ -87,7 +88,7 @@ const year = new Date().getFullYear();
           <span class="cta-term__dot" />
           <span class="cta-term__dot" />
           <span class="cta-term__dot" />
-          <span class="cta-term__name">secure-channel.sh</span>
+          <span class="cta-term__name">{{ c("secure-channel.sh") }}</span>
           <q-icon name="lock" size="14px" class="cta-term__lock" />
         </div>
 
@@ -95,24 +96,24 @@ const year = new Date().getFullYear();
           <p class="cta-term__prompt">
             <span class="cta-term__sign" aria-hidden="true">$</span>
             <AnimationTypedLine
-              text="./connect --to arsam"
+              :text="c(&quot;./connect --to arsam&quot;)"
               :speed="22"
               v-bind="line('prompt')"
             />
           </p>
 
-          <ul class="cta-term__log" aria-label="Connection status">
+          <ul class="cta-term__log" :aria-label="c(&quot;Connection status&quot;)">
             <li
               v-for="l in logs"
               :key="l.id"
               class="cta-term__row"
               :style="{ visibility: shown(l.id) ? 'visible' : 'hidden' }"
             >
-              <span class="cta-term__key">&gt; {{ l.key }}</span>
+              <span class="cta-term__key">&gt; {{ c(l.key) }}</span>
               <span class="cta-term__dots" aria-hidden="true" />
               <span class="cta-term__value" :class="`is-${l.tone}`">
                 <AnimationTypedLine
-                  :text="l.value"
+                  :text="c(l.value)"
                   :speed="24"
                   v-bind="line(l.id)"
                 />
@@ -125,12 +126,12 @@ const year = new Date().getFullYear();
             square
             no-caps
             no-ripple
-            to="/contact"
+            :to="localePath(&quot;/contact&quot;)"
             :disable="!finished"
             class="cta-term__btn"
           >
             <AnimationTypedLine
-              text="> open ./contact"
+              :text="c(&quot;> open ./contact&quot;)"
               :speed="20"
               v-bind="line('button')"
             />
@@ -146,8 +147,8 @@ const year = new Date().getFullYear();
       </CommonHackerReveal>
 
       <footer class="cta__foot" :class="{ 'is-revealed': finished }">
-        <span>// EOF</span>
-        <span>© {{ year }} Arsam · built with Nuxt + Quasar</span>
+        <span>{{ c("// EOF") }}</span>
+        <span>© {{ year }} {{ c("Arsam · built with Nuxt + Quasar") }}</span>
       </footer>
     </div>
   </section>

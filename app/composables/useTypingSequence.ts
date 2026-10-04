@@ -35,8 +35,9 @@ export function useTypingSequence(
   let disposed = false;
   let mounted = false;
   let pendingAction: "play" | "complete" | null = null;
+  const { locale } = useI18n();
   const visitComplete = onceKey
-    ? useState<boolean>(`typing-sequence:${onceKey}`, () => false)
+    ? useState<boolean>(`typing-sequence:${locale.value}:${onceKey}`, () => false)
     : null;
 
   function finish(): void {

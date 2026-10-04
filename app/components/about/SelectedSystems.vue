@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { aboutPageCopy } from "~/assets/data/aboutPage";
+const { c, localePath } = usePortfolioI18n();
+import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
 import { projects } from "~/assets/data/projects";
 
 // Keep project identity and deep links aligned with Home and /projects.
-const systems = aboutPageCopy.systems.map((system) => ({
+const systems = usePortfolioI18n().content(sourceCopy.systems.map((system) => ({
   ...system,
   project: projects.find((project) => project.id === system.id)!,
-}));
+})));
 </script>
 
 <template>
@@ -14,30 +15,30 @@ const systems = aboutPageCopy.systems.map((system) => ({
     <q-card v-for="system in systems" :key="system.id" flat square class="dossier-system">
       <q-card-section class="dossier-system__identity">
         <span class="dossier-label">{{ system.mode }}</span>
-        <h3><CommonPageGlitch :text="system.project.name" /></h3>
+        <h3><CommonPageGlitch :text="c(system.project.name)" /></h3>
         <p class="dossier-system__role">{{ system.role }}</p>
-        <p class="dossier-body"><CommonPageGlitch :text="system.context" :interval="14000" /></p>
+        <p class="dossier-body"><CommonPageGlitch :text="c(system.context)" :interval="14000" /></p>
       </q-card-section>
       <q-card-section class="dossier-system__work">
-        <span class="dossier-label">CONTRIBUTIONS</span>
+        <span class="dossier-label">{{ c("CONTRIBUTIONS") }}</span>
         <ul class="dossier-body">
           <li v-for="item in system.work" :key="item">{{ item }}</li>
         </ul>
         <p class="dossier-system__note">{{ system.note }}</p>
       </q-card-section>
       <q-card-section class="dossier-system__footer">
-        <div class="dossier-tags" aria-label="Project technologies">
+        <div class="dossier-tags" :aria-label="c(&quot;Project technologies&quot;)">
           <q-badge v-for="tool in system.stack" :key="tool" outline>{{ tool }}</q-badge>
         </div>
         <q-btn
-          :to="{ path: '/projects', query: { project: system.id } }"
+          :to="localePath({ path: '/projects', query: { project: system.id } })"
           :aria-label="`View ${system.project.name} project`"
           flat
           no-caps
           no-ripple
           class="dossier-button"
         >
-          <AnimationGlitchText text="View project" />
+          <AnimationGlitchText :text="c(&quot;View project&quot;)" />
           <q-icon name="north_east" size="18px" aria-hidden="true" />
         </q-btn>
       </q-card-section>

@@ -6,20 +6,21 @@ export interface HomeCopySegment {
 }
 
 type HomeCopy = {
-  hero: { tagline: HomeCopySegment[] };
+  hero: { technologies: HomeCopySegment[]; tagline: HomeCopySegment[] };
 } & Record<"about" | "projects" | "resume" | "cta", { title: HomeCopySegment[] }>;
 
-// Edit animated homepage headings here. Each segment is rendered and typed
-// from this single source, so text never needs to be duplicated in templates.
+// Shared animation segments and stable source copy. Visible copy is edited in
+// i18n/locales/{code}.ts; technology names remain untranslated.
 export const homeCopy = Object.freeze({
   hero: {
-    tagline: [
+    technologies: [
       { text: "Vue", interval: 6000 },
       { text: " • ", accent: true, glitch: false },
       { text: "Nuxt", accent: true, interval: 5500 },
       { text: " • ", accent: true, glitch: false },
-      { text: "Nodejs", interval: 6500 },
-      { text: " ", glitch: false },
+      { text: "Node.js", interval: 6500 },
+    ],
+    tagline: [
       { text: "Crafting", accent: true, interval: 5000 },
       { text: " ", glitch: false },
       { text: "Interactive Experiences.", interval: 7000 },

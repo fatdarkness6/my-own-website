@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { c, localePath } = usePortfolioI18n();
 import { computed, onMounted, ref, watch } from "vue";
 import { useMainMusic } from "~/composables/useMainMusic";
 
@@ -39,7 +40,7 @@ onMounted(() => {
     class="music-ctrl row items-center no-wrap"
     :class="{ 'music-ctrl--playing': state.playing }"
     role="group"
-    aria-label="Background audio controls"
+    :aria-label="c(&quot;Background audio controls&quot;)"
   >
     <span class="music-ctrl__signal" aria-hidden="true" />
 
@@ -51,10 +52,10 @@ onMounted(() => {
       :dense="buttonDense"
       no-ripple
       :icon="icon"
-      aria-label="Toggle background music"
+      :aria-label="c(&quot;Toggle background music&quot;)"
       @click="onToggle"
     >
-      <q-tooltip>Background music: {{ label }}</q-tooltip>
+      <q-tooltip>{{ c("Background music:") }} {{ c(label) }}</q-tooltip>
     </q-btn>
 
     <!-- Settings / menu button -->
@@ -65,7 +66,7 @@ onMounted(() => {
       :dense="buttonDense"
       no-ripple
       icon="tune"
-      aria-label="Music settings"
+      :aria-label="c(&quot;Music settings&quot;)"
     >
       <q-menu
         anchor="bottom right"
@@ -77,12 +78,12 @@ onMounted(() => {
           <q-card-section class="music-menu__header">
             <div class="music-menu__heading row items-center no-wrap">
               <div>
-                <div class="music-menu__eyebrow">SYS://AUDIO</div>
-                <div class="music-menu__title">SIGNAL CONTROL</div>
+                <div class="music-menu__eyebrow">{{ c("SYS://AUDIO") }}</div>
+                <div class="music-menu__title">{{ c("SIGNAL CONTROL") }}</div>
               </div>
               <div class="music-menu__status" :class="{ 'is-live': state.playing }">
                 <span class="music-menu__status-dot" aria-hidden="true" />
-                {{ state.playing ? "LIVE" : "STANDBY" }}
+                {{ c(state.playing ? "PLAYING" : "STANDBY") }}
               </div>
             </div>
 
@@ -100,8 +101,8 @@ onMounted(() => {
           <q-card-section class="music-menu__body">
             <div class="music-menu__volume-head row items-end no-wrap">
               <div>
-                <div class="music-menu__label">OUTPUT LEVEL</div>
-                <div class="music-menu__channel">CH_01 / MAIN</div>
+                <div class="music-menu__label">{{ c("OUTPUT LEVEL") }}</div>
+                <div class="music-menu__channel">{{ c("CH_01 / MAIN") }}</div>
               </div>
               <q-space />
               <output class="music-menu__percent">{{ volUi }}<small>%</small></output>
@@ -113,7 +114,7 @@ onMounted(() => {
               :max="100"
               :step="1"
               label
-              aria-label="Background music volume"
+              :aria-label="c(&quot;Background music volume&quot;)"
               @update:model-value="onVolumeChange"
               class="music-menu__slider"
             />
@@ -128,9 +129,9 @@ onMounted(() => {
 
             <div class="music-menu__source row items-center no-wrap">
               <q-icon name="memory" size="15px" class="music-menu__icon" />
-              <span class="music-menu__hint">/sound/main-song.mp3</span>
+              <span class="music-menu__hint">{{ c("/sound/main-song.mp3") }}</span>
               <q-space />
-              <span class="music-menu__codec">MP3</span>
+              <span class="music-menu__codec">{{ c("MP3") }}</span>
             </div>
 
             <q-btn
@@ -139,7 +140,7 @@ onMounted(() => {
               class="full-width music-menu__btn"
               @click="onToggle"
             >
-              <span>{{ state.playing ? "> PAUSE SIGNAL" : "> INITIALIZE AUDIO" }}</span>
+              <span>{{ c(state.playing ? "> PAUSE SIGNAL" : "> INITIALIZE AUDIO") }}</span>
               <q-icon :name="icon" size="18px" />
             </q-btn>
           </q-card-section>

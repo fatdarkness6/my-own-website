@@ -1,4 +1,5 @@
 import { ref, watch, onBeforeUnmount } from "vue";
+import { graphemes, glitchAlphabet, scrambleText } from "~/utils/animatedText";
 
 interface GlitchTextProps {
   text: string;
@@ -30,9 +31,6 @@ export function useGlitchText(
   let raf = 0;
   let lastStyle: string | null = null;
 
-  const randomChar = () =>
-    props.chars[Math.floor(Math.random() * props.chars.length)];
-
   function pickStyle() {
     let next: string;
     do {
@@ -43,7 +41,7 @@ export function useGlitchText(
   }
 
   function stop() {
-    cancelAnimationFrame(raf);
+    if (raf && import.meta.client) cancelAnimationFrame(raf);
     raf = 0;
     active.value = false;
     lockedWidth.value = null;
@@ -51,7 +49,7 @@ export function useGlitchText(
   }
 
   function run() {
-    if (raf) return;
+    if (raf || !el.value) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     currentStyle.value = pickStyle();
@@ -61,7 +59,8 @@ export function useGlitchText(
 
     const start = performance.now();
     let lastScramble = 0;
-    const original = Array.from(props.text);
+    const original = graphemes(props.text);
+    const alphabet = glitchAlphabet(props.text, props.chars);
 
     lockedWidth.value = el.value!.getBoundingClientRect().width;
     active.value = true;
@@ -76,11 +75,7 @@ export function useGlitchText(
       if (now - lastScramble >= props.speed) {
         lastScramble = now;
         const revealed = Math.floor((elapsed / runDuration) * original.length);
-        display.value = original
-          .map((char, index) =>
-            char === " " || index < revealed ? char : randomChar(),
-          )
-          .join("");
+        display.value = scrambleText(props.text, revealed, alphabet);
       }
 
       raf = requestAnimationFrame(frame);
@@ -91,7 +86,7 @@ export function useGlitchText(
   watch(
     () => props.text,
     () => {
-      if (!raf) display.value = props.text;
+      stop();
     },
   );
 

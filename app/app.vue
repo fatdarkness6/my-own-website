@@ -3,6 +3,7 @@ import PageSignalGlitch from "~/components/PageSignalGlitch.vue";
 import { INTRO_SESSION_KEY, shouldShowIntro } from "~/utils/introSession";
 
 const showIntro = ref(false);
+const { locale, rtl } = usePortfolioI18n();
 const introReady = useState("introReady", () => false);
 const { prepare: prepareAudio, activate: activateAudio } = useEntryAudio();
 
@@ -56,7 +57,7 @@ onMounted(() => {
 
 onBeforeUnmount(removeAudioGesture);
 
-useHead({ title: "Arsam Sarkhosh — Full-Stack Engineer" });
+useHead(() => ({ htmlAttrs: { lang: locale.value, dir: rtl.value ? "rtl" : "ltr" } }));
 </script>
 
 <template>
@@ -73,7 +74,7 @@ useHead({ title: "Arsam Sarkhosh — Full-Stack Engineer" });
     :aria-hidden="!introReady ? 'true' : undefined"
   >
     <NuxtLayout>
-      <NuxtPage />
+      <NuxtPage :page-key="(route) => route.path" />
     </NuxtLayout>
   </div>
 </template>

@@ -1,4 +1,5 @@
 <script setup>
+const { c, localePath } = usePortfolioI18n();
 const $q = useQuasar();
 
 const summary =
@@ -111,7 +112,7 @@ defineExpose({ play });
       </div>
       <span class="terminal-card__filename">
         <AnimationTypedLine
-          text="arsam.config.ts"
+          :text="c(&quot;arsam.config.ts&quot;)"
           :speed="18"
           :glitch="5400"
           v-bind="line('filename')"
@@ -135,7 +136,7 @@ defineExpose({ play });
           class="code-line__content"
           :class="{ 'code-line__content--indent': l.indent }"
         >
-          <AnimationTypedLine :text="l.text" :speed="10" v-bind="line(l.id)">
+          <AnimationTypedLine :text="c(l.text)" :speed="10" v-bind="line(l.id)">
             <span v-for="(p, i) in l.parts" :key="i" :class="p.class">{{
               p.text
             }}</span>
@@ -145,14 +146,14 @@ defineExpose({ play });
 
       <h3 class="terminal-card__summary-label">
         <AnimationTypedLine
-          text="About me summary"
+          :text="c(&quot;About me summary&quot;)"
           :speed="16"
           v-bind="line('summary-label')"
         />
       </h3>
 
       <p class="terminal-card__summary">
-        <AnimationTypedLine :text="summary" v-bind="line('summary')" />
+        <AnimationTypedLine :text="c(summary)" v-bind="line('summary')" />
       </p>
     </q-card-section>
 
@@ -162,7 +163,7 @@ defineExpose({ play });
       <div v-for="(stat, i) in stats" :key="stat.label" class="stat-box">
         <span class="stat-box__value">
           <AnimationTypedLine
-            :text="stat.value"
+            :text="c(stat.value)"
             :speed="16"
             :glitch="6500 + i * 400"
             v-bind="line(`stat-${i}-value`)"
@@ -170,7 +171,7 @@ defineExpose({ play });
         </span>
         <span class="stat-box__label">
           <AnimationTypedLine
-            :text="stat.label"
+            :text="c(stat.label)"
             v-bind="line(`stat-${i}-label`)"
           />
         </span>
@@ -185,10 +186,10 @@ defineExpose({ play });
         no-caps
         no-ripple
         :disable="!finished"
-        to="/about"
+        :to="localePath(&quot;/about&quot;)"
         class="terminal-card__link"
       >
-        <AnimationTypedLine :text="linkText" v-bind="line('link')" />
+        <AnimationTypedLine :text="c(linkText)" v-bind="line('link')" />
         <q-icon
           name="arrow_forward"
           size="18px"

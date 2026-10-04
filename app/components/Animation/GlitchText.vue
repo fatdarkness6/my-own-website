@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onBeforeUnmount } from "vue";
 import { useGlitchText } from "~/composables/useGlitchText";
+import { textDirection } from "~/utils/animatedText";
 
 const props = defineProps({
   text: { type: String, required: true },
@@ -45,6 +46,7 @@ onBeforeUnmount(() => {
   <span
     ref="el"
     class="glitch-text"
+    :dir="textDirection(text)"
     :class="[
       { 'is-glitching': active },
       active ? `glitch-style--${currentStyle}` : '',

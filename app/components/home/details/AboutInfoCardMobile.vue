@@ -1,4 +1,5 @@
 <script setup>
+const { c, localePath } = usePortfolioI18n();
 // Keep the existing TypedLine, typing sound and sequence composable.
 const name = "Arsam";
 const role = "Full-Stack Engineer";
@@ -39,20 +40,20 @@ defineExpose({ play });
     <div class="mobile-profile__identity">
       <h3 class="mobile-profile__name">
         <AnimationTypedLine
-          :text="name"
+          :text="c(name)"
           :speed="22"
           :glitch="5400"
           v-bind="line('name')"
         />
       </h3>
       <p class="mobile-profile__role">
-        <AnimationTypedLine :text="role" :speed="14" v-bind="line('role')" />
+        <AnimationTypedLine :text="c(role)" :speed="14" v-bind="line('role')" />
       </p>
     </div>
 
     <p class="mobile-profile__mission">
       <AnimationTypedLine
-        :text="mission"
+        :text="c(mission)"
         :speed="12"
         :glitch="7000"
         v-bind="line('mission')"
@@ -72,11 +73,11 @@ defineExpose({ play });
               isActive(detail.id) || isDone(detail.id) ? 'visible' : 'hidden',
           }"
         >
-          {{ detail.label }}
+          {{ c(detail.label) }}
         </dt>
         <dd class="mobile-profile__value">
           <AnimationTypedLine
-            :text="detail.text"
+            :text="c(detail.text)"
             :speed="14"
             v-bind="line(detail.id)"
           />
@@ -86,7 +87,7 @@ defineExpose({ play });
 
     <p class="mobile-profile__stack">
       <AnimationTypedLine
-        :text="stack"
+        :text="c(stack)"
         :speed="14"
         :glitch="6400"
         v-bind="line('stack')"
@@ -98,11 +99,11 @@ defineExpose({ play });
       square
       no-caps
       no-ripple
-      to="/about"
+      :to="localePath(&quot;/about&quot;)"
       :disable="!finished"
       class="mobile-profile__link"
     >
-      <AnimationTypedLine :text="linkText" :speed="18" v-bind="line('link')" />
+      <AnimationTypedLine :text="c(linkText)" :speed="18" v-bind="line('link')" />
       <svg
         class="mobile-profile__arrow"
         :style="{ visibility: finished ? 'visible' : 'hidden' }"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { c, localePath } = usePortfolioI18n();
 import type { Project, ProjectScreenshot } from "~/assets/data/projects";
 defineProps<{
   name: string;
@@ -33,7 +34,7 @@ defineProps<{
       </div>
       <strong>{{ name }}</strong>
       <span class="project-preview__caption">{{
-        sourceOnly ? "BACKEND API / SOURCE AVAILABLE" : compact ? "PROJECT COVER" : "PROJECT COVER / SCREENSHOT COMING SOON"
+        c(sourceOnly ? "BACKEND API / SOURCE AVAILABLE" : compact ? "PROJECT COVER" : "PROJECT COVER / SCREENSHOT COMING SOON")
       }}</span>
     </div>
   </div>

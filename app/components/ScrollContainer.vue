@@ -1,4 +1,5 @@
 <script setup>
+const { c, localePath } = usePortfolioI18n();
 import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
 import { useScrollSections } from "~/composables/useScrollSections";
 
@@ -314,7 +315,7 @@ onBeforeUnmount(() => {
         type="button"
         class="scroll-dots__dot"
         :class="{ 'is-active': i === currentIndex }"
-        :aria-label="`Go to section ${i + 1}`"
+        :aria-label="`${c(['Home', 'About', 'Projects', 'Resume', 'Contact'][i] || 'Home')} — ${i + 1}`"
         :aria-current="i === currentIndex ? 'true' : undefined"
         @click="handleDotClick(i)"
       />

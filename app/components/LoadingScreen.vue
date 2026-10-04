@@ -1,4 +1,5 @@
 <script setup>
+const { c, localePath } = usePortfolioI18n();
 import {
   ref,
   reactive,
@@ -9,6 +10,7 @@ import {
 } from "vue";
 
 import { useEntryAudio } from "~/composables/useEntryAudio";
+import { graphemes, glitchAlphabet, scrambleText } from "~/utils/animatedText";
 
 const props = defineProps({
   maxBootDuration: { type: Number, default: 2200 },
@@ -188,6 +190,8 @@ const GLYPHS = "!<>-_\\\\/[]{}=+*^?#@$%&01ABCDEF";
 
 function scramble(target, text, duration, onDone) {
   const start = performance.now();
+  const count = graphemes(text).length;
+  const alphabet = glitchAlphabet(text, GLYPHS);
 
   const step = (now) => {
     if (disposed || done.value || phase.value === "bursting") {
@@ -196,17 +200,8 @@ function scramble(target, text, duration, onDone) {
 
     const t = Math.min((now - start) / duration, 1);
 
-    const revealed = Math.floor(t * text.length);
-
-    target.value = Array.from(text)
-      .map((ch, i) => {
-        if (ch === " " || i < revealed) {
-          return ch;
-        }
-
-        return GLYPHS[(Math.random() * GLYPHS.length) | 0];
-      })
-      .join("");
+    const revealed = Math.floor(t * count);
+    target.value = scrambleText(text, revealed, alphabet);
 
     if (t < 1) {
       requestAnimationFrame(step);
@@ -225,9 +220,9 @@ function grant() {
   current.value = -1;
 
   later(() => {
-    scramble(grantedText, "ACCESS GRANTED", 350, () => {
+    scramble(grantedText, c("ACCESS GRANTED"), 350, () => {
       later(() => {
-        scramble(welcomeText, "WELCOME, OPERATOR", 300, () => {
+        scramble(welcomeText, c("WELCOME, OPERATOR"), 300, () => {
           phase.value = "ready";
         });
       }, 80);
@@ -447,7 +442,7 @@ onBeforeUnmount(() => {
       class="loader"
       :class="`is-${phase}`"
       role="status"
-      aria-label="Loading"
+      :aria-label="c(&quot;Loading&quot;)"
       @click="handleActivate"
     >
       <canvas ref="rainCanvas" class="loader__rain" aria-hidden="true" />
@@ -466,20 +461,16 @@ onBeforeUnmount(() => {
             <i />
           </span>
 
-          <span class="term__cmd">
-            root@arsam-sarkhosh:~# ./breach --target=portfolio
-          </span>
+          <span class="term__cmd">{{ c("root@arsam-sarkhosh:~# ./breach --target=portfolio") }}</span>
 
-          <span class="term__rec"> ● REC </span>
+          <span class="term__rec">{{ c("● REC") }}</span>
         </header>
 
         <div class="term__body">
           <section class="boot">
-            <p class="boot__head">ARSAM_SARKHOSH_OS [v3.11.24]</p>
+            <p class="boot__head">{{ c("ARSAM_SARKHOSH_OS [v3.11.24]") }}</p>
 
-            <p class="boot__head boot__head--dim">
-              (c) Full-Stack Systems. All rights reserved.
-            </p>
+            <p class="boot__head boot__head--dim">{{ c("(c) Full-Stack Systems. All rights reserved.") }}</p>
 
             <div class="boot__log">
               <div
@@ -492,7 +483,7 @@ onBeforeUnmount(() => {
 
                 <AnimationTypewriterText
                   :ref="(el) => (typers[i] = el)"
-                  :text="line.label"
+                  :text="c(line.label)"
                   :speed="typeSpeed"
                   prefix=""
                   :sound="sound"
@@ -518,7 +509,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="progress" aria-hidden="true">
-              <span class="progress__label"> BREACH </span>
+              <span class="progress__label">{{ c("BREACH") }}</span>
 
               <span class="progress__bar">
                 {{ bar }}
@@ -529,7 +520,7 @@ onBeforeUnmount(() => {
           </section>
 
           <aside class="hex" aria-hidden="true">
-            <p class="hex__title">// PACKET STREAM</p>
+            <p class="hex__title">{{ c("// PACKET STREAM") }}</p>
 
             <p v-for="(row, i) in hexRows" :key="i" class="hex__row">
               {{ row }}
@@ -539,9 +530,9 @@ onBeforeUnmount(() => {
 
         <p v-if="phase === 'booting'" class="term__enter">
           {{
-            isTouch
+            c(isTouch
               ? "TAP ONCE TO ENTER"
-              : "CLICK OR PRESS ANY KEY TO ENTER"
+              : "CLICK OR PRESS ANY KEY TO ENTER")
           }}
         </p>
 
@@ -559,7 +550,7 @@ onBeforeUnmount(() => {
               v-if="phase === 'ready' || phase === 'bursting'"
               class="granted__prompt"
             >
-              {{ isTouch ? "TAP ONCE TO ENTER" : "PRESS ANY KEY TO ENTER" }}
+              {{ c(isTouch ? "TAP ONCE TO ENTER" : "PRESS ANY KEY TO ENTER") }}
               <span class="caret"> _ </span>
             </p>
           </div>
