@@ -16,6 +16,10 @@
 .cv-intro__copy { min-width: 0; }
 .resume-dossier .cv-title { font: 650 clamp(2.8rem, 4.6vw, 4.5rem)/1.1 var(--title-font); margin: 16px 0; }
 .cv-role { font-size: 1.25rem; line-height: 1.5; color: #93c5fd; }
+.cv-profile-meta, .cv-contact { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; margin-top: 18px; font-size: .8125rem; line-height: 1.7; color: #9fb5d1; }
+.cv-profile-meta > span { display: inline-flex; align-items: center; gap: 5px; }
+.cv-contact a { color: #93c5fd; text-decoration: none; overflow-wrap: anywhere; }
+.cv-contact a:hover { text-decoration: underline; }
 .resume-dossier .cv-lead { max-width: 62ch; margin-top: 16px; font-size: 1rem; line-height: 1.8; color: #bbc9db; }
 .cv-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 .resume-dossier .cv-button { min-height: 48px; padding: 12px 20px; font: 600 .875rem/1.5 var(--ui-font); color: #e6efff; }
@@ -52,6 +56,18 @@
 .cv-record__title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; }
 .cv-record__title h3 { font: 600 1rem/1.5 var(--ui-font); }
 .cv-record__title > span { font-size: .625rem; line-height: 1.6; color: #8ba8ce; }
+.resume-dossier .cv-record__meta { margin-top: 6px; font-size: .8125rem; line-height: 1.6; color: #93c5fd; }
+.cv-learning-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.cv-course + .cv-course { margin-top: 18px; }
+.resume-dossier .cv-language-note { margin-top: 22px; font-size: .75rem; color: var(--cv-accent); }
+.cv-skill-list { display: grid; gap: 20px; padding: 22px; background: #080f19; border: 1px solid var(--cv-line); }
+.cv-skill-list h3 { margin-bottom: 10px; font: 600 .9375rem/1.6 var(--ui-font); color: #c8daf3; }
+.cv-project-archive > .q-expansion-item__container > .q-item { padding: 20px; }
+.cv-project-archive .q-item__label--caption { color: #91a4be; line-height: 1.7; }
+.cv-project-item { padding: 18px 20px; }
+.cv-project-item h3 { font: 600 .9375rem/1.7 var(--ui-font); color: #e5eefb; }
+.cv-project-item p { margin-top: 6px; font-size: .9375rem; line-height: 1.7; color: #b5c3d7; }
+.cv-project-item .q-item__section--side { color: #93c5fd; }
 .resume-dossier .cv-record__summary { margin-top: 8px; font-size: .9375rem; line-height: 1.7; color: #b5c3d7; }
 .cv-record__details { padding: 0 24px 24px 65px; }
 .cv-record__details ul { display: grid; gap: 10px; margin: 16px 0 20px; padding-left: 18px; color: #b8c7da; font-size: .9375rem; line-height: 1.8; }
@@ -70,6 +86,9 @@
   .cv-strength .q-card__section { padding: 18px; }
 }
 @media (max-width: 600px) {
+  .cv-learning-grid { grid-template-columns: minmax(0, 1fr); }
+  .cv-profile-meta, .cv-contact { font-size: .875rem; gap: 8px 16px; }
+  .cv-record__title > span { font-size: .8125rem; }
   .resume-dossier { padding-top: 18px; }
   .cv-filebar { font-size: .625rem; }
   .resume-dossier .cv-title { font-size: clamp(2.4rem, 10vw, 3.3rem); }

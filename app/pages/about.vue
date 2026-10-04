@@ -17,7 +17,8 @@ watch(
   introReady,
   (ready) => {
     if (!ready || !import.meta.client) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) complete();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      complete();
     else play();
   },
   { immediate: true },
@@ -41,16 +42,28 @@ watch(
           <AnimationTypedLine
             :text="aboutPageCopy.label"
             :speed="12"
+            :glitch="11000"
             v-bind="line('label')"
           />
         </p>
         <h1 id="about-title" class="dossier-title">
-          <AnimationSegmentedLine :segments="aboutPageCopy.title" :speed="28" v-bind="line('title')" />
+          <AnimationSegmentedLine
+            :segments="aboutPageCopy.title"
+            :speed="28"
+            v-bind="line('title')"
+          />
         </h1>
         <p class="dossier-identity__intro">
-          <AnimationTypedLine :text="aboutPageCopy.intro" :speed="12" v-bind="line('intro')" />
+          <AnimationTypedLine
+            :text="aboutPageCopy.intro"
+            :speed="12"
+            :glitch="12000"
+            v-bind="line('intro')"
+          />
         </p>
-        <p class="dossier-body dossier-identity__summary">{{ aboutPageCopy.summary }}</p>
+        <p class="dossier-body dossier-identity__summary">
+          <CommonPageGlitch :text="aboutPageCopy.summary" :interval="14000" />
+        </p>
         <div class="dossier-identity__actions">
           <q-btn
             unelevated
@@ -65,7 +78,11 @@ watch(
           <span class="dossier-label dossier-muted">SCROLL TO DECODE</span>
         </div>
       </div>
-      <CommonHackerReveal :show="started" :duration="680" class="dossier-identity__visual">
+      <CommonHackerReveal
+        :show="started"
+        :duration="680"
+        class="dossier-identity__visual"
+      >
         <AnimationGlitchCard
           image="/images/background.png"
           alt="Stylized portrait of Arsam Sarkhosh with blue light effects"
@@ -79,7 +96,7 @@ watch(
           <div class="dossier-portrait__caption">
             <div>
               <span class="dossier-label">{{ aboutPageCopy.role }}</span>
-              <h2>{{ aboutPageCopy.name }}</h2>
+              <h2><CommonPageGlitch :text="aboutPageCopy.name" /></h2>
             </div>
             <span class="dossier-barcode" aria-hidden="true" />
           </div>
@@ -130,7 +147,7 @@ watch(
               </span>
               <q-icon :name="principle.icon" size="26px" aria-hidden="true" />
             </div>
-            <h3>{{ principle.title }}</h3>
+            <h3><CommonPageGlitch :text="principle.title" /></h3>
             <p class="dossier-body">{{ principle.text }}</p>
           </q-card-section>
           <span class="dossier-principle__trace" aria-hidden="true" />
@@ -138,11 +155,15 @@ watch(
       </div>
       <p class="dossier-method-note">
         <span class="dossier-accent">↳</span>
-        Build from zero. Understand existing systems. Improve what is already running.
+        Build from zero. Understand existing systems. Improve what is already
+        running.
       </p>
     </AboutChapter>
     <AboutChapter :chapter="aboutPageCopy.chapters.toolkit">
-      <p class="dossier-body dossier-section-intro">Select a layer to see how I use its tools across production applications and ongoing development.</p>
+      <p class="dossier-body dossier-section-intro">
+        Select a layer to see how I use its tools across production applications
+        and ongoing development.
+      </p>
       <AboutToolkit />
     </AboutChapter>
     <AboutChapter :chapter="aboutPageCopy.chapters.systems">
@@ -152,8 +173,10 @@ watch(
       <div>
         <p class="dossier-label">// PROJECTS / EXPERIENCE / CONTACT</p>
         <h2 class="section-title">
-          EXPLORE THE WORK.
-          <span class="dossier-accent">LET'S TALK.</span>
+          <CommonPageGlitch text="EXPLORE THE WORK." />
+          <span class="dossier-accent"
+            ><CommonPageGlitch text="LET'S TALK." :interval="10000"
+          /></span>
         </h2>
       </div>
       <div class="dossier-exit__actions">
@@ -171,7 +194,13 @@ watch(
           <AnimationGlitchText text="View projects" />
           <q-icon name="east" size="18px" aria-hidden="true" />
         </q-btn>
-        <q-btn to="/resume" flat no-caps no-ripple class="dossier-button dossier-button--quiet">
+        <q-btn
+          to="/resume"
+          flat
+          no-caps
+          no-ripple
+          class="dossier-button dossier-button--quiet"
+        >
           <AnimationGlitchText text="View résumé" />
         </q-btn>
       </div>

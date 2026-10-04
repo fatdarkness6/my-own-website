@@ -10,6 +10,14 @@
 }
 .project-archive *, .project-archive *::before, .project-archive *::after { box-sizing: border-box; }
 .project-archive :is(h1, h2, h3, p) { margin: 0; }
+.project-archive .archive-availability {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-left: 2px solid var(--archive-accent);
+  background: rgb(59 130 246 / 0.07);
+  color: #93c5fd;
+  font: 400 0.875rem/1.7 var(--ui-font);
+}
 .archive-filebar, .archive-record__bar, .archive-exit__bottom {
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
   font: 500 .7rem/1.6 var(--ui-font); letter-spacing: .045em; color: #91a2ba;

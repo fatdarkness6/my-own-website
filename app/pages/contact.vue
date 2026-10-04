@@ -106,6 +106,7 @@ async function copyText(text: string, success: string) {
           <AnimationTypedLine
             text="// A DIRECT LINE TO THE ENGINEER"
             :speed="14"
+            :glitch="11000"
             v-bind="line('label')"
           />
         </p>
@@ -168,10 +169,14 @@ async function copyText(text: string, success: string) {
         </nav>
       </div>
       <div class="channel-hero__aside">
-        <span class="channel-label">HAVE SOMETHING IN MIND?</span>
+        <span class="channel-label"
+          ><CommonPageGlitch text="HAVE SOMETHING IN MIND?"
+        /></span>
         <p>
-          A product to build, a system to improve, or a team to join. Tell me
-          where you want to take it.
+          <CommonPageGlitch
+            text="A product to build, a system to improve, or a team to join. Tell me where you want to take it."
+            :interval="14000"
+          />
         </p>
         <a href="#compose" class="channel-jump"
           >START A CONVERSATION
@@ -183,7 +188,9 @@ async function copyText(text: string, success: string) {
     <CommonHackerReveal :show="started" :duration="560">
       <section class="channel-routes" aria-labelledby="channel-route-title">
         <div class="channel-section-bar">
-          <h2 id="channel-route-title">01 / WHAT BRINGS YOU HERE?</h2>
+          <h2 id="channel-route-title">
+            <CommonPageGlitch text="01 / WHAT BRINGS YOU HERE?" />
+          </h2>
           <span>CHOOSE A DIRECTION</span>
         </div>
         <div
@@ -209,7 +216,7 @@ async function copyText(text: string, success: string) {
                 class="channel-route__indicator"
                 aria-hidden="true"
             /></span>
-            <strong>{{ item.label }}</strong>
+            <strong><CommonPageGlitch :text="item.label" /></strong>
             <span class="channel-route__summary">{{ item.summary }}</span>
           </q-btn>
         </div>
@@ -243,9 +250,14 @@ async function copyText(text: string, success: string) {
                 />{{ completedFields }}/3</span
               >
             </div>
-            <h2 id="compose-title">{{ intent.prompt }}</h2>
+            <h2 id="compose-title">
+              <CommonPageGlitch :key="intentId" :text="intent.prompt" />
+            </h2>
             <p class="channel-body channel-composer__intro">
-              A few useful details are enough to get started.
+              <CommonPageGlitch
+                text="A few useful details are enough to get started."
+                :interval="14000"
+              />
             </p>
 
             <q-form class="channel-form" @submit="prepareMessage">
@@ -384,7 +396,12 @@ async function copyText(text: string, success: string) {
             <ContactSignal />
             <q-card-section>
               <span class="channel-label">THE OTHER END OF THE LINE</span>
-              <h2>Arsam Sarkhosh<span class="channel-accent">.</span></h2>
+              <h2>
+                <CommonPageGlitch text="Arsam Sarkhosh" /><span
+                  class="channel-accent"
+                  >.</span
+                >
+              </h2>
               <p class="channel-body">
                 Full-Stack Engineer<br />Vue / Nuxt / Node.js / Python
               </p>
@@ -406,7 +423,7 @@ async function copyText(text: string, success: string) {
           </q-card>
           <div class="channel-guide">
             <span class="channel-label">A USEFUL STARTING POINT</span>
-            <h2>Give me the context.</h2>
+            <h2><CommonPageGlitch text="Give me the context." /></h2>
             <ul>
               <li v-for="(pointer, index) in intent.pointers" :key="pointer">
                 <span aria-hidden="true">0{{ index + 1 }}</span
@@ -422,7 +439,12 @@ async function copyText(text: string, success: string) {
     <footer class="channel-footer">
       <div>
         <span class="channel-label">MORE CONTEXT BEFORE WE TALK</span>
-        <p>See the work behind the conversation.</p>
+        <p>
+          <CommonPageGlitch
+            text="See the work behind the conversation."
+            :interval="13000"
+          />
+        </p>
       </div>
       <nav aria-label="Explore more">
         <q-btn to="/projects" flat no-caps no-ripple class="channel-button"

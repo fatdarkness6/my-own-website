@@ -12,7 +12,9 @@ export interface Project {
   year?: string;
   role: string;
   status?: ProjectStatus;
+  statusLabel?: string;
   summary: string;
+  availability?: string;
   stack: string[];
   screenshot?: ProjectScreenshot;
   category: "web" | "ai";
@@ -70,25 +72,34 @@ export const projects: Project[] = [
     id: "docintel",
     file: "docintel/",
     name: "DOCINTEL",
-    role: "AI / FULL-STACK",
+    role: "FRONTEND / AI WORKSPACE",
+    status: "live",
+    statusLabel: "FRONTEND LIVE",
     summary:
-      "AI document platform with FastAPI, pgvector and semantic Q&A.",
-    stack: ["NUXT", "FASTAPI", "PGVECTOR", "POSTGRESQL"],
+      "Document intelligence frontend for summaries, Q&A and spreadsheet insights.",
+    availability: "Frontend preview is live. The backend is not deployed, so API-powered features are unavailable online.",
+    stack: ["NUXT", "VUE", "QUASAR", "TYPESCRIPT"],
+    screenshot: {
+      src: "/images/projects/docintel.png",
+      alt: "DocIntel homepage with a purple document intelligence headline, AI summary and cited question-answer preview",
+    },
     category: "ai",
     headline: "From documents to contextual answers.",
-    description: "An AI document intelligence platform that turns uploaded content into searchable knowledge. A full-stack application connecting document processing, embeddings and retrieval-augmented answers.",
-    ownership: "Full-stack application development",
+    description: "The frontend of an AI document intelligence platform, bringing document summaries, grounded question answering and spreadsheet insights into one workspace. The interface is deployed on Vercel; authentication and document processing depend on the separately published backend, which is not deployed yet.",
+    ownership: "Frontend architecture & interface development",
     layers: [
       { label: "WORKSPACE", title: "Document interface", tools: "Nuxt / Vue / Quasar" },
-      { label: "PROCESSING", title: "API & extraction", tools: "FastAPI / Python" },
-      { label: "RETRIEVAL", title: "Semantic search", tools: "PostgreSQL / pgvector" },
+      { label: "EXPERIENCE", title: "AI & document workflows", tools: "Summaries / Q&A / Spreadsheet insights" },
+      { label: "DELIVERY", title: "Live frontend preview", tools: "Vercel / Backend not deployed" },
     ],
     contributions: [
-      "Built authentication, document management and an organized workspace with folders, tags and search.",
-      "Connected text extraction and chunking to embeddings and vector storage.",
-      "Implemented summarization and document Q&A with context from previous questions.",
+      "Built the Nuxt and Quasar interface for the document intelligence platform.",
+      "Designed document management and AI workflows around summaries, questions and spreadsheet insights.",
+      "Created the product landing page and deployed the frontend preview on Vercel.",
     ],
-    note: "Applied AI engineering: integrating retrieval and language models into a usable product.",
+    note: "Frontend and backend are separate project records. The live URL previews the interface, not a hosted AI service.",
+    live: "https://docintel-frontend.vercel.app/",
+    repo: "https://github.com/fatdarkness6/docintel-frontend",
   },
   {
     id: "arvand-termo-tec",
@@ -149,5 +160,33 @@ export const projects: Project[] = [
       "Worked across implementation, integration and delivery of the business website.",
     ],
     note: "A connected full-stack implementation, from the visible interface to its data layer.",
+  },
+  {
+    id: "docintel-backend",
+    file: "docintel_backend/",
+    name: "DOCINTEL BACKEND",
+    role: "BACKEND / AI API",
+    statusLabel: "SOURCE AVAILABLE",
+    summary: "FastAPI document intelligence API with cited RAG answers, spreadsheet analysis and SSE progress updates.",
+    availability: "Public source code is available on GitHub. The backend API is not deployed.",
+    stack: ["FASTAPI", "PYTHON", "POSTGRESQL", "PGVECTOR", "OPENAI", "SQLALCHEMY"],
+    category: "ai",
+    headline: "The processing engine behind the workspace.",
+    description: "A user-scoped FastAPI backend for document intelligence. It processes PDF, DOCX, TXT, CSV and XLSX files, stores OpenAI embeddings in PostgreSQL with pgvector, and generates summaries and retrieval-grounded answers with source citations. Spreadsheet analytics, downloadable PDF reports and durable SSE processing events support the document workflow.",
+    ownership: "Backend architecture & AI pipeline development",
+    layers: [
+      { label: "API", title: "Authenticated document services", tools: "FastAPI / JWT / Pydantic" },
+      { label: "RETRIEVAL", title: "Embeddings & cited answers", tools: "OpenAI / PostgreSQL / pgvector" },
+      { label: "PROCESSING", title: "Analysis, reports & progress", tools: "pandas / ReportLab / SSE" },
+    ],
+    contributions: [
+      "Implemented JWT authentication and owner-scoped document, folder and tag APIs.",
+      "Built upload validation, background text extraction, chunking and vector storage for supported document formats.",
+      "Connected semantic retrieval to AI summaries and cited Q&A with follow-up question history.",
+      "Added spreadsheet statistics, cached AI insights and downloadable PDF reports.",
+      "Implemented database-backed status events and authenticated SSE streams for processing updates.",
+    ],
+    note: "Published source, not a live API. The current implementation uses FastAPI background tasks and local upload/report storage.",
+    repo: "https://github.com/fatdarkness6/docIntel-backend",
   },
 ];

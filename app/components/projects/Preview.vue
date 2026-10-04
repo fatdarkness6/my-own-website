@@ -5,6 +5,7 @@ defineProps<{
   category: Project["category"];
   screenshot?: ProjectScreenshot;
   compact?: boolean;
+  sourceOnly?: boolean;
 }>();
 </script>
 
@@ -32,7 +33,7 @@ defineProps<{
       </div>
       <strong>{{ name }}</strong>
       <span class="project-preview__caption">{{
-        compact ? "PROJECT COVER" : "PROJECT COVER / SCREENSHOT COMING SOON"
+        sourceOnly ? "BACKEND API / SOURCE AVAILABLE" : compact ? "PROJECT COVER" : "PROJECT COVER / SCREENSHOT COMING SOON"
       }}</span>
     </div>
   </div>

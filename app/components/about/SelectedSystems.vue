@@ -14,9 +14,9 @@ const systems = aboutPageCopy.systems.map((system) => ({
     <q-card v-for="system in systems" :key="system.id" flat square class="dossier-system">
       <q-card-section class="dossier-system__identity">
         <span class="dossier-label">{{ system.mode }}</span>
-        <h3>{{ system.project.name }}</h3>
+        <h3><CommonPageGlitch :text="system.project.name" /></h3>
         <p class="dossier-system__role">{{ system.role }}</p>
-        <p class="dossier-body">{{ system.context }}</p>
+        <p class="dossier-body"><CommonPageGlitch :text="system.context" :interval="14000" /></p>
       </q-card-section>
       <q-card-section class="dossier-system__work">
         <span class="dossier-label">CONTRIBUTIONS</span>

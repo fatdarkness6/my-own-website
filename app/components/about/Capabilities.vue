@@ -16,7 +16,7 @@ import { aboutPageCopy } from "~/assets/data/aboutPage";
           <span class="dossier-label">SCOPE / {{ capability.code }}</span>
           <q-icon :name="capability.icon" size="26px" aria-hidden="true" />
         </div>
-        <h3>{{ capability.title }}</h3>
+        <h3><CommonPageGlitch :text="capability.title" /></h3>
         <ul class="dossier-body dossier-capability__skills">
           <li v-for="skill in capability.skills" :key="skill">{{ skill }}</li>
         </ul>

@@ -1,95 +1,277 @@
 <script setup lang="ts">
 import { aboutCopy } from "~/assets/data/about";
-import { projects } from "~/assets/data/projects";
-import { resumeDocument } from "~/assets/data/resume";
+import { contactDetails } from "~/assets/data/contact";
+import { resumeDocument, resumeProfile, resumeExperience, resumeProjects } from "~/assets/data/resume";
 
 useSeoMeta({
   title: "Résumé — Arsam Sarkhosh | Full-Stack Engineer",
-  description: "Download Arsam Sarkhosh's résumé. A quick overview of Vue, Nuxt, full-stack engineering and AI application experience.",
+  description:
+    "Download Arsam Sarkhosh's résumé. A quick overview of Vue, Nuxt, full-stack engineering and AI application experience.",
 });
 
-const highlights = ["vue-nuxt", "backends", "ai"].map((id) => aboutCopy.tools.find((tool) => tool.id === id)!);
+const highlights = ["vue-nuxt", "backends", "ai"].map(
+  (id) => aboutCopy.tools.find((tool) => tool.id === id)!,
+);
 const introReady = useState("introReady", () => false);
-const { play, complete, line, started } = useTypingSequence(["label", "title"], { onceKey: "resume-profile" });
+const { play, complete, line, started } = useTypingSequence(
+  ["label", "title"],
+  { onceKey: "resume-profile" },
+);
 const title = [
   { text: "ARSAM ", glitch: false },
   { text: "SARKHOSH.", accent: true, interval: 8500 },
 ];
-watch(introReady, (ready) => {
-  if (!ready || !import.meta.client) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) complete();
-  else play();
-}, { immediate: true });
+watch(
+  introReady,
+  (ready) => {
+    if (!ready || !import.meta.client) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      complete();
+    else play();
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
   <article id="resume-main" class="resume-dossier">
     <ResumeBackground :active="started" />
-    <div class="cv-filebar"><span>ARSAM.SYS / CAREER PROFILE</span><span>DOCUMENT / 001</span></div>
+    <div class="cv-filebar">
+      <span>ARSAM.SYS / CAREER PROFILE</span><span>DOCUMENT / 001</span>
+    </div>
     <header class="cv-intro">
       <div class="cv-intro__copy">
-        <p class="cv-label"><AnimationTypedLine text="// THE ENGINEER. AT A GLANCE." :speed="12" v-bind="line('label')" /></p>
-        <h1 class="cv-title"><AnimationSegmentedLine :segments="title" :speed="24" v-bind="line('title')" /></h1>
-        <p class="cv-role">{{ aboutCopy.role }}</p>
-        <p class="cv-lead">{{ aboutCopy.summary }}</p>
+        <p class="cv-label">
+          <AnimationTypedLine
+            text="// THE ENGINEER. AT A GLANCE."
+            :speed="12"
+            :glitch="11000"
+            v-bind="line('label')"
+          />
+        </p>
+        <h1 class="cv-title">
+          <AnimationSegmentedLine
+            :segments="title"
+            :speed="24"
+            v-bind="line('title')"
+          />
+        </h1>
+        <p class="cv-role"><CommonPageGlitch :text="resumeProfile.role" /></p>
+        <p class="cv-lead">
+          <CommonPageGlitch :text="resumeProfile.summary" :interval="14000" />
+        </p>
+        <div class="cv-profile-meta">
+          <span><q-icon name="location_on" aria-hidden="true" /> {{ resumeProfile.location }}</span>
+          <span v-for="language in resumeProfile.languages" :key="language.name">{{ language.name }} / {{ language.level }}</span>
+        </div>
+        <nav class="cv-contact" aria-label="Résumé contact links">
+          <a :href="`mailto:${contactDetails.email}`">{{ contactDetails.email }}</a>
+          <a :href="contactDetails.linkedin" target="_blank" rel="noopener noreferrer">LinkedIn<span class="cv-sr-only"> (opens in a new tab)</span></a>
+          <a :href="contactDetails.github" target="_blank" rel="noopener noreferrer">GitHub<span class="cv-sr-only"> (opens in a new tab)</span></a>
+        </nav>
         <div class="cv-actions">
-          <q-btn :href="resumeDocument.href" :download="resumeDocument.filename" unelevated no-caps no-ripple class="cv-button cv-button--primary">
-            <q-icon name="download" size="22px" aria-hidden="true" /><AnimationGlitchText text="Download résumé" />
+          <q-btn
+            :href="resumeDocument.href"
+            :download="resumeDocument.filename"
+            unelevated
+            no-caps
+            no-ripple
+            class="cv-button cv-button--primary"
+          >
+            <q-icon
+              name="download"
+              size="22px"
+              aria-hidden="true"
+            /><AnimationGlitchText text="Download résumé" />
           </q-btn>
-          <q-btn :href="resumeDocument.href" target="_blank" rel="noopener noreferrer" flat no-caps no-ripple class="cv-button cv-button--outline">
-            Preview résumé<q-icon name="north_east" size="18px" aria-hidden="true" /><span class="cv-sr-only">(PDF, opens in a new tab)</span>
+          <q-btn
+            :href="resumeDocument.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            flat
+            no-caps
+            no-ripple
+            class="cv-button cv-button--outline"
+          >
+            Preview résumé<q-icon
+              name="north_east"
+              size="18px"
+              aria-hidden="true"
+            /><span class="cv-sr-only">(PDF, opens in a new tab)</span>
           </q-btn>
         </div>
-        <p class="cv-download-note">PDF / ONE PAGE / READY TO SHARE</p>
+        <p class="cv-download-note">PDF / {{ resumeDocument.pages }} PAGES / READY TO SHARE</p>
       </div>
       <div class="cv-document-mark" aria-hidden="true">
-        <div class="cv-document-mark__top"><span>CV / 001</span><q-icon name="description" size="24px" /></div>
+        <div class="cv-document-mark__top">
+          <span>CV / 001</span><q-icon name="description" size="24px" />
+        </div>
         <span class="cv-document-mark__initials">A/S</span>
         <div class="cv-document-mark__lines"><i /><i /><i /></div>
-        <div class="cv-document-mark__bottom"><span>ENGINEERING PROFILE</span><span>PDF</span></div>
+        <div class="cv-document-mark__bottom">
+          <span>ENGINEERING PROFILE</span><span>PDF</span>
+        </div>
       </div>
     </header>
 
     <CommonHackerReveal :show="started" :duration="560">
       <section class="cv-strengths" aria-labelledby="cv-strengths-title">
-        <div class="cv-section-bar"><h2 id="cv-strengths-title">01 / CORE STRENGTHS</h2><span>THREE AREAS. ONE ENGINEER.</span></div>
+        <div class="cv-section-bar">
+          <h2 id="cv-strengths-title">
+            <CommonPageGlitch text="01 / CORE STRENGTHS" />
+          </h2>
+          <span>THREE AREAS. ONE ENGINEER.</span>
+        </div>
         <div class="cv-strength-grid">
-          <q-card v-for="tool in highlights" :key="tool.id" flat square class="cv-strength">
+          <q-card
+            v-for="tool in highlights"
+            :key="tool.id"
+            flat
+            square
+            class="cv-strength"
+          >
             <q-card-section>
-              <div class="cv-strength__top"><span class="cv-label">{{ tool.layer }}</span><q-icon :name="tool.icon" size="24px" aria-hidden="true" /></div>
-              <h3>{{ tool.name }}</h3><p>{{ tool.title }}</p>
-              <div class="cv-tags"><q-badge v-for="tag in tool.tags" :key="tag" outline>{{ tag }}</q-badge></div>
+              <div class="cv-strength__top">
+                <span class="cv-label">{{ tool.layer }}</span
+                ><q-icon :name="tool.icon" size="24px" aria-hidden="true" />
+              </div>
+              <h3><CommonPageGlitch :text="tool.name" /></h3>
+              <p><CommonPageGlitch :text="tool.title" :interval="13000" /></p>
+              <div class="cv-tags">
+                <q-badge v-for="tag in tool.tags" :key="tag" outline>{{
+                  tag
+                }}</q-badge>
+              </div>
             </q-card-section>
           </q-card>
         </div>
       </section>
-      <section id="experience" class="cv-experience" aria-labelledby="cv-experience-title">
-        <div class="cv-section-bar"><h2 id="cv-experience-title">02 / SELECTED EXPERIENCE</h2><span>{{ projects.length }} PROJECT RECORDS</span></div>
-        <p class="cv-section-note">The short version. Open a record for the details.</p>
+      <section
+        id="experience"
+        class="cv-experience"
+        aria-labelledby="cv-experience-title"
+      >
+        <div class="cv-section-bar">
+          <h2 id="cv-experience-title">
+            <CommonPageGlitch text="02 / EMPLOYMENT HISTORY" />
+          </h2>
+          <span>{{ resumeExperience.length }} EXPERIENCE RECORDS</span>
+        </div>
+        <p class="cv-section-note">
+          The short version. Open a record for the details.
+        </p>
         <q-list class="cv-records">
-          <q-expansion-item v-for="(project, index) in projects" :key="project.id" :label="project.name" group="resume-experience" class="cv-record" expand-icon="add" expanded-icon="remove" :duration="180">
+          <q-expansion-item
+            v-for="(experience, index) in resumeExperience"
+            :key="experience.id"
+            :label="experience.company"
+            group="resume-experience"
+            class="cv-record"
+            expand-icon="add"
+            expanded-icon="remove"
+            :duration="180"
+          >
             <template #header>
-              <q-item-section side class="cv-record__number">0{{ index + 1 }}</q-item-section>
+              <q-item-section side class="cv-record__number"
+                >0{{ index + 1 }}</q-item-section
+              >
               <q-item-section>
-                <div class="cv-record__title"><h3>{{ project.name }}</h3><span>{{ project.role }}</span></div>
-                <p class="cv-record__summary">{{ project.summary }}</p>
+                <div class="cv-record__title">
+                  <h3><CommonPageGlitch :text="experience.company" /></h3>
+                  <span>{{ experience.period }}</span>
+                </div>
+                <p class="cv-record__meta">{{ experience.role }} / {{ experience.location }}</p>
+                <p class="cv-record__summary">
+                  <CommonPageGlitch :text="experience.summary" :interval="14000" />
+                </p>
               </q-item-section>
             </template>
             <div class="cv-record__details">
-              <p class="cv-label">{{ project.ownership }}</p>
-              <ul><li v-for="contribution in project.contributions" :key="contribution">{{ contribution }}</li></ul>
+              <ul>
+                <li
+                  v-for="contribution in experience.bullets"
+                  :key="contribution"
+                >
+                  {{ contribution }}
+                </li>
+              </ul>
               <div class="cv-record__footer">
-                <div class="cv-tags"><q-badge v-for="tech in project.stack" :key="tech" outline>{{ tech }}</q-badge></div>
-                <q-btn :to="{ path: '/projects', query: { project: project.id } }" flat no-caps no-ripple class="cv-button cv-evidence">View project<q-icon name="north_east" size="18px" aria-hidden="true" /><span class="cv-sr-only">: {{ project.name }}</span></q-btn>
+                <div class="cv-tags">
+                  <q-badge v-for="tech in experience.stack" :key="tech" outline>{{
+                    tech
+                  }}</q-badge>
+                </div>
+                <q-btn
+                  v-if="experience.projectId"
+                  :to="{ path: '/projects', query: { project: experience.projectId } }"
+                  flat
+                  no-caps
+                  no-ripple
+                  class="cv-button cv-evidence"
+                  >View project<q-icon
+                    name="north_east"
+                    size="18px"
+                    aria-hidden="true"
+                  /><span class="cv-sr-only">: {{ experience.company }}</span></q-btn
+                >
               </div>
             </div>
           </q-expansion-item>
         </q-list>
       </section>
+      <section class="cv-experience" aria-labelledby="cv-learning-title">
+        <div class="cv-section-bar"><h2 id="cv-learning-title"><CommonPageGlitch text="03 / EDUCATION & DEVELOPMENT" /></h2><span>LEARNING BY BUILDING.</span></div>
+        <div class="cv-learning-grid">
+          <q-card flat square class="cv-strength"><q-card-section>
+            <p class="cv-label">EDUCATION / {{ resumeProfile.education.period }}</p>
+            <h3><CommonPageGlitch :text="resumeProfile.education.qualification" /></h3>
+            <p>{{ resumeProfile.education.summary }}</p>
+          </q-card-section></q-card>
+          <q-card flat square class="cv-strength"><q-card-section>
+            <p class="cv-label">COURSES / CODING FRONT</p>
+            <div v-for="course in resumeProfile.courses" :key="course.title" class="cv-course"><h3>{{ course.title }}</h3><p>{{ course.provider }} / {{ course.period }}</p></div>
+            <p class="cv-label cv-language-note">{{ resumeProfile.languages.map(language => `${language.name} ${language.level}`).join(' / ') }}</p>
+          </q-card-section></q-card>
+        </div>
+      </section>
+      <section class="cv-experience" aria-labelledby="cv-skills-title">
+        <div class="cv-section-bar"><h2 id="cv-skills-title"><CommonPageGlitch text="04 / TECHNICAL TOOLSET" /></h2><span>ACROSS THE STACK.</span></div>
+        <div class="cv-skill-list"><div v-for="group in resumeProfile.skills" :key="group.label"><h3>{{ group.label }}</h3><div class="cv-tags"><q-badge v-for="skill in group.items" :key="skill" outline>{{ skill }}</q-badge></div></div></div>
+      </section>
+      <section class="cv-experience" aria-labelledby="cv-work-title">
+        <div class="cv-section-bar"><h2 id="cv-work-title"><CommonPageGlitch text="05 / PROJECT ARCHIVE" /></h2><span>{{ resumeProjects.length }} PROJECTS / FROM THE RÉSUMÉ</span></div>
+        <q-expansion-item class="cv-records cv-project-archive" label="Explore projects & side projects" caption="The complete list, without crowding the page." expand-icon="add" expanded-icon="remove" :duration="180">
+          <q-list separator>
+            <q-item v-for="project in resumeProjects" :key="project.id" class="cv-project-item">
+              <q-item-section><h3>{{ project.name }}</h3><p>{{ project.summary }}</p></q-item-section>
+              <q-item-section side v-if="project.href || project.projectId">
+                <q-btn v-if="project.projectId" :to="{ path: '/projects', query: { project: project.projectId } }" flat no-ripple icon="east" :aria-label="`View ${project.name} project`" />
+                <q-btn v-else :href="project.href" target="_blank" rel="noopener noreferrer" flat no-ripple icon="north_east" :aria-label="`View ${project.name} (opens in a new tab)`" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+      </section>
     </CommonHackerReveal>
     <footer class="cv-exit">
-      <div><p class="cv-label">// NEXT CHAPTER</p><h2 class="section-title">LET'S WORK <span>TOGETHER.</span></h2></div>
-      <q-btn to="/contact" no-caps no-ripple unelevated class="cv-button cv-button--primary"><AnimationGlitchText text="Start a conversation" /><q-icon name="north_east" size="18px" aria-hidden="true" /></q-btn>
+      <div>
+        <p class="cv-label">// NEXT CHAPTER</p>
+        <h2 class="section-title">
+          <CommonPageGlitch text="LET'S WORK" />
+          <span><CommonPageGlitch text="TOGETHER." :interval="10000" /></span>
+        </h2>
+      </div>
+      <q-btn
+        to="/contact"
+        no-caps
+        no-ripple
+        unelevated
+        class="cv-button cv-button--primary"
+        ><AnimationGlitchText text="Start a conversation" /><q-icon
+          name="north_east"
+          size="18px"
+          aria-hidden="true"
+      /></q-btn>
     </footer>
   </article>
 </template>

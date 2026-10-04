@@ -99,8 +99,8 @@ export const aboutPageCopy = {
       note: "Ownership from initial architecture to production delivery.",
     },
     {
-      id: "docintel", mode: "AI APPLICATION / IN DEVELOPMENT", role: "Full-stack engineering",
-      context: "An AI document-intelligence platform currently in development.",
+      id: "docintel", mode: "FRONTEND LIVE / BACKEND SOURCE AVAILABLE", role: "Full-stack engineering",
+      context: "An AI document-intelligence platform with a live frontend preview and a separately published backend that is not deployed yet.",
       work: ["Authentication, document upload, processing and text extraction", "Chunking, embeddings and vector storage/retrieval", "Summarization, contextual Q&A and API architecture"],
       stack: ["Nuxt", "Quasar", "FastAPI", "PostgreSQL", "pgvector"],
       note: "Work across the document pipeline, backend APIs and application UI.",

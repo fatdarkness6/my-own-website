@@ -5,6 +5,7 @@
 .nitro
 .cache
 dist
+output/pdf/
 
 # Node dependencies
 node_modules

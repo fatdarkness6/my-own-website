@@ -34,11 +34,12 @@ watch(
         <AnimationTypedLine
           :text="`// ${chapter.number}. ${chapter.label.toUpperCase()}`"
           :speed="14"
+          :glitch="11000"
           v-bind="line('label')"
         />
       </p>
       <h2 :id="`${chapter.id}-title`" class="section-title dossier-chapter__title">
-        <AnimationTypedLine :text="chapter.title" :speed="14" v-bind="line('title')" />
+        <AnimationTypedLine :text="chapter.title" :speed="14" :glitch="8000" v-bind="line('title')" />
       </h2>
     </header>
     <CommonHackerReveal :show="started" :duration="520">

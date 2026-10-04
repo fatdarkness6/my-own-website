@@ -54,8 +54,8 @@ const current = computed(
           </span>
           <q-icon :name="current.icon" size="30px" aria-hidden="true" />
         </div>
-        <h3 class="dossier-lead">{{ current.title }}</h3>
-        <p class="dossier-body">{{ current.text }}</p>
+        <h3 class="dossier-lead"><CommonPageGlitch :key="current.id" :text="current.title" /></h3>
+        <p class="dossier-body"><CommonPageGlitch :text="current.text" :interval="14000" /></p>
         <div class="dossier-tags">
           <q-badge v-for="tag in current.tags" :key="tag" outline>{{ tag }}</q-badge>
         </div>

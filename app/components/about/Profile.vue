@@ -7,9 +7,9 @@ const expanded = ref<string | null>("frontend");
   <div class="dossier-profile">
     <div class="dossier-profile__intro">
       <p class="dossier-lead">
-        From interface
+        <CommonPageGlitch text="From interface" />
         <br />
-        <span class="dossier-accent">to production.</span>
+        <span class="dossier-accent"><CommonPageGlitch text="to production." :interval="10000" /></span>
       </p>
       <p class="dossier-body">Strong Vue/Nuxt experience, backed by work across services, data, integrations and production delivery.</p>
       <div class="dossier-tags">
@@ -35,8 +35,8 @@ const expanded = ref<string | null>("frontend");
           <q-item-section side class="dossier-record__number">{{ String(index + 1).padStart(2, '0') }}</q-item-section>
           <q-item-section>
             <span class="dossier-label">{{ entry.tag }}</span>
-            <h3 class="dossier-record__title">{{ entry.title }}</h3>
-            <p class="dossier-body dossier-record__summary">{{ entry.summary }}</p>
+            <h3 class="dossier-record__title"><CommonPageGlitch :text="entry.title" /></h3>
+            <p class="dossier-body dossier-record__summary"><CommonPageGlitch :text="entry.summary" :interval="14000" /></p>
           </q-item-section>
         </template>
         <div class="dossier-record__detail">
