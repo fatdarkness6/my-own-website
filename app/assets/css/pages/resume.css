@@ -57,9 +57,6 @@
 .cv-record__title h3 { font: 600 1rem/1.5 var(--ui-font); }
 .cv-record__title > span { font-size: .625rem; line-height: 1.6; color: #8ba8ce; }
 .resume-dossier .cv-record__meta { margin-top: 6px; font-size: .8125rem; line-height: 1.6; color: #93c5fd; }
-.cv-learning-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.cv-course + .cv-course { margin-top: 18px; }
-.resume-dossier .cv-language-note { margin-top: 22px; font-size: .75rem; color: var(--cv-accent); }
 .cv-skill-list { display: grid; gap: 20px; padding: 22px; background: #080f19; border: 1px solid var(--cv-line); }
 .cv-skill-list h3 { margin-bottom: 10px; font: 600 .9375rem/1.6 var(--ui-font); color: #c8daf3; }
 .cv-project-archive > .q-expansion-item__container > .q-item { padding: 20px; }
@@ -86,7 +83,6 @@
   .cv-strength .q-card__section { padding: 18px; }
 }
 @media (max-width: 600px) {
-  .cv-learning-grid { grid-template-columns: minmax(0, 1fr); }
   .cv-profile-meta, .cv-contact { font-size: .875rem; gap: 8px 16px; }
   .cv-record__title > span { font-size: .8125rem; }
   .resume-dossier { padding-top: 18px; }

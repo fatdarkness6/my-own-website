@@ -6,7 +6,7 @@ import { defineLocale } from "../defineLocale.ts";
 export const translations: Record<string, string> = {
   "homeDescription": "Full-stack engineer working with Vue, Nuxt, Node.js and Python to build web applications and APIs.",
   "projectsDescription": "A selection of projects I've developed or contributed to.",
-  "resumeDescription": "My work experience, technical skills and education.",
+  "resumeDescription": "My work experience and technical skills.",
   "contactDescription": "Get in touch to discuss a project, a job opportunity or a collaboration.",
   "fullStory": "My background and approach",
   "aboutSummary": "I develop responsive interfaces with Vue and Nuxt, backend services with Node.js and FastAPI, and AI-assisted features. My focus is maintainable code, performance and a clear user experience.",

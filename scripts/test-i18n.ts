@@ -92,6 +92,30 @@ test("graphemes preserve Arabic marks, Persian ZWNJ and emoji", () => {
   assert.equal(scrambleGrapheme("سَ", ["ب"]), "بَ");
 });
 
+test("typed text reserves only the final text, without phantom cursor spacing", async () => {
+  const component = await readFile(new URL("../app/components/Animation/TypedLine.vue", import.meta.url), "utf8");
+  assert.match(component, /class="typed-text__reserve" aria-hidden="true">\{\{ text \}\}<\/span>/);
+  assert.match(component, /\.typed-text__accessible\s*\{[^}]*user-select:\s*none/s);
+  const heroCss = await readFile(new URL("../app/assets/css/components/home/heroSection.css", import.meta.url), "utf8");
+  assert.match(heroCss, /\.hero \.hero__tagline\s*\{\s*display:\s*block/);
+  assert.match(heroCss, /\.hero \.hero__tagline--rtl\s*\{\s*display:\s*flex/);
+  assert.match(heroCss, /\.hero \.hero__tagline > bdi\s*\{[^}]*width:\s*100%/s);
+  assert.match(heroCss, /\.hero \.hero__technologies\s*\{[^}]*text-align:\s*end/s);
+});
+
+test("résumé page omits education and Italian A1, with consecutive section numbers", async () => {
+  const { resumeProfile } = await jiti.import<{ resumeProfile: { languages: { name: string; level: string }[] } }>("../app/assets/data/resume.ts");
+  assert.deepEqual(resumeProfile.languages, [{ name: "English", level: "C1" }]);
+  const page = await readFile(new URL("../app/pages/resume.vue", import.meta.url), "utf8");
+  assert.ok(!page.includes("cv-learning-title"));
+  assert.equal(english.technical, "03 / TECHNICAL TOOLSET");
+  assert.equal(english.projectArchive, "04 / PROJECT ARCHIVE");
+  for (const { code, translations } of languages) {
+    assert.ok(translations.technical!.startsWith("03 /"), code);
+    assert.ok(translations.projectArchive!.startsWith("04 /"), code);
+  }
+});
+
 test("glitch pools support Arabic/Persian and restore the exact original", () => {
   for (const text of ["سلام، دنیا!", "مرحبا بالعالم", "Vue / Nuxt"]) {
     const alphabet = glitchAlphabet(text);

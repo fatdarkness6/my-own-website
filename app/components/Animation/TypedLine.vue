@@ -13,7 +13,7 @@ const emit = defineEmits(["done"]);
 
 <template>
   <span class="typed-text" :dir="textDirection(text)">
-    <span class="typed-text__reserve" aria-hidden="true">{{ text }}█</span>
+    <span class="typed-text__reserve" aria-hidden="true">{{ text }}</span>
     <span class="typed-text__live" aria-hidden="true">
       <AnimationTypewriterText
         v-if="active"
@@ -84,5 +84,6 @@ const emit = defineEmits(["done"]);
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+  user-select: none;
 }
 </style>

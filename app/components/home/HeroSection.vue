@@ -15,9 +15,21 @@ const eyebrow = "FULL-STACK ENGINEER";
 // Keep Latin technology names separate from localized prose for stable bidi layout.
 const technologySegments = sourceCopy.hero.technologies;
 const taglineSegments = content(sourceCopy.hero.tagline);
+const inlineTaglineSegments = computed(() => [
+  ...technologySegments,
+  { text: " ", glitch: false },
+  ...taglineSegments.value,
+]);
+const typingOrder = computed(() => [
+  "eyebrow",
+  ...(rtl.value ? ["technologies"] : []),
+  "tagline",
+  "first-name",
+  "last-name",
+]);
 
 const { play, complete, line, finished } = useTypingSequence(
-  ["eyebrow", "technologies", "tagline", "first-name", "last-name"],
+  typingOrder,
   { onceKey: "home-hero", onFinish: () => (introPlayed.value = true) },
 );
 
@@ -64,20 +76,26 @@ watch(
       </p>
 
       <p class="hero__tagline description" :class="{ 'hero__tagline--rtl': rtl }">
-        <bdi dir="ltr" class="hero__technologies">
+        <bdi v-if="rtl" dir="ltr" class="hero__technologies">
           <AnimationSegmentedLine
             :segments="technologySegments"
             :speed="45"
             v-bind="line('technologies')"
           />
         </bdi>
-        <bdi :dir="rtl ? 'rtl' : 'ltr'" class="hero__tagline-copy">
+        <bdi v-if="rtl" dir="rtl" class="hero__tagline-copy">
           <AnimationSegmentedLine
             :segments="taglineSegments"
             :speed="45"
             v-bind="line('tagline')"
           />
         </bdi>
+        <AnimationSegmentedLine
+          v-else
+          :segments="inlineTaglineSegments"
+          :speed="45"
+          v-bind="line('tagline')"
+        />
       </p>
 
       <h1 class="hero__name title">

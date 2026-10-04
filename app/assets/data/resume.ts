@@ -20,7 +20,7 @@ export const resumeProfile = {
     { label: "Backend & data", items: ["Node.js", "Python", "FastAPI", "REST APIs", "JWT authentication", "SQL", "PostgreSQL", "MongoDB", "Strapi"] },
     { label: "AI & delivery", items: ["RAG", "OpenAI", "Embeddings", "pgvector", "SEO", "Internationalization", "Deployment", "Production debugging"] },
   ],
-  languages: [{ name: "English", level: "C1" }, { name: "Italian", level: "A1" }],
+  languages: [{ name: "English", level: "C1" }],
   education: {
     qualification: "Diploma in Mathematics & Physics",
     period: "Sep 2022 - Jan 2026",

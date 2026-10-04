@@ -227,27 +227,12 @@ watch(
           </q-expansion-item>
         </q-list>
       </section>
-      <section class="cv-experience" aria-labelledby="cv-learning-title">
-        <div class="cv-section-bar"><h2 id="cv-learning-title"><CommonPageGlitch :text="c(&quot;03 / EDUCATION &amp; DEVELOPMENT&quot;)" /></h2><span>{{ c("LEARNING BY BUILDING.") }}</span></div>
-        <div class="cv-learning-grid">
-          <q-card flat square class="cv-strength"><q-card-section>
-            <p class="cv-label">{{ c("EDUCATION /") }} {{ resumeProfile.education.period }}</p>
-            <h3><CommonPageGlitch :text="c(resumeProfile.education.qualification)" /></h3>
-            <p>{{ resumeProfile.education.summary }}</p>
-          </q-card-section></q-card>
-          <q-card flat square class="cv-strength"><q-card-section>
-            <p class="cv-label">{{ c("COURSES / CODING FRONT") }}</p>
-            <div v-for="course in resumeProfile.courses" :key="course.title" class="cv-course"><h3>{{ course.title }}</h3><p>{{ course.provider }} / {{ course.period }}</p></div>
-            <p class="cv-label cv-language-note">{{ resumeProfile.languages.map(language => `${language.name} ${language.level}`).join(' / ') }}</p>
-          </q-card-section></q-card>
-        </div>
-      </section>
       <section class="cv-experience" aria-labelledby="cv-skills-title">
-        <div class="cv-section-bar"><h2 id="cv-skills-title"><CommonPageGlitch :text="c(&quot;04 / TECHNICAL TOOLSET&quot;)" /></h2><span>{{ c("ACROSS THE STACK.") }}</span></div>
+        <div class="cv-section-bar"><h2 id="cv-skills-title"><CommonPageGlitch :text="c(&quot;03 / TECHNICAL TOOLSET&quot;)" /></h2><span>{{ c("ACROSS THE STACK.") }}</span></div>
         <div class="cv-skill-list"><div v-for="group in resumeProfile.skills" :key="group.label"><h3>{{ group.label }}</h3><div class="cv-tags"><q-badge v-for="skill in group.items" :key="skill" outline>{{ skill }}</q-badge></div></div></div>
       </section>
       <section class="cv-experience" aria-labelledby="cv-work-title">
-        <div class="cv-section-bar"><h2 id="cv-work-title"><CommonPageGlitch :text="c(&quot;05 / PROJECT ARCHIVE&quot;)" /></h2><span>{{ resumeProjects.length }} {{ c("PROJECTS / FROM THE RÉSUMÉ") }}</span></div>
+        <div class="cv-section-bar"><h2 id="cv-work-title"><CommonPageGlitch :text="c(&quot;04 / PROJECT ARCHIVE&quot;)" /></h2><span>{{ resumeProjects.length }} {{ c("PROJECTS / FROM THE RÉSUMÉ") }}</span></div>
         <q-expansion-item class="cv-records cv-project-archive" :label="c(&quot;Explore projects &amp; side projects&quot;)" :caption="c(&quot;The complete list, without crowding the page.&quot;)" expand-icon="add" expanded-icon="remove" :duration="180">
           <q-list separator>
             <q-item v-for="project in resumeProjects" :key="project.id" class="cv-project-item">
