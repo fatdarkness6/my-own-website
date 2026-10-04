@@ -1,3 +1,14 @@
+export interface HomeCopySegment {
+  text: string;
+  interval?: number;
+  accent?: boolean;
+  glitch?: boolean;
+}
+
+type HomeCopy = {
+  hero: { tagline: HomeCopySegment[] };
+} & Record<"about" | "projects" | "resume" | "cta", { title: HomeCopySegment[] }>;
+
 // Edit animated homepage headings here. Each segment is rendered and typed
 // from this single source, so text never needs to be duplicated in templates.
 export const homeCopy = Object.freeze({
@@ -45,4 +56,4 @@ export const homeCopy = Object.freeze({
       { text: "LET'S BUILD IT.", accent: true, interval: 6200 },
     ],
   },
-});
+} satisfies HomeCopy);

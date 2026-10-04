@@ -1,6 +1,4 @@
 <script setup>
-import { ref, watch, nextTick } from "vue";
-
 const props = defineProps({
   text: { type: String, required: true },
   active: { type: Boolean, default: false },
@@ -10,13 +8,6 @@ const props = defineProps({
   accentTerms: { type: Array, default: () => [] },
 });
 const emit = defineEmits(["done"]);
-const typer = ref(null);
-
-watch(
-  () => props.active,
-  (on) => on && nextTick(() => typer.value?.start()),
-  { immediate: true },
-);
 </script>
 
 <template>
@@ -25,7 +16,7 @@ watch(
     <span class="typed-text__live" aria-hidden="true">
       <AnimationTypewriterText
         v-if="active"
-        ref="typer"
+        auto-start
         :text="text"
         :speed="speed"
         :accent-terms="accentTerms"

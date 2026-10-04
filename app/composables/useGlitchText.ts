@@ -1,26 +1,42 @@
 import { ref, watch, onBeforeUnmount } from "vue";
 
+interface GlitchTextProps {
+  text: string;
+  chars: string;
+  duration: number;
+  speed: number;
+}
+
+interface GlitchTextOptions {
+  styles: readonly string[];
+  durationBase: number;
+  durationSpread: number;
+}
+
 /**
  * Shared scramble renderer. Triggers and scheduling belong to the caller;
  * each instance retains its own animation state and original style preset.
  */
-export function useGlitchText(props, { styles, durationBase, durationSpread }) {
-  const el = ref(null);
+export function useGlitchText(
+  props: GlitchTextProps,
+  { styles, durationBase, durationSpread }: GlitchTextOptions,
+) {
+  const el = ref<HTMLElement | null>(null);
   const display = ref(props.text);
   const active = ref(false);
-  const lockedWidth = ref(null);
-  const currentStyle = ref(styles[0]);
+  const lockedWidth = ref<number | null>(null);
+  const currentStyle = ref<string>(styles[0]!);
 
   let raf = 0;
-  let lastStyle = null;
+  let lastStyle: string | null = null;
 
   const randomChar = () =>
     props.chars[Math.floor(Math.random() * props.chars.length)];
 
   function pickStyle() {
-    let next;
+    let next: string;
     do {
-      next = styles[Math.floor(Math.random() * styles.length)];
+      next = styles[Math.floor(Math.random() * styles.length)]!;
     } while (next === lastStyle && styles.length > 1);
     lastStyle = next;
     return next;
@@ -47,10 +63,10 @@ export function useGlitchText(props, { styles, durationBase, durationSpread }) {
     let lastScramble = 0;
     const original = Array.from(props.text);
 
-    lockedWidth.value = el.value.getBoundingClientRect().width;
+    lockedWidth.value = el.value!.getBoundingClientRect().width;
     active.value = true;
 
-    const frame = (now) => {
+    const frame = (now: number) => {
       const elapsed = now - start;
       if (elapsed >= runDuration) {
         stop();

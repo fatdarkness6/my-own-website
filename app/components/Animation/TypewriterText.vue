@@ -6,6 +6,7 @@ const props = defineProps({
   text: { type: String, required: true },
   speed: { type: Number, default: 45 }, // ms per character
   startDelay: { type: Number, default: 0 },
+  autoStart: { type: Boolean, default: false },
   prefix: { type: String, default: "> " }, // terminal-style prompt
   sound: { type: Boolean, default: true },
   soundSrc: { type: String, default: "/sound/type-01.mp3" },
@@ -69,6 +70,7 @@ function typeChar(index) {
 }
 
 function start() {
+  if (disposed) return;
   clearTimeout(typingTimeout);
   displayed.value = "";
   isTyping.value = true;
@@ -89,6 +91,8 @@ function finish() {
 defineExpose({ start, finish });
 
 onMounted(() => {
+  // Start from the child's lifecycle, never from an unbound parent ref.
+  if (props.autoStart) start();
   // shared + cached: loads once no matter how many typewriters exist
   if (props.sound) load(props.soundSrc);
   if (props.cursor) {

@@ -33,6 +33,8 @@ export function useTypingSequence(
   const finished = ref(false);
   let gapTimer: ReturnType<typeof setTimeout> | undefined;
   let disposed = false;
+  let mounted = false;
+  let pendingAction: "play" | "complete" | null = null;
   const visitComplete = onceKey
     ? useState<boolean>(`typing-sequence:${onceKey}`, () => false)
     : null;
@@ -66,6 +68,11 @@ export function useTypingSequence(
 
   function play(): void {
     if (started.value || disposed) return;
+    if (!mounted) {
+      if (pendingAction !== "complete") pendingAction = "play";
+      return;
+    }
+    if (visitComplete?.value) return complete();
     started.value = true;
     advance();
   }
@@ -73,6 +80,10 @@ export function useTypingSequence(
   /** Jumps straight to the end state (skip / already played). */
   function complete(): void {
     if (disposed) return;
+    if (!mounted) {
+      pendingAction = "complete";
+      return;
+    }
     clearTimeout(gapTimer);
     started.value = true;
     toValue(steps).forEach((step) => completed.add(step));
@@ -87,12 +98,14 @@ export function useTypingSequence(
     onDone: () => next(id),
   });
 
-  if (visitComplete?.value) {
-    started.value = true;
-    toValue(steps).forEach((step) => completed.add(step));
-    finished.value = true;
-    onMounted(() => onFinish?.());
-  }
+  // Setup watchers can run during SSR/hydration or before a suspended page
+  // mounts. Queue their request until the rendered children are available.
+  onMounted(() => {
+    mounted = true;
+    if (visitComplete?.value || pendingAction === "complete") complete();
+    else if (pendingAction === "play") play();
+    pendingAction = null;
+  });
 
   onBeforeUnmount(() => {
     disposed = true;

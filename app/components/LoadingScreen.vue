@@ -8,8 +8,7 @@ import {
   onBeforeUnmount,
 } from "vue";
 
-import { useMainMusic } from "~/composables/useMainMusic";
-import { useTypeSound } from "~/composables/useTypeSound";
+import { useEntryAudio } from "~/composables/useEntryAudio";
 
 const props = defineProps({
   maxBootDuration: { type: Number, default: 2200 },
@@ -20,14 +19,9 @@ const props = defineProps({
   musicSrc: { type: String, default: "/sound/main-song.mp3" },
   autoplayMusic: { type: Boolean, default: true },
 });
+const emit = defineEmits(["entered"]);
 
-const { play: playMainMusic } = useMainMusic();
-
-const {
-  load: loadTypeSound,
-  unlock: unlockAudio,
-  tick: playTypeTick,
-} = useTypeSound();
+const { prepare: prepareAudio, activate: activateAudio } = useEntryAudio(props);
 
 const introReady = useState("introReady", () => false);
 
@@ -69,12 +63,6 @@ const welcomeText = ref("");
 
 const hexRows = ref([]);
 const rainCanvas = ref(null);
-
-/*
- * Promise created while preloading the typing sound.
- * Calling load() again returns the same cached/in-progress request.
- */
-let typeSoundLoadPromise = null;
 
 /* ---------------- progress bar ---------------- */
 
@@ -266,6 +254,7 @@ function triggerBurst() {
   later(() => {
     done.value = true;
     introReady.value = true;
+    emit("entered");
 
     stopRain();
     restoreScroll();
@@ -281,26 +270,7 @@ function activateAndEnter() {
 
   audioActivated.value = true;
 
-  const unlockPromise = unlockAudio();
-
-  if (props.autoplayMusic) {
-    void playMainMusic(props.musicSrc);
-  }
-
-  // Give immediate audio feedback once the small typing sample is ready.
-  // This never blocks the loader from closing.
-  if (props.sound) {
-    const soundPromise =
-      typeSoundLoadPromise || loadTypeSound(props.soundSrc);
-
-    void Promise.all([Promise.resolve(unlockPromise), soundPromise]).then(
-      ([unlocked, buffer]) => {
-        if (unlocked && buffer) {
-          playTypeTick(props.soundSrc, 0.35, 0);
-        }
-      },
-    );
-  }
+  activateAudio();
 
   triggerBurst();
 }
@@ -433,9 +403,7 @@ onMounted(() => {
    * AudioContext may be suspended on iOS here,
    * which is fine. A completed click/tap will resume it.
    */
-  if (props.sound) {
-    typeSoundLoadPromise = loadTypeSound(props.soundSrc);
-  }
+  prepareAudio();
 
   const html = document.documentElement;
 
