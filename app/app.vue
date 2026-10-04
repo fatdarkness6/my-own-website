@@ -1,7 +1,7 @@
 <script setup>
 import PageSignalGlitch from "~/components/PageSignalGlitch.vue";
 
-useHead({ title: "Arsam Sarkhosh — Full-stack Developer" });
+useHead({ title: "Arsam Sarkhosh — Full-Stack Engineer" });
 </script>
 
 <template>

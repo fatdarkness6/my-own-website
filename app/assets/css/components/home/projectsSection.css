@@ -125,6 +125,11 @@
 }
 
 /* ---------- card content ---------- */
+.projects__clickable-card { cursor: pointer; }
+.pcard__detail-link { color: inherit; text-decoration: none; }
+.pcard__detail-link:focus-visible { outline: 2px solid #93c5fd; outline-offset: -2px; }
+.projects__clickable-card:focus-within { border-color: #60a5fa; }
+
 .pcard__index,
 .pcard__status {
   position: absolute;

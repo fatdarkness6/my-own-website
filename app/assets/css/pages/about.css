@@ -489,7 +489,7 @@
   box-shadow: inset 0 0 0 1px #3b82f6;
 }
 
-.dossier-tool:last-child {
+.dossier-tool:last-child:nth-child(odd) {
   grid-column: 1 / -1;
 }
 
@@ -829,4 +829,3 @@
     animation-duration: 0s !important;
   }
 }
-

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" role="img" aria-label="Abstract project visual">
+  <defs>
+    <linearGradient id="panel" x2="1" y2="1">
+      <stop stop-color="#0b1930"/>
+      <stop offset="1" stop-color="#02050b"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#3b82f6" stroke-opacity=".16"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="450" fill="url(#panel)"/>
+  <rect width="800" height="450" fill="url(#grid)"/>
+  <path d="M64 80h148M64 80v80M736 80H588M736 80v80M64 370h148M64 370v-80M736 370H588M736 370v-80" fill="none" stroke="#60a5fa" stroke-width="2" stroke-opacity=".72"/>
+  <path d="M135 225h530M265 198h270M265 252h270" stroke="#3b82f6" stroke-opacity=".26"/>
+  <circle cx="400" cy="225" r="53" fill="#3b82f6" fill-opacity=".06" stroke="#60a5fa" stroke-opacity=".5"/>
+  <path d="M385 225h30m-15-15v30" stroke="#b6d9ff" stroke-width="2"/>
+  <text x="80" y="342" fill="#93c5fd" font-family="monospace" font-size="17" letter-spacing="3">PROJECT / PROFILE</text>
+</svg>

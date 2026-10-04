@@ -10,7 +10,7 @@ defineProps({
 const introReady = useState("introReady", () => false);
 const introPlayed = useState("introPlayed", () => false);
 
-const eyebrow = "FULL-STACK DEVELOPER";
+const eyebrow = "FULL-STACK ENGINEER";
 const taglineSegments = homeCopy.hero.tagline;
 
 const { play, complete, line, finished } = useTypingSequence(

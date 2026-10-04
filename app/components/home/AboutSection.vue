@@ -10,7 +10,7 @@ const playedCards = new WeakSet();
 
 const titleSegments = homeCopy.about.title;
 const description =
-  "Full-stack developer specializing in reactive Nuxt 3 interfaces and robust Node.js architectures.";
+  "Full-stack engineer building production apps, APIs and interactive experiences with Vue, Nuxt, Node.js and Python.";
 
 const { play, line } = useTypingSequence(["eyebrow", "title", "desc"], {
   onceKey: "home-about-copy",

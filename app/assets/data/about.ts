@@ -1,10 +1,9 @@
-// About-page copy lives here. Journey entries describe a direction, not dated
-// employment history; replace them with personal milestones whenever ready.
+// About-page narrative and interactive toolkit copy.
 export const aboutCopy = {
   name: "Arsam Sarkhosh",
-  role: "Full-stack developer",
+  role: "Full-Stack Engineer",
   intro: "I build for the moment an interface stops feeling ordinary.",
-  summary: "Vue, Nuxt, Node.js, and a curiosity for how things work. I bring them together to build interactive experiences with a personality of their own.",
+  summary: "I build production web applications with Vue, Nuxt, Node.js and Python—from responsive interfaces to APIs and AI-powered workflows—with a visual identity of their own.",
   chapters: [{
     id: "origin",
     number: "01",
@@ -30,95 +29,104 @@ export const aboutCopy = {
     id: "curiosity",
     tag: "THE SPARK",
     title: "Look beneath the surface.",
-    summary: "A fascination with hacking, systems, and the question: how does this work?",
-    detail: "That curiosity is what makes building interesting to me. I like understanding the pieces, experimenting with them, and seeing what happens when I put them together differently."
+    summary: "Curiosity about computers, hacking culture and how software works underneath.",
+    detail: "I wanted to understand what was happening behind the screen. That curiosity drew me into programming, then into building for the web. I still enjoy taking a system apart to learn how its pieces connect."
   }, {
     id: "interfaces",
     tag: "THE CRAFT",
     title: "Give the interface a voice.",
-    summary: "Turn an idea into something people can see, touch, and feel.",
-    detail: "Vue and Nuxt give me a place to explore that. Custom components, precise motion, and thoughtful interactions let me create a visual identity that carries through the whole experience."
+    summary: "Turn an idea into an interface people can use and remember.",
+    detail: "Vue and Nuxt became my strongest tools. I've used them to build responsive production websites, SSR applications and custom interactions, while learning when a design detail helps the experience and when it gets in the way."
   }, {
     id: "systems",
     tag: "THE THINKING",
     title: "Connect the whole system.",
-    summary: "Care about the architecture as much as the pixels.",
-    detail: "My interest extends from reactive interfaces to Node.js APIs. I want the code behind an experience to be understandable, reusable, and ready to evolve with the idea."
+    summary: "Think past the screen, into APIs, data and the architecture that holds it together.",
+    detail: "My work grew from frontend into full-stack engineering: Node.js and FastAPI services, databases, CMS integrations and debugging existing systems. I want the parts to be understandable, maintainable and useful together."
   }, {
     id: "now",
     tag: "RIGHT NOW",
-    title: "Build a corner of the web that feels like me.",
-    summary: "This portfolio is an ongoing experiment in identity and interaction.",
-    detail: "The Watch Dogs-inspired atmosphere, glitch portrait, typing sounds, and custom animations all come from the same intention: make something I am excited to keep building."
+    title: "Keep building beyond the template.",
+    summary: "Full-stack and AI-powered products, with room for a distinct visual voice.",
+    detail: "I've worked on document-intelligence and business applications alongside this portfolio. The glitch effects, motion and sound here are part of the same aim: make a functional product feel unmistakably its own."
   }],
   principles: [{
     number: "01",
     code: "structure",
     title: "Clean underneath.",
-    text: "Reusable components. Clear responsibilities. Code that still makes sense when I come back to it.",
+    text: "Reusable components, clear responsibilities and code I can debug, extend or refactor without fighting it.",
     icon: "account_tree"
   }, {
     number: "02",
     code: "response",
     title: "Fast by intention.",
-    text: "Motion should feel immediate. I pay attention to what an interaction costs, especially on a phone.",
+    text: "Performance matters across UI and APIs. Motion should stay responsive, especially on a phone.",
     icon: "bolt"
   }, {
     number: "03",
     code: "identity",
     title: "Details with a purpose.",
-    text: "A transition, a sound, a flash of color. Each detail should support the character of the experience.",
+    text: "Typography, animation, sound and layout should support the product and its users, not just decorate it.",
     icon: "tune"
   }],
   tools: [{
-    id: "vue",
-    name: "Vue",
-    layer: "INTERFACE",
+    id: "vue-nuxt",
+    name: "Vue / Nuxt",
+    layer: "FRONTEND",
     icon: "widgets",
-    title: "Small pieces. One coherent experience.",
-    text: "Reactive interfaces built from components that have a clear job and can be reused throughout a project.",
-    evidence: "In this portfolio: custom glitch text, typed lines, cards, and reveal components.",
-    tags: ["Reactivity", "Components", "Composition API"]
+    title: "Interfaces built to last.",
+    text: "Vue and Nuxt are my strongest tools for responsive interfaces, reusable components and applications that need more than static pages.",
+    evidence: "Production websites with routing, SSR and localization—including the multilingual Arilvo platform.",
+    tags: ["Composition API", "SSR", "Responsive UI"]
   }, {
-    id: "nuxt",
-    name: "Nuxt",
-    layer: "APPLICATION",
-    icon: "layers",
-    title: "The structure around the experience.",
-    text: "Routes, layouts, and shared application behavior connect individual screens into a website that feels consistent.",
-    evidence: "In this portfolio: shared layouts, route-based pages, and reusable composables.",
-    tags: ["Routing", "SSR", "Composables"]
-  }, {
-    id: "quasar",
-    name: "Quasar",
-    layer: "FOUNDATION",
+    id: "quasar-ts",
+    name: "Quasar / TS",
+    layer: "UI SYSTEMS",
     icon: "dashboard_customize",
-    title: "A foundation I can make my own.",
-    text: "A dependable component system gives me room to focus on visual identity, responsive layouts, and the details of each interaction.",
-    evidence: "In this portfolio: navigation, cards, buttons, expansion panels, and music controls.",
-    tags: ["UI system", "Responsive", "Interactions"]
+    title: "A dependable UI foundation.",
+    text: "TypeScript, JavaScript and Quasar help me keep complex interfaces consistent while leaving room for custom interaction and styling.",
+    evidence: "Component systems, forms and responsive layouts; SCSS/CSS for visual detail, with i18n where the product needs it.",
+    tags: ["TypeScript", "Quasar", "SCSS/CSS"]
   }, {
-    id: "node",
-    name: "Node.js",
+    id: "backends",
+    name: "Node / FastAPI",
     layer: "BACKEND",
     icon: "dns",
-    title: "Think beyond the browser.",
-    text: "APIs and server-side architecture are the other half of my full-stack interests. I care about how information moves through a system.",
-    evidence: "My focus: clear API boundaries and understandable backend architecture.",
-    tags: ["APIs", "Architecture", "JavaScript"]
+    title: "Beyond the browser.",
+    text: "I build application logic and REST APIs with Node.js and Python/FastAPI, connecting the interface to the services behind it.",
+    evidence: "Authentication, document processing and backend integrations in full-stack projects; Strapi CMS integration on Arvand Termo Tec.",
+    tags: ["REST APIs", "Node.js", "Python"]
   }, {
-    id: "three",
-    name: "Three.js",
-    layer: "EXPERIMENT",
+    id: "data",
+    name: "Data systems",
+    layer: "DATABASE",
+    icon: "storage",
+    title: "Data with a clear purpose.",
+    text: "PostgreSQL and MongoDB support the applications I build. For document workflows, pgvector adds vector storage and semantic search.",
+    evidence: "PostgreSQL and pgvector in Docintel; MongoDB in Raymand Group. I use Git to keep changes traceable as systems evolve.",
+    tags: ["PostgreSQL", "MongoDB", "pgvector"]
+  }, {
+    id: "ai",
+    name: "AI apps",
+    layer: "INTEGRATIONS",
+    icon: "psychology",
+    title: "AI inside useful software.",
+    text: "I integrate LLM features into applications, from document understanding to embeddings, semantic retrieval and contextual Q&A.",
+    evidence: "Docintel applies RAG-style retrieval and vector search to document workflows. My focus is building the product around the models.",
+    tags: ["LLM integration", "Embeddings", "RAG"]
+  }, {
+    id: "creative",
+    name: "Three.js / GSAP",
+    layer: "CREATIVE",
     icon: "view_in_ar",
-    title: "A little depth. A lot of character.",
-    text: "A space to experiment with particles, shaders, and interactions that give a familiar page an unexpected dimension.",
-    evidence: "In this portfolio: the particle portrait on the homepage.",
-    tags: ["WebGL", "Particles", "Shaders"]
+    title: "Motion with a reason.",
+    text: "Three.js, GSAP and custom CSS let me give an interface character without losing clarity or responsiveness.",
+    evidence: "This portfolio uses a Three.js portrait, glitch components and typed motion; Arilvo uses custom animation.",
+    tags: ["Three.js", "GSAP", "Interaction"]
   }],
   personal: {
     quote: "I want to build things that make people stop scrolling for a second.",
-    text: "I am drawn to the energy of Watch Dogs 2: the hacking culture, the visual noise, and the sense that a system can be taken apart and reimagined. This website is my way of bringing some of that energy into the web.",
+    text: "Watch Dogs 2, hacker culture and cyberpunk visuals have stayed with me. This site is my experiment with that energy: glitch effects, scanlines, typing, sound and unusual interaction, all made for the web.",
     note: "Always curious. Always experimenting. Still building.",
     interests: ["Hacking culture", "Interactive design", "Creative coding"]
   }

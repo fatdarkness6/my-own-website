@@ -20,4 +20,10 @@
 
 <script lang="ts" setup>
 definePageMeta({ layout: "scroll" });
+
+useSeoMeta({
+  title: "Arsam Sarkhosh — Full-Stack Engineer",
+  description:
+    "Full-stack engineer specializing in Vue, Nuxt, Node.js and Python, building production web applications, backend APIs, interactive experiences and AI-powered systems.",
+});
 </script>

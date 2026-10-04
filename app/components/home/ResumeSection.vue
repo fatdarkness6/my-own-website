@@ -5,7 +5,7 @@ const { sections, currentIndex, isAnimating } = useScrollSections();
 
 const titleSegments = homeCopy.resume.title;
 const description =
-  "Explore my experience, technical skills, and education—all in one place.";
+  "A closer look at the applications I've built, the tools I use and how I work.";
 const linkText = "View my résumé";
 
 // A contents preview, not invented jobs, qualifications, or achievements.
@@ -15,7 +15,7 @@ const entries = [
     id: "experience",
     number: "01",
     title: "Experience",
-    detail: "Roles & responsibilities",
+    detail: "Web apps & systems",
   },
   {
     id: "skills",
@@ -24,10 +24,10 @@ const entries = [
     detail: "Tools & technologies",
   },
   {
-    id: "education",
+    id: "work",
     number: "03",
-    title: "Education",
-    detail: "Background & qualifications",
+    title: "Selected work",
+    detail: "Projects & contributions",
   },
 ];
 

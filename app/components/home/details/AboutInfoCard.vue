@@ -2,7 +2,7 @@
 const $q = useQuasar();
 
 const summary =
-  "I don't just write lines of code; I solve complex architectural puzzles. Whether it's crafting SEO-friendly SSR applications in Nuxt or designing high-concurrency Node APIs, I prioritize clean architecture and intuitive UI/UX.";
+  "I work across the interface and the systems behind it: responsive Vue and Nuxt applications, Node.js and FastAPI backends, and AI-powered workflows. I care about clear architecture, performance and UI that feels intentional.";
 const linkText = "Explore my full story & philosophy";
 
 const codeLines = [
@@ -35,7 +35,7 @@ const codeLines = [
     parts: [
       { text: "role", class: "c-prop" },
       { text: ": " },
-      { text: '"Full Stack Developer"', class: "c-str" },
+      { text: '"Full-Stack Engineer"', class: "c-str" },
       { text: "," },
     ],
   },
@@ -46,11 +46,11 @@ const codeLines = [
     parts: [
       { text: "core", class: "c-prop" },
       { text: ": [" },
-      { text: "'Nuxt 3'", class: "c-str" },
+      { text: "'Nuxt'", class: "c-str" },
       { text: ", " },
       { text: "'Node.js'", class: "c-str" },
       { text: ", " },
-      { text: "'TypeScript'", class: "c-str" },
+      { text: "'Python'", class: "c-str" },
       { text: "]," },
     ],
   },
@@ -62,7 +62,7 @@ const codeLines = [
       { text: "mission", class: "c-prop" },
       { text: ": " },
       {
-        text: '"Building impactful digital tools"',
+        text: '"Building useful systems with character"',
         class: "c-str c-str--accent",
       },
     ],
@@ -71,9 +71,9 @@ const codeLines = [
 ].map((l) => ({ ...l, text: l.parts.map((p) => p.text).join("") }));
 
 const stats = [
-  { value: "NUXT", label: "Core Specialty" },
-  { value: "10+", label: "Dedicated Pages" },
-  { value: "100%", label: "Type-Safe Code" },
+  { value: "VUE", label: "Nuxt · Quasar" },
+  { value: "API", label: "Node.js · FastAPI" },
+  { value: "UX", label: "Responsive interfaces" },
 ];
 
 const showStats = computed(() => !$q.screen.lt.sm);

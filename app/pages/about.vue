@@ -2,9 +2,9 @@
 import { aboutCopy } from "~/assets/data/about";
 
 useSeoMeta({
-  title: "About Arsam Sarkhosh — Behind the Signal",
+  title: "About Arsam Sarkhosh — Full-Stack Engineer",
   description:
-    "Meet Arsam Sarkhosh: a full-stack developer exploring Vue, Nuxt, Node.js, and interactive experiences with a hacking-inspired identity.",
+    "Learn how Arsam Sarkhosh builds Vue and Nuxt applications, Node.js and Python APIs, and AI-powered systems with a distinct visual identity.",
 });
 
 const introReady = useState("introReady", () => false);
@@ -189,7 +189,7 @@ watch(
         </q-btn>
       </div>
       <div class="dossier-exit__bottom">
-        <span>ARSAM SARKHOSH / FULL-STACK DEVELOPER</span>
+        <span>ARSAM SARKHOSH / FULL-STACK ENGINEER</span>
         <a href="#about-main">BACK TO TOP ↑</a>
       </div>
     </footer>

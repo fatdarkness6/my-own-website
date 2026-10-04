@@ -1,5 +1,5 @@
 <script setup>
-import { projects } from "~/assets/data/projects";
+import { projects, projectPlaceholder } from "~/assets/data/projects";
 import { homeCopy } from "~/assets/data/homeCopy";
 
 /* ---------- scroll section state ---------- */
@@ -7,9 +7,20 @@ const { sections, currentIndex, isAnimating } = useScrollSections();
 
 /* ---------- copy ---------- */
 const titleSegments = homeCopy.projects.title;
-const description = "Production builds, experiments and tools I've shipped.";
+const description = "Selected platforms and systems I've built or worked on.";
 
 const featured = projects.slice(0, 4);
+const projectLocation = (id) => ({ path: "/projects", query: { project: id } });
+let cardPointerStart = null;
+function openProject(event, id) {
+  // Preserve the live/source links and do not navigate after swiping the rail.
+  if (event.target.closest("a, button, input, [role='button']")) return;
+  if (cardPointerStart && Math.hypot(
+    event.clientX - cardPointerStart.x,
+    event.clientY - cardPointerStart.y,
+  ) > 10) return;
+  navigateTo(projectLocation(id));
+}
 
 const revealed = ref(false);
 
@@ -125,24 +136,31 @@ onBeforeUnmount(() => ro?.disconnect());
               class="projects__card-reveal"
             >
               <AnimationGlitchCard
-                :image="p.image"
-                :alt="p.name"
+                class="projects__clickable-card"
+                @pointerdown="cardPointerStart = { x: $event.clientX, y: $event.clientY }"
+                @click="openProject($event, p.id)"
+                :image="(p.screenshot ?? projectPlaceholder).src"
+                :alt="(p.screenshot ?? projectPlaceholder).alt"
                 :interval="5200 + i * 900"
               >
                 <template #media>
                   <span class="pcard__index">{{ hex(i) }}</span>
-                  <span class="pcard__status" :class="`is-${p.status}`">
+                  <span v-if="p.status" class="pcard__status" :class="`is-${p.status}`">
                     ● {{ p.status.toUpperCase() }}
                   </span>
                 </template>
 
-                <p class="pcard__meta">{{ p.year }} · {{ p.role }}</p>
+                <p class="pcard__meta">
+                  <template v-if="p.year">{{ p.year }} · </template>{{ p.role }}
+                </p>
 
                 <h3 class="pcard__name">
+                  <NuxtLink :to="projectLocation(p.id)" :aria-label="`View ${p.name} project`" class="pcard__detail-link">
                   <AnimationGlitchTextTimer
                     :text="p.name"
                     :interval="4800 + i * 700"
                   />
+                  </NuxtLink>
                 </h3>
 
                 <p class="pcard__summary">{{ p.summary }}</p>

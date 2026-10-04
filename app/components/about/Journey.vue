@@ -11,7 +11,7 @@ const expanded = ref<string | null>("curiosity");
         <br />
         <span class="dossier-accent">An evolving direction.</span>
       </p>
-      <p class="dossier-body">From wondering how a system works to building one with my own signature. These are the ideas that connect the dots.</p>
+      <p class="dossier-body">Curiosity about systems led me to web development, then beyond the interface into APIs and complete applications. These are the threads connecting that work.</p>
       <span class="dossier-label dossier-muted">SELECT A RECORD TO READ MORE ↓</span>
     </div>
     <q-list class="dossier-records" aria-label="My story">

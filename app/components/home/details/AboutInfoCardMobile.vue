@@ -1,14 +1,14 @@
 <script setup>
 // Keep the existing TypedLine, typing sound and sequence composable.
 const name = "Arsam";
-const role = "Full Stack Developer";
-const mission = "Building impactful digital tools.";
-const stack = "Nuxt 3 · Node.js · TypeScript";
+const role = "Full-Stack Engineer";
+const mission = "Building web apps with personality.";
+const stack = "Nuxt · Node.js · Python";
 const linkText = "More about me";
 
 const details = [
-  { id: "frontend", label: "UI", text: "SEO-friendly Nuxt SSR" },
-  { id: "backend", label: "API", text: "High-concurrency Node APIs" },
+  { id: "frontend", label: "UI", text: "Responsive Nuxt / Vue" },
+  { id: "backend", label: "API", text: "Node.js & FastAPI" },
   { id: "focus", label: "Focus", text: "Clean architecture · UI/UX" },
 ];
 
