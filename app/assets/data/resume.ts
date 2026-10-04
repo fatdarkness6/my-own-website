@@ -1,4 +1,9 @@
 // Shared by the résumé page and its Home preview.
+export const resumeDocument = {
+  href: "/resume/arsam-sarkhosh-resume.pdf",
+  filename: "Arsam-Sarkhosh-Resume.pdf",
+};
+
 export const resumeSections = [
   { id: "experience", number: "01", title: "Experience", detail: "Web apps & systems" },
   { id: "skills", number: "02", title: "Technical skills", detail: "Tools & technologies" },
