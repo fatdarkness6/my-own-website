@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { aboutCopy } from "~/assets/data/about";
-const expanded = ref<string | null>("curiosity");
+import { aboutPageCopy } from "~/assets/data/aboutPage";
+const expanded = ref<string | null>("frontend");
 </script>
 
 <template>
-  <div class="dossier-journey">
-    <div class="dossier-journey__intro">
+  <div class="dossier-profile">
+    <div class="dossier-profile__intro">
       <p class="dossier-lead">
-        A curious mind.
+        From interface
         <br />
-        <span class="dossier-accent">An evolving direction.</span>
+        <span class="dossier-accent">to production.</span>
       </p>
-      <p class="dossier-body">Curiosity about systems led me to web development, then beyond the interface into APIs and complete applications. These are the threads connecting that work.</p>
-      <span class="dossier-label dossier-muted">SELECT A RECORD TO READ MORE ↓</span>
+      <p class="dossier-body">Strong Vue/Nuxt experience, backed by work across services, data, integrations and production delivery.</p>
+      <div class="dossier-tags">
+        <q-badge outline>GREENFIELD</q-badge>
+        <q-badge outline>EXISTING SYSTEMS</q-badge>
+      </div>
+      <span class="dossier-label dossier-muted">EXPAND A RECORD FOR TECHNICAL CONTEXT ↓</span>
     </div>
-    <q-list class="dossier-records" aria-label="My story">
+    <q-list class="dossier-records" aria-label="Engineering responsibilities">
       <q-expansion-item
-        v-for="(entry, index) in aboutCopy.journey"
+        v-for="(entry, index) in aboutPageCopy.profile"
         :key="entry.id"
         :model-value="expanded === entry.id"
         :toggle-aria-label="`${expanded === entry.id ? 'Collapse' : 'Expand'}: ${entry.title}`"

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { aboutCopy } from "~/assets/data/about";
+import { aboutPageCopy } from "~/assets/data/aboutPage";
 
-const selected = ref(aboutCopy.tools[0]!.id);
+const selected = ref(aboutPageCopy.tools[0]!.id);
 const current = computed(
-  () => aboutCopy.tools.find((tool) => tool.id === selected.value)!,
+  () => aboutPageCopy.tools.find((tool) => tool.id === selected.value)!,
 );
 </script>
 
@@ -12,12 +12,12 @@ const current = computed(
     <div class="dossier-toolkit__map">
       <div class="dossier-toolkit__hub" aria-hidden="true">
         <span class="dossier-label">ARSAM / STACK</span>
-        <strong>IDEA → EXPERIENCE</strong>
+        <strong>INTERFACE → SYSTEM → DELIVERY</strong>
         <span class="dossier-toolkit__hub-line" />
       </div>
       <div class="dossier-toolkit__nodes" role="group" aria-label="Explore my tools">
         <q-btn
-          v-for="tool in aboutCopy.tools"
+          v-for="tool in aboutPageCopy.tools"
           :key="tool.id"
           flat
           no-caps

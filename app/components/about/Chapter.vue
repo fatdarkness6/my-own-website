@@ -1,11 +1,8 @@
 <script setup lang="ts">
+import type { AboutChapterContent } from "~/assets/data/aboutPage";
+
 const props = defineProps<{
-  chapter: {
-    id: string;
-    number: string;
-    label: string;
-    title: string;
-  };
+  chapter: AboutChapterContent;
 }>();
 const { element, entered } = useViewportEntry();
 const introReady = useState("introReady", () => false);
