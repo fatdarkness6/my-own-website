@@ -1,5 +1,6 @@
 <script setup>
 import { homeCopy } from "~/assets/data/homeCopy";
+import { resumeSections } from "~/assets/data/resume";
 
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
@@ -8,28 +9,7 @@ const description =
   "A closer look at the applications I've built, the tools I use and how I work.";
 const linkText = "View my résumé";
 
-// A contents preview, not invented jobs, qualifications, or achievements.
-// Keep these categories in sync with your eventual /resume page.
-const entries = [
-  {
-    id: "experience",
-    number: "01",
-    title: "Experience",
-    detail: "Web apps & systems",
-  },
-  {
-    id: "skills",
-    number: "02",
-    title: "Technical skills",
-    detail: "Tools & technologies",
-  },
-  {
-    id: "work",
-    number: "03",
-    title: "Selected work",
-    detail: "Projects & contributions",
-  },
-];
+const entries = resumeSections;
 
 const order = [
   "eyebrow",

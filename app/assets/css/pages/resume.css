@@ -1,0 +1,157 @@
+.resume-dossier {
+  --cv-line: rgb(96 165 250 / 24%);
+  --cv-accent: #60a5fa;
+  padding: 28px 0 32px;
+  color: #f8fafc;
+  scroll-margin-top: 120px;
+}
+.resume-dossier *, .resume-dossier *::before, .resume-dossier *::after { box-sizing: border-box; }
+.resume-dossier :is(h1, h2, h3, p) { margin: 0; }
+.cv-accent, .cv-chapter .section-title span, .cv-exit .section-title span { color: var(--cv-accent); }
+.cv-label { font: 500 .72rem/1.6 var(--ui-font); letter-spacing: .07em; color: var(--cv-accent); }
+.cv-body { font: 400 1rem/1.85 var(--ui-font); color: #b5c3d7; }
+.cv-filebar, .cv-exit__bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font: 500 .7rem/1.6 var(--ui-font); color: #91a4be; }
+.cv-filebar { border-bottom: 1px solid var(--cv-line); padding-bottom: 18px; }
+.cv-intro { display: flex; justify-content: space-between; align-items: center; gap: 28px; padding: 42px 0; }
+.resume-dossier .cv-title { font: 650 clamp(2.8rem, 4.6vw, 4.5rem)/1.1 var(--title-font); margin: 16px 0; }
+.cv-lead { font: 400 1rem/1.8 var(--ui-font); color: #bbc9db; max-width: 48ch; }
+.resume-dossier .cv-button { min-height: 48px; padding: 12px 20px; font: 600 .8125rem/1.5 var(--ui-font); color: #e6efff; flex-shrink: 0; }
+.cv-button .q-btn__content { gap: 12px; }
+.resume-dossier .cv-button--primary { background: #3b82f6; color: #fff; }
+.cv-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: clamp(28px, 4vw, 60px); align-items: start; }
+.cv-sidebar { position: sticky; top: 115px; min-width: 0; }
+.cv-passport { border: 1px solid var(--cv-line); background: #080f1b; color: inherit; }
+.cv-passport__bar, .cv-passport__footer { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; font: 500 .65rem/1.6 var(--ui-font); letter-spacing: .06em; color: #92b4e5; background: #0e1b2e; }
+.cv-passport__identity { padding: 24px; }
+.cv-monogram { position: relative; display: grid; place-items: center; gap: 16px; padding: 28px 10px 24px; margin-bottom: 24px; border: 1px solid #294261; background: repeating-linear-gradient(0deg, transparent 0 23px, rgb(59 130 246 / 8%) 24px), repeating-linear-gradient(90deg, transparent 0 23px, rgb(59 130 246 / 8%) 24px); overflow: hidden; }
+.cv-monogram > span { font: 700 5rem/1 var(--ui-font); color: #c9e0ff; text-shadow: -3px 0 #1d4ed8, 3px 0 #132c4f; }
+.cv-monogram small { font: 500 .6rem/1.5 var(--ui-font); color: #91b3e3; }
+.cv-monogram i { position: absolute; left: 0; right: 0; height: 2px; top: 45%; background: #3b82f6; opacity: .45; }
+.cv-passport h2 { font: 650 1.35rem/1.3 var(--ui-font); }
+.resume-dossier .cv-role { font: 500 .875rem/1.6 var(--ui-font); color: #60a5fa; margin-top: 10px; }
+.resume-dossier .cv-profile-summary { font-size: .875rem; margin-top: 18px; }
+.cv-specialty { display: grid; gap: 10px; padding: 20px 24px; }
+.cv-specialty strong { font: 600 1.1rem/1.5 var(--ui-font); }
+.cv-specialty .cv-body { font-size: .8125rem; }
+.cv-passport__footer { font-size: .55rem; }
+.cv-barcode { width: 42px; height: 20px; background: repeating-linear-gradient(90deg, #789dcf 0 1px, transparent 1px 3px, #789dcf 3px 5px, transparent 5px 8px); }
+.cv-contents { margin-top: 20px; border: 1px solid var(--cv-line); }
+.cv-contents .q-item { min-height: 48px; font: 500 .8125rem/1.5 var(--ui-font); }
+.cv-contents .q-item__section--side { color: #60a5fa; }
+.resume-dossier .cv-sidebar-note { font: 400 .75rem/1.8 var(--ui-font); color: #8fa0b8; margin-top: 18px; }
+.cv-document { min-width: 0; }
+.cv-chapter { scroll-margin-top: 120px; padding: 0 0 48px; }
+.cv-chapter + .cv-chapter { border-top: 1px solid var(--cv-line); padding-top: 36px; }
+.cv-chapter__heading { display: flex; align-items: center; gap: 20px; }
+.cv-chapter__number { font: 700 2.7rem/1 var(--ui-font); color: #244268; }
+.cv-chapter .section-title { font-size: clamp(1.7rem, 2.7vw, 2.5rem); margin-top: 8px; }
+.resume-dossier .cv-section-intro { margin: 22px 0; }
+.cv-focus { display: flex; flex-wrap: wrap; gap: 8px; }
+.cv-focus .q-btn { min-height: 44px; padding: 8px 12px; font: 500 .75rem/1.6 var(--ui-font); color: #9fbbdf; }
+.cv-focus .q-btn__content { gap: 8px; }
+.cv-focus .is-active { color: #e8f1ff; background: #162e50; }
+.resume-dossier .cv-result-count { font: 400 .7rem/1.6 var(--ui-font); color: #91a4be; margin-top: 16px; }
+.cv-timeline { margin: 26px 0 0; }
+.cv-timeline .q-timeline__subtitle { font: 500 .7rem/1.65 var(--ui-font); color: #8bb8f4; letter-spacing: .035em; opacity: 1; margin-bottom: 10px; }
+.cv-timeline .q-timeline__title { display: none; }
+.cv-timeline .cv-project-title { font: 650 1.25rem/1.4 var(--ui-font); margin-bottom: 14px; }
+.cv-timeline .q-timeline__content { padding: 22px; border: 1px solid var(--cv-line); background: linear-gradient(135deg, #0d1727, #060b12); margin-bottom: 24px; }
+.cv-entry__meta { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 12px; font: 500 .65rem/1.6 var(--ui-font); color: #92a9c9; }
+.cv-contributions { margin: 16px 0 20px; padding-left: 18px; display: grid; gap: 10px; font: 400 .875rem/1.8 var(--ui-font); color: #b8c7da; }
+.cv-contributions li::marker { color: #60a5fa; }
+.cv-entry__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+.cv-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.cv-tags .q-badge { font: 500 .65rem/1.5 var(--ui-font); border-color: #294261; border-radius: 0; padding: 4px 6px; color: #93bffb; }
+.resume-dossier .cv-evidence { min-height: 44px; color: #a9ccff; padding: 8px 12px; font: 500 .75rem/1.5 var(--ui-font); }
+.cv-evidence .q-btn__content { gap: 8px; }
+.cv-skill-grid, .cv-work-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.cv-skill { background: #080f19; color: #e5eefb; border: 1px solid var(--cv-line); }
+.cv-skill .q-card__section { padding: 22px; }
+.cv-skill__bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; color: #60a5fa; }
+.cv-skill h3 { font: 600 1.1rem/1.5 var(--ui-font); margin-bottom: 12px; }
+.cv-skill .cv-body { font-size: .875rem; }
+.cv-skill .cv-tags { margin-top: 20px; }
+.cv-work-grid { margin-top: 26px; }
+.cv-work-link { display: block; min-width: 0; border: 1px solid var(--cv-line); color: #dbeafe; text-decoration: none; background: #0b1421; transition: border-color .2s; }
+.cv-work-link:hover { border-color: #60a5fa; }
+.cv-work-link > span { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 16px; font: 500 .75rem/1.6 var(--ui-font); }
+.cv-work-link .q-icon { color: #60a5fa; }
+.cv-exit { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 28px; padding-top: 32px; border-top: 1px solid var(--cv-line); }
+.cv-exit h2 { margin-top: 12px; }
+.cv-exit__bottom { width: 100%; margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--cv-line); }
+.cv-exit__bottom a { color: #93c5fd; text-decoration: none; padding-block: 10px; }
+.resume-dossier :is(a, button, .q-item):focus-visible { outline: 2px solid #93c5fd; outline-offset: -3px; }
+.cv-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-height: 1000px) {
+  /* A tall pinned profile must not trap its navigation below the viewport. */
+  .cv-sidebar { position: static; }
+}
+@media (max-width: 1100px) {
+  .cv-layout { grid-template-columns: 260px minmax(0, 1fr); gap: 28px; }
+  .cv-skill-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 850px) {
+  .cv-layout { grid-template-columns: minmax(0, 1fr); }
+  .cv-sidebar { position: static; }
+  .cv-passport__identity { display: grid; grid-template-columns: 150px minmax(0, 1fr); column-gap: 24px; }
+  .cv-monogram { grid-row: 1 / 4; margin: 0; }
+  .cv-monogram > span { font-size: 3.5rem; }
+  .cv-monogram small { font-size: .5rem; }
+  .cv-specialty, .cv-passport > .q-separator, .cv-sidebar-note { display: none; }
+  .cv-contents .q-list { display: flex; flex-wrap: wrap; }
+  .cv-contents .q-item { flex: 1; }
+  .cv-intro { align-items: flex-start; flex-direction: column; gap: 20px; padding: 32px 0; }
+  .cv-skill-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 540px) {
+  .resume-dossier { padding-top: 18px; }
+  .cv-filebar { font-size: .625rem; }
+  .cv-intro .cv-button { width: 100%; }
+  .resume-dossier .cv-title { font-size: clamp(2.4rem, 10vw, 3.3rem); }
+  .cv-passport__identity { grid-template-columns: minmax(0, 1fr); padding: 20px; }
+  .cv-monogram { display: none; }
+  .resume-dossier .cv-profile-summary { font-size: 1rem; }
+  .cv-contents .q-item { flex: 1 0 100%; }
+  .cv-chapter__heading { gap: 12px; }
+  .cv-chapter__number { font-size: 2rem; }
+  .cv-chapter .section-title { font-size: 1.7rem; }
+  .cv-timeline .q-timeline__entry { padding-left: 30px; }
+  .cv-timeline .q-timeline__content { padding: 18px 14px; }
+  .cv-timeline .cv-project-title { font-size: 1.1rem; }
+  .cv-contributions, .cv-skill .cv-body { font-size: 1rem; }
+  .cv-entry__footer { align-items: flex-start; flex-direction: column; }
+  .cv-skill-grid { grid-template-columns: minmax(0, 1fr); }
+  .cv-work-grid { gap: 10px; }
+  .cv-work-link > span { font-size: .65rem; padding: 12px 8px; }
+  .cv-exit > .cv-button { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cv-work-link { transition: none; }
+}
+@media print {
+  body:has(.resume-dossier), body:has(.resume-dossier) .app-page { background: white !important; color: #111 !important; height: auto !important; overflow: visible !important; }
+  body:has(.resume-dossier) .q-header, body:has(.resume-dossier) .page-signal, body:has(.resume-dossier) nuxt-devtools-anchor { display: none !important; }
+  body:has(.resume-dossier) .q-page-container { padding-top: 0 !important; }
+  body:has(.resume-dossier) .container { max-width: none; padding: 0; }
+  .resume-dossier { padding: 0; }
+  .resume-dossier *, .resume-dossier *::before, .resume-dossier *::after { animation: none !important; transition: none !important; color: #111 !important; background: transparent !important; text-shadow: none !important; box-shadow: none !important; }
+  .cv-intro, .cv-filebar, .cv-contents, .cv-sidebar-note, .cv-monogram, .cv-passport__bar, .cv-passport__footer, .cv-specialty, .cv-focus, .cv-result-count, .cv-exit, .cv-evidence, #work, .cv-chapter__number { display: none !important; }
+  .cv-layout { display: block; }
+  .cv-sidebar { position: static; }
+  .cv-passport { border: 0; }
+  .cv-passport__identity { display: block; padding: 0 0 20px; }
+  .cv-passport h2 { font: 700 24pt/1.2 sans-serif; }
+  .cv-role { font-size: 12pt !important; }
+  .resume-dossier .hacker-reveal { opacity: 1 !important; visibility: visible !important; clip-path: none !important; transform: none !important; filter: none !important; }
+  .resume-dossier .hacker-reveal__scan, .cv-timeline .q-timeline__dot { display: none; }
+  .cv-chapter { padding-bottom: 20px; }
+  .cv-chapter .section-title { font: 700 16pt/1.3 sans-serif; }
+  .cv-timeline .q-timeline__entry { display: block !important; padding-left: 0; break-inside: avoid; }
+  .cv-timeline .q-timeline__content { border: 0; border-bottom: 1px solid #bbb; padding: 0 0 16px; }
+  .cv-timeline .cv-project-title { font: 700 13pt/1.4 sans-serif; }
+  .cv-body, .cv-contributions, .resume-dossier .cv-profile-summary, .cv-skill .cv-body { font: 400 10pt/1.6 sans-serif; }
+  .cv-skill-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cv-skill { break-inside: avoid; border-color: #bbb; }
+  .cv-skill .q-card__section { padding: 12px; }
+  .cv-skill h3 { font: 700 12pt/1.4 sans-serif; }
+}
