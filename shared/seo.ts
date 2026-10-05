@@ -1,7 +1,9 @@
+import { PROJECT_PATHS } from "./projectRoutes.ts";
+
 export const SITE_URL = "https://arsamsarkhosh.vercel.app";
 export const SITE_NAME = "Arsam Sarkhosh";
 export const SITE_LOCALES = ["en", "es", "de", "fr", "it", "ar", "fa"] as const;
-export const SITE_ROUTES = ["/", "/about", "/projects", "/resume", "/contact"] as const;
+export const SITE_ROUTES = ["/", "/about", "/projects", "/resume", "/contact", ...PROJECT_PATHS] as const;
 export const SOCIAL_IMAGE = "/images/og/portfolio.png";
 
 /** One trusted origin, never the incoming Host header or a tracking URL. */

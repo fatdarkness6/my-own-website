@@ -9,12 +9,12 @@ test("canonical origins ignore paths, queries and fragments; reject unsafe schem
   assert.throws(() => siteOrigin("https://user:password@example.com"));
 });
 
-test("all 35 localized pages have unique URLs and reciprocal sitemap alternates", () => {
+test("all 70 localized pages have unique URLs and reciprocal sitemap alternates", () => {
   const xml = buildSitemap(SITE_URL);
   const entries = [...xml.matchAll(/<url>(.*?)<\/url>/g)].map((match) => match[1]!);
-  assert.equal(entries.length, 35);
+  assert.equal(entries.length, 70);
   const locations = entries.map((entry) => entry.match(/<loc>(.*?)<\/loc>/)![1]);
-  assert.equal(new Set(locations).size, 35);
+  assert.equal(new Set(locations).size, 70);
   for (const path of SITE_ROUTES) for (const locale of SITE_LOCALES) {
     const location = `${SITE_URL}${localizedPath(path, locale)}`;
     const entry = entries.find((value) => value.includes(`<loc>${location}</loc>`))!;

@@ -11,7 +11,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       siteUrl: canonicalOrigin, seoIndexable: indexable,
-      googleSiteVerification: "", bingSiteVerification: "",
+      googleSiteVerification: "QqxjGlyiagYJJ7OqLt3hdM-CxlPSf5QQx5VQJI3kl8E",
+      bingSiteVerification: "",
     },
   },
   app: {

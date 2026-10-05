@@ -20,6 +20,7 @@ defineProps<{
       height="714"
       decoding="async"
       :loading="compact ? 'lazy' : 'eager'"
+      :fetchpriority="compact ? 'auto' : 'high'"
     />
     <div v-else class="project-preview__cover">
       <div class="project-preview__art" aria-hidden="true">

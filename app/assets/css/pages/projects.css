@@ -159,3 +159,6 @@
   .archive-exit { padding-top: 44px; }
   .archive-exit > .archive-button { width: 100%; }
 }
+.archive-breadcrumbs { padding-top: 22px; font: 500 .8125rem/1.6 var(--ui-font); color: #aebed3; }
+.archive-breadcrumbs a { color: #93c5fd; }
+.archive-breadcrumbs .q-breadcrumbs { overflow-wrap: anywhere; }

@@ -8,9 +8,10 @@ invented reviews, or crawler-only content is used.
 
 ## Implemented
 
-- Server-rendered, localized titles and descriptions across five pages and seven languages.
+- Server-rendered, localized titles and descriptions across five main pages,
+  five project pages and seven languages.
 - Absolute self-canonicals, reciprocal `hreflang` links and an English `x-default`.
-- `/sitemap.xml`: 35 canonical URLs with language alternates. No made-up modification dates.
+- `/sitemap.xml`: 70 canonical URLs with language alternates. No made-up modification dates.
 - `/robots.txt`: sitemap discovery for production; Vercel previews are excluded.
 - `noindex, nofollow` metadata and HTTP headers for non-indexable deployments.
 - Open Graph and Twitter large-image previews, with a static 1200 × 630 PNG.
@@ -24,9 +25,14 @@ invented reviews, or crawler-only content is used.
 - Regression tests for canonical URLs, structured-data safety, localized pages,
   robots behavior, unknown-page 404s and social-image availability.
 
-The existing `?project=` URLs intentionally canonicalize to `/projects`.
-They select an item in a single archive, not separate case-study pages. Tracking
-parameters and hashes are also excluded from canonical URLs.
+Each project has a permanent `/projects/<id>` URL. The archive and detail pages
+reuse `ProjectsArchive` and the existing translated project records, including
+screenshots, architecture, contributions and availability. Detail pages show
+technical content by default, have their own metadata, and link their project
+entity and visible breadcrumbs in JSON-LD. Home, About, Résumé and the archive
+use ordinary links to these pages. Valid old `?project=` bookmarks permanently
+redirect (301) to the matching localized project page; unknown project paths
+return 404. Tracking parameters and hashes are excluded from canonical URLs.
 
 ## Deployment settings
 
@@ -44,23 +50,36 @@ robots handlers are server routes, so a bare static-file export is not equivalen
 
 ## After deployment: ownership and indexing
 
+The public audit on 2026-10-05 found HTTP 200 responses, indexable metadata,
+correct canonicals and a working sitemap on the production site. Google's
+`site:arsamsarkhosh.vercel.app` search returned no documents. This indicates a
+discovery/indexing issue to investigate in Search Console, not evidence of a
+specific penalty. The URL Inspection report is the source for Google's actual
+indexing status and exclusion reason.
+
 1. Open [Google Search Console](https://search.google.com/search-console) using
    the Google account that should own the property.
 2. Add the URL-prefix property `https://arsamsarkhosh.vercel.app/`. The Vercel
    subdomain is not a domain you control through DNS.
-3. Choose HTML-tag verification. Put **only the supplied content token** into
-   `NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel, redeploy, then verify.
-   Do not invent a token or paste the entire `<meta>` element into the variable.
+3. Choose HTML-tag verification. The public verification token supplied by the
+   owner is configured in `nuxt.config.ts`. After deploying it, click **Verify**.
+   If the account/token changes, override `NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
+   with only the new content token and redeploy. An existing Vercel variable
+   overrides the code default; remove a stale or empty override if verification fails.
 4. Submit `sitemap.xml`. Use URL Inspection on the home, About, Projects and
-   Résumé pages; inspect one Persian and one Arabic URL too.
+   Résumé pages and `/projects/docintel` and `/projects/docintel-backend`;
+   inspect one Persian and one Arabic URL too. Click **Test live URL**, then
+   **Request indexing** on the homepage. Save Google's reported indexing reason
+   if it remains excluded; a live test proves access, not inclusion in the index.
 5. Check page indexing and Core Web Vitals reports after Google collects data.
    A successful sitemap submission is not a ranking or indexing guarantee.
 6. Optional: repeat ownership verification in
    [Bing Webmaster Tools](https://www.bing.com/webmasters) using
    `NUXT_PUBLIC_BING_SITE_VERIFICATION`.
 
-Ownership verification, Search Console submission and public deployment require
-the owner's accounts and were not performed by editing this repository.
+Adding the verification tag does not itself complete ownership verification.
+The owner still needs to click Verify, submit the sitemap and request indexing
+in their signed-in Search Console account.
 
 ## Content and authority work
 

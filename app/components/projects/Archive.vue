@@ -1,35 +1,31 @@
 <script setup lang="ts">
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, rtl } = usePortfolioI18n();
 import { projects as sourceProjects } from "~/assets/data/projects";
+import { projectPath } from "#shared/projectRoutes";
+const props = defineProps<{ projectId?: string }>();
 const projects = usePortfolioI18n().content(sourceProjects);
-
-usePortfolioSeo({
-  type: "CollectionPage",
-  title: () => c("Projects — Arsam Sarkhosh | Full-Stack Engineer"),
-  description:
-    () => c("Explore Arsam Sarkhosh's project files: multilingual web platforms, full-stack applications and AI document intelligence. Architecture, tools and contributions."),
-});
 const filters = [
   { id: "all", label: "All files" },
   { id: "web", label: "Web platforms" },
   { id: "ai", label: "AI applications" },
 ] as const;
-const filter = ref<(typeof filters)[number]["id"]>("all");
+const filter = useState<(typeof filters)[number]["id"]>("projects-filter", () => "all");
 const route = useRoute();
 const router = useRouter();
 const selectedId = computed({
   get: () =>
+    props.projectId ??
     projects.value.find((project) => project.id === route.query.project)?.id ??
     projects.value[0]!.id,
   set: (id: string) => {
-    void router.replace({ query: { ...route.query, project: id } });
+    void router.push(localePath(projectPath(id)));
   },
 });
 watch(selectedId, (id) => {
   const project = projects.value.find((item) => item.id === id)!;
   if (filter.value !== "all" && project.category !== filter.value)
     filter.value = "all";
-});
+}, { immediate: true });
 const previewOpen = ref(false);
 watch(selectedId, () => {
   previewOpen.value = false;
@@ -42,6 +38,16 @@ const visibleProjects = computed(() =>
 const current = computed(
   () => projects.value.find((project) => project.id === selectedId.value)!,
 );
+usePortfolioSeo({
+  type: props.projectId ? "WebPage" : "CollectionPage",
+  project: () => props.projectId ? current.value : undefined,
+  title: () => props.projectId
+    ? `${current.value.name} — ${current.value.stack.slice(0, 2).join(" / ")} | ${c("Arsam Sarkhosh")}`
+    : c("Projects — Arsam Sarkhosh | Full-Stack Engineer"),
+  description: () => props.projectId
+    ? `${c("Arsam Sarkhosh")}: ${current.value.summary}`
+    : c("Explore Arsam Sarkhosh's project files: multilingual web platforms, full-stack applications and AI document intelligence. Architecture, tools and contributions."),
+});
 const fileNumber = (id: string) =>
   String(projects.value.findIndex((project) => project.id === id) + 1).padStart(
     2,
@@ -58,13 +64,16 @@ const introReady = useState("introReady", () => false);
 const { play, complete, line, started } = useTypingSequence(
   ["label", "title"],
   {
-    onceKey: "projects-archive",
+    onceKey: props.projectId ? `project-${props.projectId}` : "projects-archive",
   },
 );
-const title = usePortfolioI18n().content([
+const archiveTitle = usePortfolioI18n().content([
   { text: "BUILT. ", glitch: false },
   { text: "NOT JUST IMAGINED.", accent: true, interval: 8000 },
 ]);
+const title = computed(() => props.projectId
+  ? [{ text: current.value.name, accent: true, interval: 8000 }]
+  : archiveTitle.value);
 watch(
   introReady,
   (ready) => {
@@ -90,6 +99,13 @@ watch(
         {{ String(projects.length).padStart(2, "0") }} {{ c("FILES INDEXED") }}</span
       >
     </div>
+    <nav v-if="projectId" class="archive-breadcrumbs" :aria-label="c('Projects')">
+      <q-breadcrumbs :separator="rtl ? '‹' : '›'">
+        <q-breadcrumbs-el :label="c('Home')" :to="localePath('/')" />
+        <q-breadcrumbs-el :label="c('Projects')" :to="localePath('/projects')" />
+        <q-breadcrumbs-el :label="current.name" aria-current="page" />
+      </q-breadcrumbs>
+    </nav>
     <header class="archive-intro">
       <div>
         <p class="archive-label">
@@ -109,7 +125,7 @@ watch(
         </h1>
         <p class="archive-lead">
           <CommonPageGlitch
-            :text="c(&quot;A quick look at what I build. Pick a project. See it in action.&quot;)"
+            :text="projectId ? current.headline : c(&quot;A quick look at what I build. Pick a project. See it in action.&quot;)"
             :interval="14000"
           />
         </p>
@@ -154,9 +170,8 @@ watch(
             no-ripple
             class="archive-file"
             :class="{ 'is-selected': selectedId === project.id }"
-            :aria-pressed="selectedId === project.id"
-            aria-controls="project-file"
-            @click="selectedId = project.id"
+            :to="localePath(projectPath(project.id))"
+            :aria-current="projectId === project.id ? 'page' : undefined"
           >
             <ProjectsPreview
               :name="project.name"
@@ -273,6 +288,7 @@ watch(
               <q-expansion-item
                 :key="current.id"
                 class="archive-more"
+                :default-opened="Boolean(projectId)"
                 :label="c(&quot;Under the hood&quot;)"
                 :caption="c(&quot;My contribution, architecture &amp; tools&quot;)"
                 expand-icon="add"

@@ -33,6 +33,7 @@ watch(
 
 const currentLabel = computed(() => {
   const name = String(routeBaseName() || "index");
+  if (name.startsWith("projects-")) return c("Projects");
   if (name !== "index") return c({ about: "About", projects: "Projects", resume: "Resume", contact: "Contact" }[name] || "Home");
   return sections[currentIndex.value]?.id || "hero";
 });
@@ -105,7 +106,7 @@ const sectionCounter = computed(
               :key="link.to"
               :name="link.to"
               :to="link.to"
-              :exact="route.path !== link.to || !route.hash"
+              :exact="link.to !== localePath('/projects') && (route.path !== link.to || !route.hash)"
               class="nav-link"
             >
               <AnimationGlitchText :text="c(link.label)" />

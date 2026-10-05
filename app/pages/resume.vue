@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { projectPath } from "#shared/projectRoutes";
 const { c, localePath, locale } = usePortfolioI18n();
 import { aboutCopy as sourceAbout } from "~/assets/data/about";
 import { contactDetails } from "~/assets/data/contact";
@@ -212,7 +213,7 @@ watch(
                 </div>
                 <q-btn
                   v-if="experience.projectId"
-                  :to="localePath({ path: '/projects', query: { project: experience.projectId } })"
+                  :to="localePath(projectPath(experience.projectId))"
                   flat
                   no-caps
                   no-ripple
@@ -239,7 +240,7 @@ watch(
             <q-item v-for="project in resumeProjects" :key="project.id" class="cv-project-item">
               <q-item-section><h3>{{ project.name }}</h3><p>{{ project.summary }}</p></q-item-section>
               <q-item-section side v-if="project.href || project.projectId">
-                <q-btn v-if="project.projectId" :to="localePath({ path: '/projects', query: { project: project.projectId } })" flat no-ripple icon="east" :aria-label="`${c('View project')}: ${project.name}`" />
+                <q-btn v-if="project.projectId" :to="localePath(projectPath(project.projectId))" flat no-ripple icon="east" :aria-label="`${c('View project')}: ${project.name}`" />
                 <q-btn v-else :href="project.href" target="_blank" rel="noopener noreferrer" flat no-ripple icon="north_east" :aria-label="`${c('View project')}: ${project.name} ${c('(opens in a new tab)')}`" />
               </q-item-section>
             </q-item>

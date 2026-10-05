@@ -1,5 +1,11 @@
 # Arsam Sarkhosh — portfolio
 
+Personal website of [Arsam Sarkhosh](https://arsamsarkhosh.vercel.app/),
+a full-stack developer working with Vue, Nuxt, Node.js and Python.
+Browse the [projects](https://arsamsarkhosh.vercel.app/projects), including
+[DocIntel](https://arsamsarkhosh.vercel.app/projects/docintel) and its
+[FastAPI backend](https://arsamsarkhosh.vercel.app/projects/docintel-backend).
+
 A Nuxt 4 / Vue 3 portfolio with Quasar, snap-scrolling homepage sections,
 typed text, WebGL backgrounds, a Three.js portrait, and shared audio.
 
@@ -38,6 +44,8 @@ npm run preview
 - Headings and accent segments: `app/assets/data/homeCopy.ts`.
 - Translations, RTL and localized routes: see [i18n/README.md](i18n/README.md).
 - Project cards: `app/assets/data/projects.ts`.
+- Project archive/detail view: `app/components/projects/Archive.vue`; localized
+  URLs and sitemap entries derive from the same project records through `shared/projectRoutes.ts`.
 - About-page story, principles, and toolkit: `app/assets/data/about.ts`.
 - About-page sections: `app/components/about/`; styling: `app/assets/css/pages/about.css`.
 - Global typography: `app/assets/css/main.css` and `fonts.css`.

@@ -2,6 +2,7 @@
 const { c, localePath } = usePortfolioI18n();
 import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
 import { projects } from "~/assets/data/projects";
+import { projectPath } from "#shared/projectRoutes";
 
 // Keep project identity and deep links aligned with Home and /projects.
 const systems = usePortfolioI18n().content(sourceCopy.systems.map((system) => ({
@@ -31,7 +32,7 @@ const systems = usePortfolioI18n().content(sourceCopy.systems.map((system) => ({
           <q-badge v-for="tool in system.stack" :key="tool" outline>{{ tool }}</q-badge>
         </div>
         <q-btn
-          :to="localePath({ path: '/projects', query: { project: system.id } })"
+          :to="localePath(projectPath(system.id))"
           :aria-label="`View ${system.project.name} project`"
           flat
           no-caps
