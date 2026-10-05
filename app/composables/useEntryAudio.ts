@@ -19,10 +19,10 @@ export function useEntryAudio(options: EntryAudioOptions = {}) {
     if (options.sound !== false) soundLoad = load(soundSource());
   }
 
-  function activate() {
+  function activate(activation: { autoplayMusic?: boolean } = {}) {
     // Keep these calls synchronous with the click/tap for mobile autoplay rules.
     const unlockPromise = unlock();
-    if (options.autoplayMusic !== false) {
+    if (activation.autoplayMusic !== false && options.autoplayMusic !== false) {
       void play(options.musicSrc ?? "/sound/main-song.mp3");
     }
     if (options.sound !== false) {

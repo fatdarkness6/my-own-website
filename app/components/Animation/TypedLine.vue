@@ -9,6 +9,9 @@ const props = defineProps({
   accentTerms: { type: Array, default: () => [] },
 });
 const emit = defineEmits(["done"]);
+// Render genuine text in the initial HTML; animations are progressive enhancement.
+const mounted = ref(false);
+onMounted(() => { mounted.value = true; });
 </script>
 
 <template>
@@ -25,7 +28,7 @@ const emit = defineEmits(["done"]);
         prefix=""
         @done="emit('done')"
       />
-      <template v-else-if="done">
+      <template v-else-if="done || !mounted">
         <slot>
           <AnimationGlitchTextTimer
             v-if="glitch"

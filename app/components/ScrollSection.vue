@@ -6,9 +6,11 @@ const props = defineProps({ id: { type: String, required: true } });
 const { sections, currentIndex, registerSection, unregisterSection } =
   useScrollSections();
 const el = ref(null);
+const mounted = ref(false);
 const isActive = computed(() => sections[currentIndex.value]?.id === props.id);
 
 onMounted(() => {
+  mounted.value = true;
   if (el.value) registerSection({ id: props.id, el: el.value });
 });
 onBeforeUnmount(() => unregisterSection(props.id));
@@ -19,8 +21,8 @@ onBeforeUnmount(() => unregisterSection(props.id));
     ref="el"
     class="scroll-section"
     :data-section-id="id"
-    :inert="!isActive"
-    :aria-hidden="!isActive ? 'true' : undefined"
+    :inert="mounted && !isActive"
+    :aria-hidden="mounted && !isActive ? 'true' : undefined"
   >
     <slot />
   </section>

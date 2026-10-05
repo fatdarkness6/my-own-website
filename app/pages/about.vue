@@ -3,7 +3,8 @@ const { c, localePath } = usePortfolioI18n();
 import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
 const aboutPageCopy = usePortfolioI18n().content(sourceCopy);
 
-useSeoMeta({
+usePortfolioSeo({
+  type: "ProfilePage",
   title: () => c("About Arsam Sarkhosh — Full-Stack Engineer"),
   description:
     () => c("Full-stack engineer specializing in Vue, Nuxt, Node.js and Python. Explore frontend systems, backend APIs, databases, AI integrations and production delivery."),

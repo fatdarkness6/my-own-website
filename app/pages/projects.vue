@@ -3,7 +3,8 @@ const { c, localePath } = usePortfolioI18n();
 import { projects as sourceProjects } from "~/assets/data/projects";
 const projects = usePortfolioI18n().content(sourceProjects);
 
-useSeoMeta({
+usePortfolioSeo({
+  type: "CollectionPage",
   title: () => c("Projects — Arsam Sarkhosh | Full-Stack Engineer"),
   description:
     () => c("Explore Arsam Sarkhosh's project files: multilingual web platforms, full-stack applications and AI document intelligence. Architecture, tools and contributions."),

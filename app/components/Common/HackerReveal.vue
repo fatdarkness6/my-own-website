@@ -17,6 +17,8 @@ const props = withDefaults(
 );
 
 const revealed = ref(props.show);
+const mounted = ref(false);
+onMounted(() => { mounted.value = true; });
 
 watch(
   () => props.show,
@@ -37,10 +39,10 @@ const revealStyle = computed(() => ({
   <component
     :is="as"
     class="hacker-reveal"
-    :class="{ 'hacker-reveal--shown': revealed }"
+    :class="{ 'hacker-reveal--shown': revealed, 'hacker-reveal--static': !mounted }"
     :style="revealStyle"
-    :aria-hidden="revealed ? undefined : 'true'"
-    :inert="!revealed"
+    :aria-hidden="mounted && !revealed ? 'true' : undefined"
+    :inert="mounted && !revealed"
   >
     <slot />
     <span class="hacker-reveal__scan" aria-hidden="true" />
@@ -63,6 +65,12 @@ const revealStyle = computed(() => ({
   visibility: visible;
   animation: hacker-reveal-in var(--hacker-reveal-duration) steps(1, end)
     var(--hacker-reveal-delay) both;
+}
+
+.hacker-reveal--static {
+  visibility: visible;
+  opacity: 1;
+  clip-path: none;
 }
 
 .hacker-reveal__scan {

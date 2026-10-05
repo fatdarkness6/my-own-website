@@ -1,9 +1,27 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { SITE_URL, siteOrigin } from "./shared/seo";
+
+const canonicalOrigin = siteOrigin(process.env.NUXT_PUBLIC_SITE_URL || SITE_URL);
+const indexable = process.env.VERCEL_ENV !== "preview" && process.env.NUXT_PUBLIC_SEO_INDEXABLE !== "false";
+
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
   modules: ["nuxt-quasar-ui", "@nuxtjs/i18n"],
+  runtimeConfig: {
+    public: {
+      siteUrl: canonicalOrigin, seoIndexable: indexable,
+      googleSiteVerification: "", bingSiteVerification: "",
+    },
+  },
+  app: {
+    head: {
+      meta: [{ name: "theme-color", content: "#050a12" }],
+      link: [{ rel: "icon", href: "/favicon.ico", sizes: "any" }],
+    },
+  },
   i18n: {
+    baseUrl: canonicalOrigin,
     defaultLocale: "en",
     strategy: "prefix_except_default",
     detectBrowserLanguage: false,

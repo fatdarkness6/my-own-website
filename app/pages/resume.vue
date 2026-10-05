@@ -14,7 +14,8 @@ const resumeProjects = computed(() => extraProjects.value.map((project) => {
   return canonical ? { ...project, summary: [canonical.summary, canonical.availability].filter(Boolean).join(' ') } : project;
 }));
 
-useSeoMeta({
+usePortfolioSeo({
+  type: "ProfilePage",
   title: () => c("Résumé — Arsam Sarkhosh | Full-Stack Engineer"),
   description:
     () => c("Download Arsam Sarkhosh's résumé. A quick overview of Vue, Nuxt, full-stack engineering and AI application experience."),

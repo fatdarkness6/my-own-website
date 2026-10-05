@@ -2,7 +2,7 @@
   <q-layout view="hHh lpR fff" class="ar-app-layout">
     <AppHeader />
     <q-page-container>
-      <q-page :style-fn="fitViewport" class="app-page--scroll">
+      <q-page id="main-content" tabindex="-1" :style-fn="fitViewport" class="app-page--scroll">
         <slot />
       </q-page>
     </q-page-container>

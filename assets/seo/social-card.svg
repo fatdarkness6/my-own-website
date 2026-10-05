@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#3b82f6" stroke-opacity=".12"/></pattern>
+    <linearGradient id="glow" x2="1" y2="1"><stop stop-color="#0c2346"/><stop offset="1" stop-color="#050a12"/></linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <path d="M66 32H1168V564L1134 598H32V66Z" fill="none" stroke="#3b82f6" stroke-width="2"/>
+  <path d="M84 66H162M66 84V146M1116 564H1038M1134 546V484" fill="none" stroke="#93c5fd" stroke-width="3"/>
+  <g font-family="Arial, sans-serif">
+    <text x="90" y="135" font-size="20" font-weight="700" letter-spacing="5" fill="#93c5fd">PORTFOLIO / FULL-STACK DEVELOPMENT</text>
+    <text x="86" y="283" font-size="100" font-weight="800" fill="#f8fafc">ARSAM</text>
+    <text x="86" y="388" font-size="100" font-weight="800" fill="#3b82f6">SARKHOSH</text>
+    <text x="90" y="455" font-size="26" fill="#cbd5e1">Frontend interfaces. Backend APIs. AI applications.</text>
+    <text x="90" y="538" font-size="21" fill="#93c5fd">Vue / Nuxt / Node.js / Python</text>
+  </g>
+  <path d="M835 184H1057V318H945V440H1067" fill="none" stroke="#3b82f6" stroke-width="2" opacity=".5"/>
+  <g fill="#93c5fd"><rect x="1051" y="178" width="12" height="12"/><rect x="939" y="312" width="12" height="12"/><rect x="1061" y="434" width="12" height="12"/></g>
+</svg>

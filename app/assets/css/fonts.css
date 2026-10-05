@@ -1,9 +1,11 @@
 @font-face {
   font-family: "MainFont";
   src: url("@/assets/fonts/sdglitchdemoregular.ttf") format("truetype");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "DescFont";
   src: url("@/assets/fonts/Cairopixel.ttf") format("truetype");
+  font-display: swap;
 }

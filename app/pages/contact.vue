@@ -10,7 +10,8 @@ import {
 const contactIntents = usePortfolioI18n().content(sourceIntents);
 const contactTitle = usePortfolioI18n().content(sourceTitle);
 
-useSeoMeta({
+usePortfolioSeo({
+  type: "ContactPage",
   title: () => c("Contact — Arsam Sarkhosh | Full-Stack Engineer"),
   description:
     () => c("Discuss a web application, an engineering role or a collaboration with Arsam Sarkhosh. Vue, Nuxt, backend systems and AI-powered applications."),

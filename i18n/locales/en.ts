@@ -4,6 +4,10 @@ import { defineLocale } from "../defineLocale.ts";
 
 // Stable source strings are lookup IDs; edit visible English copy here.
 export const translations: Record<string, string> = {
+  "skipToContent": "Skip to content",
+  "seoHome": "Arsam Sarkhosh | Full-Stack Developer, Vue & Nuxt",
+  "seoHomeDesc": "Arsam Sarkhosh is a full-stack developer building Vue and Nuxt frontends, Node.js and Python backends, and AI applications. Explore projects and résumé.",
+  "seoResumeDesc": "Explore Arsam Sarkhosh's résumé, development experience and technical skills in Vue, Nuxt, Node.js, Python and AI applications. Download the PDF.",
   "homeDescription": "Full-stack engineer working with Vue, Nuxt, Node.js and Python to build web applications and APIs.",
   "projectsDescription": "A selection of projects I've developed or contributed to.",
   "resumeDescription": "My work experience and technical skills.",

@@ -47,6 +47,7 @@ onMounted(() => {
     <!-- Main toggle button -->
     <q-btn
       class="music-ctrl__btn"
+      data-audio-toggle
       :flat="buttonFlat"
       :round="buttonRound"
       :dense="buttonDense"
@@ -138,6 +139,7 @@ onMounted(() => {
               unelevated
               no-caps
               class="full-width music-menu__btn"
+              data-audio-toggle
               @click="onToggle"
             >
               <span>{{ c(state.playing ? "> PAUSE SIGNAL" : "> INITIALIZE AUDIO") }}</span>

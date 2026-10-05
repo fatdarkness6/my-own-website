@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "test:i18n": "node scripts/test-i18n.ts",
+    "test:seo": "node --test tests/seo.test.ts",
+    "test:seo:http": "node scripts/test-seo-http.ts",
     "resume:pdf": "node scripts/generate-resume.ts",
     "build": "nuxt build",
     "dev": "nuxt dev",

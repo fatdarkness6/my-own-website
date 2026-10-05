@@ -3,7 +3,7 @@
     <AppHeader />
 
     <QPageContainer>
-      <q-page class="app-page">
+      <q-page id="main-content" tabindex="-1" class="app-page">
         <div class="container">
           <slot />
         </div>

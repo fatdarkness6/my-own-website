@@ -5,6 +5,8 @@ typed text, WebGL backgrounds, a Three.js portrait, and shared audio.
 
 ## Development
 
+SEO and search-engine setup: see [docs/seo.md](docs/seo.md).
+
 ```sh
 npm ci
 npm run dev
