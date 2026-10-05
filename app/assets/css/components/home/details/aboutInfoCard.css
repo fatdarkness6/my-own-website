@@ -143,6 +143,12 @@
   overflow-wrap: anywhere;
 }
 
+/* The terminal is an LTR code island; only the localized prose reads RTL. */
+.terminal-card__summary--rtl {
+  text-align: start;
+  unicode-bidi: isolate;
+}
+
 /* Keep the card's space reserved until its turn in the sequence. */
 .terminal-card--waiting {
   visibility: hidden;

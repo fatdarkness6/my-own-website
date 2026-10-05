@@ -62,8 +62,8 @@ const sectionCounter = computed(
         >
           <q-menu
             class="app-header-menu"
-            anchor="bottom left"
-            self="top left"
+            anchor="bottom start"
+            self="top start"
             :offset="[0, 16]"
           >
             <q-list>
@@ -124,7 +124,7 @@ const sectionCounter = computed(
         </div>
 
         <AppLanguageControl />
-        <AppMusicControl class="q-mr-sm" />
+        <AppMusicControl />
 
         <q-btn
           class="cta"
@@ -132,13 +132,16 @@ const sectionCounter = computed(
           no-caps
           no-ripple
           :to="localePath(&quot;/contact&quot;)"
+          :aria-label="c(&quot;Get in touch&quot;)"
         >
-          <AnimationGlitchText :text="c(&quot;Get in touch&quot;)" />
+          <span class="gt-xs"><AnimationGlitchText :text="c(&quot;Get in touch&quot;)" /></span>
+          <q-icon class="lt-sm" name="mail_outline" size="22px" aria-hidden="true" />
+          <q-tooltip class="lt-sm">{{ c("Get in touch") }}</q-tooltip>
         </q-btn>
       </q-toolbar>
 
       <div class="app-header__progress" aria-hidden="true">
-        <div class="app-header__progress-track">
+        <div class="app-header__progress-track" :class="{ 'app-header__progress-track--rtl': rtl }">
           <div
             class="app-header__progress-bar"
             :style="{ width: progress + '%' }"
@@ -148,7 +151,7 @@ const sectionCounter = computed(
             :key="index"
             class="app-header__progress-node"
             :class="{ 'is-passed': index <= currentIndex }"
-            :style="{ [rtl ? 'right' : 'left']: `${(index / Math.max(sections.length - 1, 1)) * 100}%` }"
+            :style="{ left: `${(index / Math.max(sections.length - 1, 1)) * 100}%` }"
           />
         </div>
       </div>

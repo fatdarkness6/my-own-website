@@ -57,14 +57,6 @@ html[dir="rtl"] .typewriter, html[dir="rtl"] .segmented-line__complete {
 .app-header__nav .q-tab { min-width: 0; }
 .app-header .cta { flex-shrink: 0; }
 @media (max-width: 599px) {
-  .app-header.app-header .app-header__bar { padding-inline: 6px; gap: 4px; }
-  .app-header.app-header .cta { padding-inline: 10px; font-size: 0.75rem; }
-  .app-header.app-header :is(.app-header__burger, .music-ctrl__btn) { min-width: 30px; width: 30px; }
-  .app-header .language-control { min-width: 30px; }
   html[dir="rtl"] .section-title { font-size: clamp(1.25rem, 4.5vw, 1.65rem); }
   html[dir="rtl"] .hero .hero__name .hero__name-row { font-size: clamp(2.75rem, 14vw, 5rem); }
-}
-@media (max-width: 359px) {
-  .app-header.app-header .cta { padding-inline: 7px; font-size: 0.6875rem; }
-  .app-header .music-ctrl { gap: 2px; }
 }

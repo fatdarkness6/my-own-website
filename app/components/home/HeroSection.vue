@@ -2,11 +2,16 @@
 const { c, content, rtl } = usePortfolioI18n();
 import { homeCopy as sourceCopy } from "~/assets/data/homeCopy";
 
-defineProps({
+const props = defineProps({
   avatarSrc: { type: String, default: "/images/background.png" },
   portraitSrc: { type: String, default: "/images/background.png" },
+  rtlPortraitSrc: { type: String, default: "/images/background-rtl-languages.png" },
   portraitOpacity: { type: Number, default: 0.8 },
 });
+
+const activePortraitSrc = computed(() =>
+  rtl.value ? props.rtlPortraitSrc : props.portraitSrc,
+);
 
 const introReady = useState("introReady", () => false);
 const introPlayed = useState("introPlayed", () => false);
@@ -46,7 +51,8 @@ watch(
   <section class="hero">
     <div class="hero__visual" :class="{ 'is-revealed': finished }">
       <AnimationGlitchPortrait
-        :src="portraitSrc"
+        :key="activePortraitSrc"
+        :src="activePortraitSrc"
         :opacity="portraitOpacity"
         :mobile-opacity="Math.min(1, portraitOpacity + 0.1)"
         :mobile-offset-x="10"

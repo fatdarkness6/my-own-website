@@ -69,8 +69,8 @@ onMounted(() => {
       :aria-label="c(&quot;Music settings&quot;)"
     >
       <q-menu
-        anchor="bottom right"
-        self="top right"
+        anchor="bottom end"
+        self="top end"
         :offset="[0, 12]"
         class="music-menu"
       >
@@ -105,7 +105,7 @@ onMounted(() => {
                 <div class="music-menu__channel">{{ c("CH_01 / MAIN") }}</div>
               </div>
               <q-space />
-              <output class="music-menu__percent">{{ volUi }}<small>%</small></output>
+              <output class="music-menu__percent" dir="ltr">{{ volUi }}<small>%</small></output>
             </div>
 
             <q-slider

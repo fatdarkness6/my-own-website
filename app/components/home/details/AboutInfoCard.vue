@@ -1,5 +1,5 @@
 <script setup>
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, rtl } = usePortfolioI18n();
 const $q = useQuasar();
 
 const summary =
@@ -152,7 +152,11 @@ defineExpose({ play });
         />
       </h3>
 
-      <p class="terminal-card__summary">
+      <p
+        class="terminal-card__summary"
+        :class="{ 'terminal-card__summary--rtl': rtl }"
+        :dir="rtl ? 'rtl' : undefined"
+      >
         <AnimationTypedLine :text="c(summary)" v-bind="line('summary')" />
       </p>
     </q-card-section>

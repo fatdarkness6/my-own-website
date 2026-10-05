@@ -99,8 +99,11 @@ test("typed text reserves only the final text, without phantom cursor spacing", 
   const heroCss = await readFile(new URL("../app/assets/css/components/home/heroSection.css", import.meta.url), "utf8");
   assert.match(heroCss, /\.hero \.hero__tagline\s*\{\s*display:\s*block/);
   assert.match(heroCss, /\.hero \.hero__tagline--rtl\s*\{\s*display:\s*flex/);
-  assert.match(heroCss, /\.hero \.hero__tagline > bdi\s*\{[^}]*width:\s*100%/s);
+  assert.match(heroCss, /\.hero \.hero__tagline--rtl\s*\{[^}]*flex-wrap:\s*wrap/s);
+  assert.ok(!/\.hero \.hero__tagline--rtl\s*\{[^}]*flex-direction:\s*column/s.test(heroCss));
+  assert.match(heroCss, /\.hero \.hero__tagline > bdi\s*\{[^}]*width:\s*auto/s);
   assert.match(heroCss, /\.hero \.hero__technologies\s*\{[^}]*text-align:\s*end/s);
+  assert.match(heroCss, /\.hero \.hero__technologies :deep\(\.typed-text__live\)\s*\{\s*overflow:\s*visible/);
 });
 
 test("résumé page omits education and Italian A1, with consecutive section numbers", async () => {
@@ -143,4 +146,25 @@ test("RTL CSS keeps code, emails and counters LTR", async () => {
   })]).process(css, { from: undefined });
   assert.ok(!/\.projects__count[^{}]*\{[^{}]*direction:\s*rtl/.test(result.css));
   assert.ok(!/input\[type="email"\][^{}]*\{[^{}]*direction:\s*rtl/.test(result.css));
+});
+
+test("header progress mirrors as one rail and popup anchors follow locale direction", async () => {
+  const header = await readFile(new URL("../app/components/AppHeader.vue", import.meta.url), "utf8");
+  const music = await readFile(new URL("../app/components/AppMusicControl.vue", import.meta.url), "utf8");
+  assert.ok(header.includes('anchor="bottom start"'));
+  assert.ok(music.includes('anchor="bottom end"'));
+  assert.ok(header.includes("app-header__progress-track--rtl"));
+  assert.ok(!header.includes("[rtl ? 'right' : 'left']"));
+  const css = await readFile(new URL("../app/assets/css/components/appHeader.css", import.meta.url), "utf8");
+  const result = await postcss([rtlcss({
+    mode: "override", rtlPrefix: ':where([dir="rtl"])',
+    ltrPrefix: ':where([dir="ltr"])', bothPrefix: ':where([dir])',
+  })]).process(css, { from: undefined });
+  const railRules: string[] = [];
+  result.root.walkRules((rule) => {
+    if (/app-header__progress-(bar|node)$/.test(rule.selector)) railRules.push(rule.selector);
+  });
+  // Physical coordinates stay unchanged inside the mirrored, text-free track.
+  assert.deepEqual(railRules, [".app-header__progress-bar", ".app-header__progress-node"]);
+  assert.match(result.css, /\.app-header__progress-track--rtl\s*\{\s*transform: scaleX\(-1\)/);
 });

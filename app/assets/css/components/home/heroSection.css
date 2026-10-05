@@ -117,15 +117,15 @@
 
 .hero .hero__tagline--rtl {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  row-gap: 0.15em;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15em 0.35em;
   text-align: start;
 }
 
 .hero .hero__tagline > bdi {
   min-width: 0;
-  width: 100%;
+  width: auto;
   max-width: 100%;
 }
 
@@ -134,6 +134,20 @@
   text-align: end;
   white-space: nowrap;
   unicode-bidi: isolate;
+}
+
+/* Keep the Latin stack together; let the localized copy wrap on narrow screens. */
+.hero .hero__technologies :deep(.typed-text),
+.hero .hero__technologies :deep(.typed-text__reserve),
+.hero .hero__technologies :deep(.typed-text__live),
+.hero .hero__technologies :deep(.typewriter),
+.hero .hero__technologies :deep(.typewriter__text) {
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+}
+
+.hero .hero__technologies :deep(.typed-text__live) {
+  overflow: visible;
 }
 
 .hero .hero__name {
