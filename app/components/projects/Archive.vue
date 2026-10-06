@@ -60,11 +60,11 @@ watch(filter, () => {
     selectedId.value = visibleProjects.value[0]!.id;
   }
 });
-const introReady = useState("introReady", () => false);
-const { play, complete, line, started } = useTypingSequence(
+const { element, line, started } = useViewportTyping(
   ["label", "title"],
   {
     onceKey: props.projectId ? `project-${props.projectId}` : "projects-archive",
+    viewport: { threshold: 0 },
   },
 );
 const archiveTitle = usePortfolioI18n().content([
@@ -74,20 +74,10 @@ const archiveTitle = usePortfolioI18n().content([
 const title = computed(() => props.projectId
   ? [{ text: current.value.name, accent: true, interval: 8000 }]
   : archiveTitle.value);
-watch(
-  introReady,
-  (ready) => {
-    if (!ready || !import.meta.client) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-      complete();
-    else play();
-  },
-  { immediate: true },
-);
 </script>
 
 <template>
-  <article id="projects-main" class="project-archive">
+  <article id="projects-main" ref="element" class="project-archive">
     <ProjectsBackground
       :active="started"
       :file-number="fileNumber(current.id)"

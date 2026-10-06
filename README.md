@@ -67,8 +67,12 @@ npm run preview
   calls inside that gesture; their ordering matters on mobile browsers.
 - `ScrollContainer` owns homepage snap navigation. Background transitions and
   section typing visibility follow its shared state.
-- The default layout enables document scrolling for long pages. About chapters
-  reveal on first viewport entry and reuse the existing typing sequence behavior.
+- The default layout enables document scrolling for long pages. `useViewportTyping`
+  shares the intro/reduced-motion gates across About, Projects, Résumé and Contact.
+  About chapters observe their heading (not the full section): half of it must stay
+  above the bottom quarter of the viewport for 140 ms. Fast scrolls cancel the
+  pending trigger. Page introductions observe the article with threshold zero so
+  direct anchors and restored scroll positions also reveal the page's content.
 - Components release timers, observers, and render loops on unmount. Client plugins
   also release their listeners and loops during hot replacement.
 

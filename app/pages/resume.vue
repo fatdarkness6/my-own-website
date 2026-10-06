@@ -25,29 +25,18 @@ usePortfolioSeo({
 const highlights = content(["vue-nuxt", "backends", "ai"].map(
   (id) => sourceAbout.tools.find((tool) => tool.id === id)!,
 ));
-const introReady = useState("introReady", () => false);
-const { play, complete, line, started } = useTypingSequence(
+const { element, line, started } = useViewportTyping(
   ["label", "title"],
-  { onceKey: "resume-profile" },
+  { onceKey: "resume-profile", viewport: { threshold: 0 } },
 );
 const title = content([
   { text: "ARSAM ", glitch: false },
   { text: "SARKHOSH.", accent: true, interval: 8500 },
 ]);
-watch(
-  introReady,
-  (ready) => {
-    if (!ready || !import.meta.client) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-      complete();
-    else play();
-  },
-  { immediate: true },
-);
 </script>
 
 <template>
-  <article id="resume-main" class="resume-dossier">
+  <article id="resume-main" ref="element" class="resume-dossier">
     <ResumeBackground :active="started" />
     <div class="cv-filebar">
       <span>{{ c("ARSAM.SYS / CAREER PROFILE") }}</span><span>{{ c("DOCUMENT / 001") }}</span>

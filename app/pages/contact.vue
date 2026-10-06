@@ -17,20 +17,9 @@ usePortfolioSeo({
     () => c("Discuss a web application, an engineering role or a collaboration with Arsam Sarkhosh. Vue, Nuxt, backend systems and AI-powered applications."),
 });
 
-const introReady = useState("introReady", () => false);
-const { play, complete, line, started } = useTypingSequence(
+const { element, line, started } = useViewportTyping(
   ["label", "title"],
-  { onceKey: "contact-channel" },
-);
-watch(
-  introReady,
-  (ready) => {
-    if (!ready || !import.meta.client) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-      complete();
-    else play();
-  },
-  { immediate: true },
+  { onceKey: "contact-channel", viewport: { threshold: 0 } },
 );
 
 const intentId = ref<ContactIntent>("project");
@@ -97,7 +86,7 @@ async function copyText(text: string, success: string) {
 </script>
 
 <template>
-  <article id="contact-main" class="channel">
+  <article id="contact-main" ref="element" class="channel">
     <ContactBackground :active="started" />
     <div class="channel-filebar">
       <span>{{ c("ARSAM / COMMUNICATIONS") }}</span

@@ -10,26 +10,14 @@ usePortfolioSeo({
     () => c("Full-stack engineer specializing in Vue, Nuxt, Node.js and Python. Explore frontend systems, backend APIs, databases, AI integrations and production delivery."),
 });
 
-const introReady = useState("introReady", () => false);
-const { play, complete, line, started } = useTypingSequence(
+const { element, line, started } = useViewportTyping(
   ["label", "title", "intro"],
-  { onceKey: "about-identity" },
-);
-
-watch(
-  introReady,
-  (ready) => {
-    if (!ready || !import.meta.client) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-      complete();
-    else play();
-  },
-  { immediate: true },
+  { onceKey: "about-identity", viewport: { threshold: 0 } },
 );
 </script>
 
 <template>
-  <article id="about-main" class="dossier">
+  <article id="about-main" ref="element" class="dossier">
     <AboutBackground :active="started" />
     <a class="dossier-skip" href="#profile">{{ c("Skip to engineering profile") }}</a>
     <div class="dossier-filebar">
