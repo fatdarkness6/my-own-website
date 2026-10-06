@@ -9,6 +9,8 @@ interface PortfolioSeoOptions {
   description: MaybeRefOrGetter<string>;
   type?: "WebPage" | "ProfilePage" | "CollectionPage" | "ContactPage";
   project?: MaybeRefOrGetter<Project | undefined>;
+  /** In-place project selections still identify their permanent localized URL. */
+  canonicalPath?: MaybeRefOrGetter<string>;
 }
 
 /** One SSR-safe metadata and identity system, used by all localized pages. */
@@ -19,7 +21,9 @@ export function usePortfolioSeo(options: PortfolioSeoOptions) {
   const route = useRoute();
   const base = siteOrigin(String(config.public.siteUrl));
   const localeHead = useLocaleHead({ seo: { canonicalQueries: [] } });
-  const canonical = computed(() => new URL(
+  const canonical = computed(() => options.canonicalPath
+    ? `${base}${localizedPath(toValue(options.canonicalPath), locale.value)}`
+    : new URL(
     localeHead.value.link.find((link) => link.rel === "canonical")?.href || `${base}${route.path}`,
     base,
   ).href);
@@ -112,9 +116,16 @@ export function usePortfolioSeo(options: PortfolioSeoOptions) {
     }
     return {
       htmlAttrs: localeHead.value.htmlAttrs,
-      link: localeHead.value.link.map((link) => ({ ...link, href: new URL(link.href, base).href })),
+      link: localeHead.value.link.map((link) => ({
+        ...link,
+        href: options.canonicalPath && (link.rel === "canonical" || link.hreflang)
+          ? link.rel === "canonical" ? canonical.value
+            : `${base}${localizedPath(toValue(options.canonicalPath), link.hreflang === "x-default" ? "en" : link.hreflang!)}`
+          : new URL(link.href, base).href,
+      })),
       meta: [
-        ...localeHead.value.meta,
+        ...localeHead.value.meta.map((meta) => meta.property === "og:url"
+          ? { ...meta, content: canonical.value } : meta),
         ...(config.public.googleSiteVerification ? [{ name: "google-site-verification", content: String(config.public.googleSiteVerification) }] : []),
         ...(config.public.bingSiteVerification ? [{ name: "msvalidate.01", content: String(config.public.bingSiteVerification) }] : []),
       ],

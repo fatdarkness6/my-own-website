@@ -14,7 +14,6 @@ import { graphemes, glitchAlphabet, scrambleText } from "~/utils/animatedText";
 
 const props = defineProps({
   maxBootDuration: { type: Number, default: 2200 },
-  autoEnterAfter: { type: Number, default: 3500 },
   sound: { type: Boolean, default: true },
   soundSrc: { type: String, default: "/sound/type-01.mp3" },
   typeSpeed: { type: Number, default: 10 },
@@ -88,7 +87,6 @@ const timeouts = new Set();
 let disposed = false;
 
 let maxTimer = 0;
-let autoEnterTimer = 0;
 let hexTimer = 0;
 
 let stopRain = () => {};
@@ -235,13 +233,13 @@ function grant() {
 /* ---------------- exit ---------------- */
 
 function triggerBurst() {
-  if (done.value || phase.value === "bursting") {
+  // Completing the boot animation is not permission to enter or start audio.
+  if (disposed || !audioActivated.value || done.value || phase.value === "bursting") {
     return;
   }
 
   phase.value = "bursting";
 
-  clearTimeout(autoEnterTimer);
   clearAllTimeouts();
   clearTimeout(maxTimer);
   clearInterval(hexTimer);
@@ -420,9 +418,7 @@ onMounted(() => {
   startHex();
 
   startBoot();
-  // Entry never depends on user interaction: readers and crawlers reach content.
-  // This does not attempt autoplay; the next real gesture unlocks audio.
-  autoEnterTimer = window.setTimeout(triggerBurst, Math.max(0, props.autoEnterAfter));
+  // Boot completes quickly, but entry always waits for a click/tap or keyboard gesture.
 });
 
 onBeforeUnmount(() => {
@@ -431,7 +427,6 @@ onBeforeUnmount(() => {
   clearAllTimeouts();
 
   clearTimeout(maxTimer);
-  clearTimeout(autoEnterTimer);
   clearInterval(hexTimer);
 
   stopRain();

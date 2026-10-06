@@ -46,7 +46,6 @@ test("initial HTML includes typed copy and reveals without bot-specific markup",
   const typed = await readFile(new URL("../app/components/Animation/TypedLine.vue", import.meta.url), "utf8");
   assert.ok(typed.includes('v-else-if="done || !mounted"'));
   const loader = await readFile(new URL("../app/components/LoadingScreen.vue", import.meta.url), "utf8");
-  assert.ok(loader.includes("window.setTimeout(triggerBurst"));
   assert.ok(loader.includes('emit("entered", { audioActivated: audioActivated.value })'));
   const app = await readFile(new URL("../app/app.vue", import.meta.url), "utf8");
   assert.ok(app.includes("if (!audioActivated)"));

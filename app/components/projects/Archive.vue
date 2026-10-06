@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { c, localePath, rtl } = usePortfolioI18n();
 import { projects as sourceProjects } from "~/assets/data/projects";
-import { projectPath } from "#shared/projectRoutes";
+import { findProjectId, projectPath } from "#shared/projectRoutes";
 const props = defineProps<{ projectId?: string }>();
 const projects = usePortfolioI18n().content(sourceProjects);
 const filters = [
@@ -14,13 +14,20 @@ const route = useRoute();
 const router = useRouter();
 const selectedId = computed({
   get: () =>
+    findProjectId(route.query.project) ??
     props.projectId ??
-    projects.value.find((project) => project.id === route.query.project)?.id ??
     projects.value[0]!.id,
   set: (id: string) => {
-    void router.push(localePath(projectPath(id)));
+    void router.push({ path: route.path, query: { ...route.query, project: id }, hash: route.hash });
   },
 });
+function selectProject(event: MouseEvent, id: string) {
+  // Keep real, crawlable links and native open-in-new-tab behavior. An ordinary
+  // click changes only the selection query, so the archive never remounts.
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || (event.button !== undefined && event.button !== 0)) return;
+  event.preventDefault();
+  selectedId.value = id;
+}
 watch(selectedId, (id) => {
   const project = projects.value.find((item) => item.id === id)!;
   if (filter.value !== "all" && project.category !== filter.value)
@@ -38,8 +45,13 @@ const visibleProjects = computed(() =>
 const current = computed(
   () => projects.value.find((project) => project.id === selectedId.value)!,
 );
+const previewLabel = computed(() => `${c('Enlarge')}: ${current.value.name} ${c('/ SCREENSHOT')}`);
+function openPreview() {
+  if (current.value.screenshot) previewOpen.value = true;
+}
 usePortfolioSeo({
   type: props.projectId ? "WebPage" : "CollectionPage",
+  canonicalPath: props.projectId ? () => projectPath(current.value.id) : undefined,
   project: () => props.projectId ? current.value : undefined,
   title: () => props.projectId
     ? `${current.value.name} — ${current.value.stack.slice(0, 2).join(" / ")} | ${c("Arsam Sarkhosh")}`
@@ -161,7 +173,8 @@ const title = computed(() => props.projectId
             class="archive-file"
             :class="{ 'is-selected': selectedId === project.id }"
             :to="localePath(projectPath(project.id))"
-            :aria-current="projectId === project.id ? 'page' : undefined"
+            :aria-current="selectedId === project.id ? 'true' : undefined"
+            @click="selectProject($event, project.id)"
           >
             <ProjectsPreview
               :name="project.name"
@@ -201,20 +214,30 @@ const title = computed(() => props.projectId
                 ><span v-else>{{ current.statusLabel ?? c('PROJECT FILE') }}</span>
               </div>
               <div class="archive-showcase">
-                <ProjectsPreview
-                  :name="current.name"
-                  :category="current.category"
-                  :screenshot="current.screenshot"
-                  :source-only="Boolean(current.repo && !current.live)"
-                />
+                <component
+                  :is="current.screenshot ? 'button' : 'div'"
+                  :type="current.screenshot ? 'button' : undefined"
+                  class="archive-preview-trigger"
+                  :aria-label="current.screenshot ? previewLabel : undefined"
+                  :aria-haspopup="current.screenshot ? 'dialog' : undefined"
+                  @click="openPreview"
+                >
+                  <ProjectsPreview
+                    :name="current.name"
+                    :category="current.category"
+                    :screenshot="current.screenshot"
+                    :source-only="Boolean(current.repo && !current.live)"
+                  />
+                </component>
                 <q-btn
                   v-if="current.screenshot"
                   flat
                   no-caps
                   no-ripple
                   class="archive-enlarge"
-                  :aria-label="`${c('Enlarge')}: ${current.name} ${c('/ SCREENSHOT')}`"
-                  @click="previewOpen = true"
+                  :aria-label="previewLabel"
+                  aria-haspopup="dialog"
+                  @click="openPreview"
                 >
                   <q-icon name="fullscreen" size="20px" aria-hidden="true" />{{ c("Enlarge") }}</q-btn>
               </div>
@@ -342,25 +365,11 @@ const title = computed(() => props.projectId
         </div>
       </div>
     </section>
-    <q-dialog v-model="previewOpen">
-      <q-card class="archive-lightbox" flat square>
-        <div class="archive-lightbox__bar">
-          <span>{{ current.name }} {{ c("/ SCREENSHOT") }}</span
-          ><q-btn
-            v-close-popup
-            flat
-            round
-            icon="close"
-            :aria-label="c(&quot;Close screenshot&quot;)"
-          />
-        </div>
-        <img
-          v-if="current.screenshot"
-          :src="current.screenshot.src"
-          :alt="current.screenshot.alt"
-        />
-      </q-card>
-    </q-dialog>
+    <ProjectsScreenshotDialog
+      v-model="previewOpen"
+      :name="current.name"
+      :screenshot="current.screenshot"
+    />
     <footer class="archive-exit">
       <div>
         <p class="archive-label">{{ c("// THERE'S A PERSON BEHIND THESE BUILDS.") }}</p>

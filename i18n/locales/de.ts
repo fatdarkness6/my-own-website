@@ -1,6 +1,10 @@
 import { defineLocale } from "../defineLocale.ts";
 
 export const translations: Record<string, string> = {
+  "screenshotZoomIn": "Vergrößern",
+  "screenshotZoomOut": "Verkleinern",
+  "screenshotFit": "Bild einpassen",
+  "screenshotPan": "Zum Erkunden wischen oder scrollen",
   "audioPlaying": "WIEDERGABE",
   "home": "Start",
   "about": "Über mich",

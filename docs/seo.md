@@ -30,9 +30,13 @@ reuse `ProjectsArchive` and the existing translated project records, including
 screenshots, architecture, contributions and availability. Detail pages show
 technical content by default, have their own metadata, and link their project
 entity and visible breadcrumbs in JSON-LD. Home, About, Résumé and the archive
-use ordinary links to these pages. Valid old `?project=` bookmarks permanently
-redirect (301) to the matching localized project page; unknown project paths
-return 404. Tracking parameters and hashes are excluded from canonical URLs.
+use ordinary links to these pages. In the archive, normal project clicks update
+`?project=<id>` in place without remounting or resetting scroll; modified clicks
+and new tabs still open the permanent project links. Query bookmarks render the
+selection directly (200), with no redirect. Archive queries canonicalize to the
+collection; detail-page selections canonicalize and localize alternates to the
+selected project's permanent URL. Unknown project paths return 404. Tracking
+parameters and hashes are excluded from canonical URLs.
 
 ## Deployment settings
 

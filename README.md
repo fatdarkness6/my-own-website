@@ -46,6 +46,8 @@ npm run preview
 - Project cards: `app/assets/data/projects.ts`.
 - Project archive/detail view: `app/components/projects/Archive.vue`; localized
   URLs and sitemap entries derive from the same project records through `shared/projectRoutes.ts`.
+  Project selection updates the current page's `?project=` query without resetting
+  scroll; permanent project links remain available for search engines and new tabs.
 - About-page story, principles, and toolkit: `app/assets/data/about.ts`.
 - About-page sections: `app/components/about/`; styling: `app/assets/css/pages/about.css`.
 - Global typography: `app/assets/css/main.css` and `fonts.css`.

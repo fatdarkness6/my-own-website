@@ -2,6 +2,18 @@
 const { c, localePath } = usePortfolioI18n();
 import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
 const aboutPageCopy = usePortfolioI18n().content(sourceCopy);
+const { $lenis } = useNuxtApp();
+const introReady = useState("introReady", () => false);
+const { activeSection, navigateToSection: scrollToAboutSection } = useSectionHash(
+  ["about-main", ...Object.values(sourceCopy.chapters).map((chapter) => chapter.id), "about-exit"],
+  {
+    enabled: introReady,
+    scroll: $lenis ? (top, immediate) => {
+      $lenis.resize();
+      $lenis.scrollTo(top, { immediate });
+    } : undefined,
+  },
+);
 
 usePortfolioSeo({
   type: "ProfilePage",
@@ -19,7 +31,7 @@ const { element, line, started } = useViewportTyping(
 <template>
   <article id="about-main" ref="element" class="dossier">
     <AboutBackground :active="started" />
-    <a class="dossier-skip" href="#profile">{{ c("Skip to engineering profile") }}</a>
+    <a class="dossier-skip" href="#profile" @click="scrollToAboutSection($event, 'profile')">{{ c("Skip to engineering profile") }}</a>
     <div class="dossier-filebar">
       <span>{{ c("PERSONNEL FILE / AS-001") }}</span>
       <span class="dossier-filebar__state">
@@ -60,6 +72,7 @@ const { element, line, started } = useViewportTyping(
             no-ripple
             href="#profile"
             class="dossier-button dossier-button--primary"
+            @click="scrollToAboutSection($event, 'profile')"
           >
             <AnimationGlitchText :text="c(&quot;Explore engineering profile&quot;)" />
             <q-icon name="south" size="18px" aria-hidden="true" />
@@ -105,7 +118,9 @@ const { element, line, started } = useViewportTyping(
         no-caps
         no-ripple
         :href="`#${chapter.id}`"
+        :aria-current="activeSection === chapter.id ? 'location' : undefined"
         class="dossier-index__link"
+        @click="scrollToAboutSection($event, chapter.id)"
       >
         <span class="dossier-accent">{{ chapter.number }}</span>
         <span class="dossier-index__text">{{ chapter.label }}</span>
@@ -152,7 +167,7 @@ const { element, line, started } = useViewportTyping(
     <AboutChapter :chapter="aboutPageCopy.chapters.systems">
       <AboutSelectedSystems />
     </AboutChapter>
-    <footer class="dossier-exit">
+    <footer id="about-exit" class="dossier-exit">
       <div>
         <p class="dossier-label">{{ c("// PROJECTS / EXPERIENCE / CONTACT") }}</p>
         <h2 class="section-title">
@@ -189,7 +204,9 @@ const { element, line, started } = useViewportTyping(
       </div>
       <div class="dossier-exit__bottom">
         <span>{{ c("ARSAM SARKHOSH / FULL-STACK ENGINEER") }}</span>
-        <a href="#about-main">{{ c("BACK TO TOP ↑") }}</a>
+        <a href="#about-main" @click="scrollToAboutSection($event, 'about-main')">
+          {{ c("BACK TO TOP ↑") }}
+        </a>
       </div>
     </footer>
   </article>

@@ -9,6 +9,10 @@
   background: radial-gradient(ellipse at 92% 7%, rgb(29 78 216 / 0.1), transparent 28%);
 }
 
+.dossier-exit {
+  scroll-margin-top: 112px;
+}
+
 .dossier *, .dossier *::before, .dossier *::after {
   box-sizing: border-box;
 }
@@ -811,6 +815,9 @@
   .dossier-index {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px 16px;
+  }
+  .dossier-exit {
+    scroll-margin-top: 100px;
   }
   .dossier-chapter {
     padding-block: 56px;

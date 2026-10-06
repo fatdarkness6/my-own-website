@@ -73,15 +73,33 @@ if (!preview) assert.equal([...(await sitemap.text()).matchAll(/<loc>/g)].length
 const unknown = await fetch(`${origin}/this-page-does-not-exist`);
 assert.equal(unknown.status, 404);
 for (const locale of SITE_LOCALES) {
-  const legacy = await fetch(`${origin}${localizedPath("/projects", locale)}?project=docintel&utm_source=test`, { redirect: "manual" });
-  assert.equal(legacy.status, 301, `${locale}: legacy project redirect`);
-  assert.equal(legacy.headers.get("location"), localizedPath("/projects/docintel", locale));
+  const selected = await fetch(`${origin}${localizedPath("/projects", locale)}?project=docintel&utm_source=test`, { redirect: "manual" });
+  assert.equal(selected.status, 200, `${locale}: query selection without redirect`);
+  const selectedHtml = await selected.text();
+  assert.ok(/<div[^>]*id="project-file"[^>]*aria-label="[^"]*DOCINTEL/.test(selectedHtml), `${locale}: selected query project`);
+  assert.equal(attributes(selectedHtml, "link").find((link) => link.rel === "canonical")?.href, `${SITE_URL}${localizedPath("/projects", locale)}`);
+  const switched = await fetch(`${origin}${localizedPath("/projects/arilvo", locale)}?project=docintel&utm_source=test`, { redirect: "manual" });
+  assert.equal(switched.status, 200, `${locale}: detail query selection`);
+  const switchedHtml = await switched.text();
+  const switchedLinks = attributes(switchedHtml, "link");
+  const selectedUrl = `${SITE_URL}${localizedPath("/projects/docintel", locale)}`;
+  assert.equal(switchedLinks.find((link) => link.rel === "canonical")?.href, selectedUrl);
+  assert.equal(attributes(switchedHtml, "meta").find((meta) => meta.property === "og:url")?.content, selectedUrl);
+  const selectedGraph = JSON.parse(switchedHtml.match(/<script[^>]*type="application\/ld\+json"[^>]*>(.*?)<\/script>/s)![1]!)["@graph"];
+  assert.ok(selectedGraph.some((entry: { "@id": string; name: string }) => entry["@id"] === `${selectedUrl}#project` && entry.name === "DOCINTEL"));
+  for (const language of SITE_LOCALES) assert.ok(switchedLinks.some((link) => link.hreflang === language && link.href === `${SITE_URL}${localizedPath("/projects/docintel", language)}`), `${locale}: selected project alternate ${language}`);
   const missing = await fetch(`${origin}${localizedPath("/projects/not-a-real-project", locale)}`);
   assert.equal(missing.status, 404, `${locale}: unknown project`);
+}
+for (const query of ["project=unknown", "project=", "project=arilvo&project=docintel"]) {
+  const response = await fetch(`${origin}/projects?${query}`, { redirect: "manual" });
+  assert.equal(response.status, 200, `${query}: invalid query stays usable`);
+  const html = await response.text();
+  assert.ok(/<div[^>]*id="project-file"[^>]*aria-label="[^"]*ARILVO/.test(html), `${query}: safe default selection`);
 }
 const queryHtml = await (await fetch(`${origin}/projects/docintel?utm_source=test`)).text();
 assert.equal(attributes(queryHtml, "link").find((link) => link.rel === "canonical")?.href, `${SITE_URL}/projects/docintel`);
 const image = await fetch(`${origin}${SOCIAL_IMAGE}`);
 assert.equal(image.status, 200);
 assert.ok(image.headers.get("content-type")?.includes("image/png"));
-console.log(`PASS ${preview ? "preview" : "production"} SEO across ${SITE_ROUTES.length * SITE_LOCALES.length} routes, project links, redirects, verification, sitemap, robots, 404s and social image`);
+console.log(`PASS ${preview ? "preview" : "production"} SEO across ${SITE_ROUTES.length * SITE_LOCALES.length} routes, project links, query selections, verification, sitemap, robots, 404s and social image`);

@@ -2,6 +2,27 @@ import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 
 export default defineNuxtPlugin((nuxtApp) => {
+  const router = useRouter();
+  let pagePath = router.currentRoute.value.path;
+  function changedPage() {
+    const path = router.currentRoute.value.path;
+    const changed = path !== pagePath;
+    pagePath = path;
+    return changed;
+  }
+  // Nuxt normally keeps same-path queries in place, but retained chapter hashes
+  // would scroll again. Project selections must preserve their position too.
+  const originalScrollBehavior = router.options.scrollBehavior;
+  const selectionScrollBehavior: typeof originalScrollBehavior = (to, from, savedPosition) => {
+    if (to.path === from.path && to.query.project !== from.query.project) return false;
+    return originalScrollBehavior?.(to, from, savedPosition);
+  };
+  router.options.scrollBehavior = selectionScrollBehavior;
+  if (import.meta.hot) import.meta.hot.dispose(() => {
+    if (router.options.scrollBehavior === selectionScrollBehavior)
+      router.options.scrollBehavior = originalScrollBehavior;
+  });
+
   const reduceMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -10,7 +31,9 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Phones already have native momentum scrolling and Lenis doesn't smooth touch
   // by default, so on touch devices it was just burning a rAF loop for nothing.
   if (reduceMotion || isTouch) {
-    const removePageHook = nuxtApp.hook("page:finish", () => window.scrollTo(0, 0));
+    const removePageHook = nuxtApp.hook("page:finish", () => {
+      if (changedPage()) window.scrollTo(0, 0);
+    });
     if (import.meta.hot) import.meta.hot.dispose(removePageHook);
     return { provide: { lenis: null } };
   }
@@ -42,7 +65,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   document.addEventListener("visibilitychange", onVisibilityChange);
 
   const removePageHook = nuxtApp.hook("page:finish", () => {
-    lenis.scrollTo(0, { immediate: true });
+    if (changedPage()) lenis.scrollTo(0, { immediate: true });
     lenis.resize();
   });
 

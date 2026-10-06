@@ -4,6 +4,10 @@ import { defineLocale } from "../defineLocale.ts";
 
 // Stable source strings are lookup IDs; edit visible English copy here.
 export const translations: Record<string, string> = {
+  "screenshotZoomIn": "Zoom in",
+  "screenshotZoomOut": "Zoom out",
+  "screenshotFit": "Fit image",
+  "screenshotPan": "Swipe or scroll to explore",
   "skipToContent": "Skip to content",
   "seoHome": "Arsam Sarkhosh | Full-Stack Developer, Vue & Nuxt",
   "seoHomeDesc": "Arsam Sarkhosh is a full-stack developer building Vue and Nuxt frontends, Node.js and Python backends, and AI applications. Explore projects and résumé.",
