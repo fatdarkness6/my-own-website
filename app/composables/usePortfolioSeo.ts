@@ -40,9 +40,9 @@ export function usePortfolioSeo(options: PortfolioSeoOptions) {
       : "noindex, nofollow",
     ogType: "website", ogSiteName: SITE_NAME,
     ogTitle: title, ogDescription: description, ogUrl: () => canonical.value,
-    ogImage: () => image.value, ogImageType: "image/png",
-    ogImageWidth: () => project.value?.screenshot ? undefined : 1200,
-    ogImageHeight: () => project.value?.screenshot ? undefined : 630,
+    ogImage: () => image.value, ogImageType: () => project.value?.screenshot?.mimeType || "image/png",
+    ogImageWidth: () => project.value?.screenshot ? project.value.screenshot.width : 1200,
+    ogImageHeight: () => project.value?.screenshot ? project.value.screenshot.height : 630,
     ogImageAlt: () => project.value?.screenshot?.alt || `${c("Arsam Sarkhosh")} — ${c("Full-Stack Engineer")}`,
     twitterCard: "summary_large_image", twitterTitle: title,
     twitterDescription: description, twitterImage: () => image.value,
@@ -64,6 +64,7 @@ export function usePortfolioSeo(options: PortfolioSeoOptions) {
     };
     const graph: Record<string, unknown>[] = [person, {
       "@type": "WebSite", "@id": websiteId, name: SITE_NAME, url: `${base}/`,
+      alternateName: ["ARSAM.SYS", "آرسام سرخوش", "أرسام سارخوش"],
       publisher: { "@id": personId }, inLanguage: ["en", "es", "de", "fr", "it", "ar", "fa"],
     }, {
       "@type": options.type || "WebPage", "@id": pageId,
@@ -77,7 +78,9 @@ export function usePortfolioSeo(options: PortfolioSeoOptions) {
         breadcrumb: { "@id": `${canonical.value}#breadcrumbs` },
       } : {}),
       primaryImageOfPage: { "@type": "ImageObject", url: image.value,
-        ...(!project.value?.screenshot ? { width: 1200, height: 630 } : {}) },
+        caption: project.value?.screenshot?.alt || `${c("Arsam Sarkhosh")} — ${c("Full-Stack Engineer")}`,
+        width: project.value?.screenshot ? project.value.screenshot.width : 1200,
+        height: project.value?.screenshot ? project.value.screenshot.height : 630 },
     }];
     if (options.type === "CollectionPage") {
       graph.push({

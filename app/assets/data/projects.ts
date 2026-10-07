@@ -3,6 +3,9 @@ export type ProjectStatus = "live" | "wip" | "archived";
 export interface ProjectScreenshot {
   src: string;
   alt: string;
+  width?: number;
+  height?: number;
+  mimeType?: "image/png" | "image/jpeg";
 }
 
 export interface Project {
@@ -48,7 +51,9 @@ export const projects: Project[] = [
       "Multilingual MEP/BIM platform I built with Nuxt SSR and SEO.",
     stack: ["NUXT", "QUASAR", "TYPESCRIPT", "GSAP", "I18N"],
     screenshot: {
-      src: "/images/projects/arilvo.png",
+      src: "/images/projects/arilvo.jpg",
+      mimeType: "image/jpeg",
+      width: 1270, height: 714,
       alt: "ARILVO homepage featuring MEP engineering services and a building systems cutaway",
     },
     category: "web",
@@ -80,7 +85,9 @@ export const projects: Project[] = [
     availability: "Frontend preview is live. The backend is not deployed, so API-powered features are unavailable online.",
     stack: ["NUXT", "VUE", "QUASAR", "TYPESCRIPT"],
     screenshot: {
-      src: "/images/projects/docintel.png",
+      src: "/images/projects/docintel.jpg",
+      mimeType: "image/jpeg",
+      width: 1585, height: 892,
       alt: "DocIntel homepage with a purple document intelligence headline, AI summary and cited question-answer preview",
     },
     category: "ai",
@@ -112,7 +119,9 @@ export const projects: Project[] = [
       "HVAC site work across Strapi CMS, refactoring and localization.",
     stack: ["NEXT.JS", "STRAPI", "POSTGRESQL"],
     screenshot: {
-      src: "/images/projects/arvand-termo-tec.png",
+      src: "/images/projects/arvand-termo-tec.jpg",
+      mimeType: "image/jpeg",
+      width: 1265, height: 712,
       alt: "Arvand Termo Tec homepage with blue and orange styling and a modern home",
     },
     category: "web",
@@ -142,7 +151,9 @@ export const projects: Project[] = [
       "Business website built with Nuxt, Node.js and MongoDB.",
     stack: ["NUXT", "NODE.JS", "MONGODB"],
     screenshot: {
-      src: "/images/projects/raymand-group.png",
+      src: "/images/projects/raymand-group.jpg",
+      mimeType: "image/jpeg",
+      width: 1265, height: 712,
       alt: "Raymand Group homepage showing healthcare and laboratory technology services",
     },
     category: "web",

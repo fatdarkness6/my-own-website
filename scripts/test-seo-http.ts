@@ -20,6 +20,10 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   const canonical = links.filter((link) => link.rel === "canonical");
   assert.equal(canonical.length, 1, `${route}: canonical count`);
   assert.equal(canonical[0]!.href, expectedUrl);
+  assert.ok(links.some((link) => link.rel === "icon" && link.href === "/favicon-96x96.png" && link.sizes === "96x96"), `${route}: crawlable PNG favicon`);
+  assert.ok(links.some((link) => link.rel === "icon" && link.href === "/favicon.svg"), `${route}: vector favicon`);
+  assert.ok(links.some((link) => link.rel === "apple-touch-icon" && link.href === "/apple-touch-icon.png"), `${route}: iOS icon`);
+  assert.ok(links.some((link) => link.rel === "manifest" && link.href === "/site.webmanifest"), `${route}: manifest`);
   const alternates = links.filter((link) => link.rel === "alternate" && link.hreflang);
   assert.equal(alternates.length, 8, `${route}: language alternates`);
   for (const locale of SITE_LOCALES) assert.ok(alternates.some((link) => link.hreflang === locale && link.href === `${SITE_URL}${localizedPath(path, locale)}`));
@@ -30,6 +34,9 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   // A bare origin and its trailing-slash root represent the same HTTP URL.
   assert.equal(new URL(metadata.find((meta) => meta.property === "og:url")!.content!).href, expectedUrl);
   assert.equal(metadata.find((meta) => meta.property === "og:image")?.content, `${SITE_URL}${project?.screenshot?.src || SOCIAL_IMAGE}`);
+  assert.equal(metadata.find((meta) => meta.property === "og:image:type")?.content, project?.screenshot?.mimeType || "image/png");
+  assert.equal(metadata.find((meta) => meta.property === "og:image:width")?.content, String(project?.screenshot?.width || 1200));
+  assert.equal(metadata.find((meta) => meta.property === "og:image:height")?.content, String(project?.screenshot?.height || 630));
   assert.equal(metadata.find((meta) => meta.name === "google-site-verification")?.content, "QqxjGlyiagYJJ7OqLt3hdM-CxlPSf5QQx5VQJI3kl8E");
   assert.equal(metadata.find((meta) => meta.name === "twitter:card")?.content, "summary_large_image");
   assert.ok(metadata.find((meta) => meta.name === "description")?.content);
@@ -47,6 +54,9 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   const scripts = [...html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>(.*?)<\/script>/gs)];
   assert.equal(scripts.length, 1, `${route}: JSON-LD count`);
   const graph = JSON.parse(scripts[0]![1]!)["@graph"];
+  assert.ok(!JSON.stringify(graph).includes("arsamsarkhosh.vercel.app"), `${route}: old domain in structured data`);
+  assert.equal(graph.find((entry: { "@type": string }) => entry["@type"] === "WebSite")?.url, `${SITE_URL}/`);
+  assert.equal(graph.find((entry: { "@type": string }) => entry["@type"] === "Person")?.url, `${SITE_URL}/`);
   assert.ok(graph.some((entry: { "@type": string; name: string }) => entry["@type"] === "Person" && entry.name === "Arsam Sarkhosh"));
   assert.ok(graph.some((entry: { "@id": string }) => entry["@id"] === `${expectedUrl}#webpage`));
   if (project) {
@@ -69,7 +79,39 @@ const robots = await (await fetch(`${origin}/robots.txt`)).text();
 assert.ok(robots.includes(preview ? "Disallow: /" : `${SITE_URL}/sitemap.xml`));
 const sitemap = await fetch(`${origin}/sitemap.xml`);
 assert.equal(sitemap.status, preview ? 404 : 200);
-if (!preview) assert.equal([...(await sitemap.text()).matchAll(/<loc>/g)].length, SITE_ROUTES.length * SITE_LOCALES.length);
+if (!preview) {
+  const xml = await sitemap.text();
+  const locations = [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]);
+  assert.equal(locations.length, SITE_ROUTES.length * SITE_LOCALES.length);
+  assert.ok(!xml.includes("arsamsarkhosh.vercel.app"));
+  for (const language of SITE_LOCALES) for (const path of SITE_ROUTES)
+    assert.ok(locations.includes(`${SITE_URL}${localizedPath(path, language)}`));
+  for (const [, href] of xml.matchAll(/href="([^"]+)"/g)) assert.equal(new URL(href!).origin, SITE_URL);
+  const imageUrls = new Set([...xml.matchAll(/<image:loc>(.*?)<\/image:loc>/g)].map((match) => match[1]!));
+  assert.equal(imageUrls.size, projects.filter((project) => project.screenshot).length);
+  for (const url of imageUrls) {
+    assert.equal(new URL(url).origin, SITE_URL);
+    const response = await fetch(`${origin}${new URL(url).pathname}`);
+    assert.equal(response.status, 200, `sitemap image: ${url}`);
+    assert.ok(response.headers.get("content-type")?.startsWith("image/"));
+    const record = projects.find((project) => project.screenshot?.src === new URL(url).pathname)!;
+    assert.ok(response.headers.get("content-type")?.startsWith(record.screenshot!.mimeType!));
+    const bytes = Buffer.from(await response.arrayBuffer());
+    assert.equal(bytes.subarray(0, 3).toString("hex"), "ffd8ff", `${url}: actual JPEG content`);
+    const legacy = await fetch(`${origin}${new URL(url).pathname.replace(/\.jpg$/, ".png")}`, { redirect: "manual" });
+    assert.equal(legacy.status, 301, `${url}: legacy image redirect`);
+    assert.equal(legacy.headers.get("location"), new URL(url).pathname);
+  }
+}
+const manifestResponse = await fetch(`${origin}/site.webmanifest`);
+assert.equal(manifestResponse.status, 200);
+const manifest = await manifestResponse.json();
+assert.equal(manifest.name, "Arsam Sarkhosh");
+for (const file of ["/favicon.ico", "/favicon.svg", "/favicon-96x96.png", "/apple-touch-icon.png", ...manifest.icons.map((icon: { src: string }) => icon.src)]) {
+  const response = await fetch(`${origin}${file}`);
+  assert.equal(response.status, 200, `icon: ${file}`);
+  assert.ok(response.headers.get("content-type")?.startsWith("image/"), `icon content type: ${file}`);
+}
 const unknown = await fetch(`${origin}/this-page-does-not-exist`);
 assert.equal(unknown.status, 404);
 for (const locale of SITE_LOCALES) {

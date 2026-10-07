@@ -1,10 +1,10 @@
 # Arsam Sarkhosh — portfolio
 
-Personal website of [Arsam Sarkhosh](https://arsamsarkhosh.vercel.app/),
+Personal website of [Arsam Sarkhosh](https://www.arsamsarkhosh.ir/),
 a full-stack developer working with Vue, Nuxt, Node.js and Python.
-Browse the [projects](https://arsamsarkhosh.vercel.app/projects), including
-[DocIntel](https://arsamsarkhosh.vercel.app/projects/docintel) and its
-[FastAPI backend](https://arsamsarkhosh.vercel.app/projects/docintel-backend).
+Browse the [projects](https://www.arsamsarkhosh.ir/projects), including
+[DocIntel](https://www.arsamsarkhosh.ir/projects/docintel) and its
+[FastAPI backend](https://www.arsamsarkhosh.ir/projects/docintel-backend).
 
 A Nuxt 4 / Vue 3 portfolio with Quasar, snap-scrolling homepage sections,
 typed text, WebGL backgrounds, a Three.js portrait, and shared audio.
@@ -12,6 +12,8 @@ typed text, WebGL backgrounds, a Three.js portrait, and shared audio.
 ## Development
 
 SEO and search-engine setup: see [docs/seo.md](docs/seo.md).
+The canonical domain is `https://www.arsamsarkhosh.ir`. Vercel redirects the old
+production hostname and the apex domain to the same paths on this domain.
 
 ```sh
 npm ci
