@@ -39,34 +39,41 @@ const current = computed(
         </q-btn>
       </div>
     </div>
-    <q-card
-      id="toolkit-detail"
-      flat
-      square
-      class="dossier-toolkit__detail"
-      aria-live="polite"
-      aria-atomic="true"
+    <CommonHackerReveal
+      :key="current.id"
+      show
+      :duration="420"
+      class="dossier-toolkit__detail-reveal"
     >
-      <q-card-section>
-        <div class="dossier-toolkit__detail-bar">
-          <span class="dossier-label">
-            {{ current.layer }}
-            /
-            {{ current.name }}
-          </span>
-          <q-icon :name="current.icon" size="30px" aria-hidden="true" />
-        </div>
-        <h3 class="dossier-lead"><CommonPageGlitch :key="current.id" :text="c(current.title)" /></h3>
-        <p class="dossier-body"><CommonPageGlitch :text="c(current.text)" :interval="14000" /></p>
-        <div class="dossier-tags">
-          <q-badge v-for="tag in current.tags" :key="tag" outline>{{ tag }}</q-badge>
-        </div>
-      </q-card-section>
-      <q-separator dark />
-      <q-card-section class="dossier-toolkit__evidence">
-        <span class="dossier-label">{{ c("CONTEXT / IN PRACTICE") }}</span>
-        <p class="dossier-body">{{ current.evidence }}</p>
-      </q-card-section>
-    </q-card>
+      <q-card
+        id="toolkit-detail"
+        flat
+        square
+        class="dossier-toolkit__detail"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <q-card-section>
+          <div class="dossier-toolkit__detail-bar">
+            <span class="dossier-label">
+              {{ current.layer }}
+              /
+              {{ current.name }}
+            </span>
+            <q-icon :name="current.icon" size="30px" aria-hidden="true" />
+          </div>
+          <h3 class="dossier-lead"><CommonPageGlitch :key="current.id" :text="c(current.title)" /></h3>
+          <p class="dossier-body"><CommonPageGlitch :text="c(current.text)" :interval="14000" /></p>
+          <div class="dossier-tags">
+            <q-badge v-for="tag in current.tags" :key="tag" outline>{{ tag }}</q-badge>
+          </div>
+        </q-card-section>
+        <q-separator dark />
+        <q-card-section class="dossier-toolkit__evidence">
+          <span class="dossier-label">{{ c("CONTEXT / IN PRACTICE") }}</span>
+          <p class="dossier-body">{{ current.evidence }}</p>
+        </q-card-section>
+      </q-card>
+    </CommonHackerReveal>
   </div>
 </template>
