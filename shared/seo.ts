@@ -1,15 +1,15 @@
 import { PROJECT_PATHS, projectPath } from "./projectRoutes.ts";
 import { projects } from "../app/assets/data/projects.ts";
+import { identity } from "../app/assets/data/identity.ts";
+import { locales } from "./locales.ts";
 
-// Vercel already redirects the apex domain to this www host.
-export const SITE_URL = "https://www.arsamsarkhosh.ir";
-const PRODUCTION_HOSTS = new Set([
-  "arsamsarkhosh.vercel.app", "arsamsarkhosh.ir", "www.arsamsarkhosh.ir",
-]);
-export const SITE_NAME = "Arsam Sarkhosh";
-export const SITE_LOCALES = ["en", "es", "de", "fr", "it", "ar", "fa"] as const;
+// Complete the coordinated hosting move in docs/seo.md so this host serves directly.
+export const SITE_URL = "https://arsamsarkhosh.ir";
+export const SITE_NAME = identity.name;
+export const SITE_LOCALES = locales.map(({ code }) => code);
 export const SITE_ROUTES = ["/", "/about", "/projects", "/resume", "/contact", ...PROJECT_PATHS] as const;
 export const SOCIAL_IMAGE = "/images/og/portfolio.png";
+export { PAGE_SEO } from "../app/assets/data/pageSeo.ts";
 
 /** One trusted origin, never the incoming Host header or a tracking URL. */
 export function siteOrigin(value: string = SITE_URL): string {
@@ -17,9 +17,14 @@ export function siteOrigin(value: string = SITE_URL): string {
   if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
     throw new Error("Site URL must be an HTTP(S) origin without credentials");
   }
-  // Old deployment environment variables must not keep publishing the previous
-  // domain in canonicals, hreflang, social previews or the sitemap after the move.
-  return PRODUCTION_HOSTS.has(url.hostname) ? SITE_URL : url.origin;
+  // Canonicals always identify production, including local and preview builds.
+  // A stale runtime override must never publish a second canonical hostname.
+  return SITE_URL;
+}
+
+export function canonicalUrl(path: string): string {
+  const pathname = new URL(path, SITE_URL).pathname.replace(/\/+$/, "") || "/";
+  return `${SITE_URL}${pathname}`;
 }
 
 export function localizedPath(path: string, locale: string): string {

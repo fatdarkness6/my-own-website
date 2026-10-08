@@ -22,9 +22,5 @@
 definePageMeta({ layout: "scroll" });
 const { c } = usePortfolioI18n();
 
-usePortfolioSeo({
-  title: () => c("Arsam Sarkhosh — Full-Stack Engineer"),
-  description:
-    () => c("Full-stack engineer specializing in Vue, Nuxt, Node.js and Python, building production web applications, backend APIs, interactive experiences and AI-powered systems."),
-});
+usePortfolioSeo({ page: "home" });
 </script>

@@ -106,7 +106,7 @@ def footer(canvas, doc):
 
 doc = SimpleDocTemplate(str(output), pagesize=A4, rightMargin=40, leftMargin=40,
                         topMargin=32, bottomMargin=48, title=profile["name"] + " - Resume",
-                        author=profile["name"], subject="Full-stack engineering profile")
+                        author=profile["name"], subject=profile["role"] + " profile")
 doc.build(story, onFirstPage=footer, onLaterPages=footer)
 reader = PdfReader(output)
 if len(reader.pages) != data["pages"]:

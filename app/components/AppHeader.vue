@@ -59,7 +59,7 @@ const sectionCounter = computed(
           round
           no-ripple
           :icon="menuIcon"
-          :aria-label="c(&quot;Open menu&quot;)"
+          :aria-label="c('Open menu')"
         >
           <q-menu
             class="app-header-menu"
@@ -84,15 +84,15 @@ const sectionCounter = computed(
           </q-menu>
         </q-btn>
 
-        <div class="app-header__identity" :aria-label="c(&quot;Arsam Sarkhosh portfolio&quot;)">
+        <div class="app-header__identity" :aria-label="c('Arsam Sarkhosh portfolio')">
           <span class="app-header__monogram" aria-hidden="true">{{ c("A/S") }}</span>
           <span class="app-header__identity-copy gt-sm">
-            <strong>{{ c("ARSAM.SYS") }}</strong>
+            <strong>{{ c("Arsam Sarkhosh") }}</strong>
             <small>{{ c("PORTFOLIO NODE") }}</small>
           </span>
         </div>
 
-        <nav class="gt-sm" :aria-label="c(&quot;Main&quot;)">
+        <nav class="gt-sm" :aria-label="c('Main')">
           <q-tabs
             v-model="activeTab"
             class="app-header__nav"
@@ -132,10 +132,10 @@ const sectionCounter = computed(
           unelevated
           no-caps
           no-ripple
-          :to="localePath(&quot;/contact&quot;)"
-          :aria-label="c(&quot;Get in touch&quot;)"
+          :to="localePath('/contact')"
+          :aria-label="c('Get in touch')"
         >
-          <span class="gt-xs"><AnimationGlitchText :text="c(&quot;Get in touch&quot;)" /></span>
+          <span class="gt-xs"><AnimationGlitchText :text="c('Get in touch')" /></span>
           <q-icon class="lt-sm" name="mail_outline" size="22px" aria-hidden="true" />
           <q-tooltip class="lt-sm">{{ c("Get in touch") }}</q-tooltip>
         </q-btn>

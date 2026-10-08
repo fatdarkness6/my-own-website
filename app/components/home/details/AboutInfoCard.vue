@@ -1,12 +1,13 @@
 <script setup>
 const { c, localePath, rtl } = usePortfolioI18n();
+import { identity } from "~/assets/data/identity";
 const $q = useQuasar();
 
 const summary =
   "I work across the interface and the systems behind it: responsive Vue and Nuxt applications, Node.js and FastAPI backends, and AI-powered workflows. I care about clear architecture, performance and UI that feels intentional.";
 const linkText = "Explore my full story & philosophy";
 
-const codeLines = [
+const codeLines = computed(() => [
   {
     id: "code-1",
     number: "01",
@@ -36,7 +37,7 @@ const codeLines = [
     parts: [
       { text: "role", class: "c-prop" },
       { text: ": " },
-      { text: '"Full-Stack Engineer"', class: "c-str" },
+      { text: JSON.stringify(c(identity.role)), class: "c-str" },
       { text: "," },
     ],
   },
@@ -69,7 +70,7 @@ const codeLines = [
     ],
   },
   { id: "code-6", number: "06", indent: false, parts: [{ text: "};" }] },
-].map((l) => ({ ...l, text: l.parts.map((p) => p.text).join("") }));
+].map((l) => ({ ...l, text: l.parts.map((p) => p.text).join("") })));
 
 const stats = [
   { value: "VUE", label: "Nuxt · Quasar" },
@@ -81,7 +82,7 @@ const showStats = computed(() => !$q.screen.lt.sm);
 
 const order = computed(() => [
   "filename",
-  ...codeLines.map((l) => l.id),
+  ...codeLines.value.map((l) => l.id),
   "summary-label",
   "summary",
   ...(showStats.value
@@ -112,7 +113,7 @@ defineExpose({ play });
       </div>
       <span class="terminal-card__filename">
         <AnimationTypedLine
-          :text="c(&quot;arsam.config.ts&quot;)"
+          :text="c('arsam.config.ts')"
           :speed="18"
           :glitch="5400"
           v-bind="line('filename')"
@@ -146,7 +147,7 @@ defineExpose({ play });
 
       <h3 class="terminal-card__summary-label">
         <AnimationTypedLine
-          :text="c(&quot;About me summary&quot;)"
+          :text="c('About me summary')"
           :speed="16"
           v-bind="line('summary-label')"
         />
@@ -190,7 +191,7 @@ defineExpose({ play });
         no-caps
         no-ripple
         :disable="!finished"
-        :to="localePath(&quot;/about&quot;)"
+        :to="localePath('/about')"
         class="terminal-card__link"
       >
         <AnimationTypedLine :text="c(linkText)" v-bind="line('link')" />

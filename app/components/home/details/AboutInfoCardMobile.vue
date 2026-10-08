@@ -1,8 +1,9 @@
 <script setup>
 const { c, localePath } = usePortfolioI18n();
 // Keep the existing TypedLine, typing sound and sequence composable.
-const name = "Arsam";
-const role = "Full-Stack Engineer";
+import { identity } from "~/assets/data/identity";
+const name = identity.givenName;
+const role = identity.role;
 const mission = "Building web apps with personality.";
 const stack = "Nuxt · Node.js · Python";
 const linkText = "More about me";
@@ -99,7 +100,7 @@ defineExpose({ play });
       square
       no-caps
       no-ripple
-      :to="localePath(&quot;/about&quot;)"
+      :to="localePath('/about')"
       :disable="!finished"
       class="mobile-profile__link"
     >

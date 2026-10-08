@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
-import * as THREE from "three";
+let THREE;
 import { vertexShader, fragmentShader } from "~/graphics/portraitShaders";
 
 const props = defineProps({
@@ -778,8 +778,11 @@ function onContextRestored() {
   startLoop();
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (!containerEl.value || !canvasEl.value) return;
+  // Load the renderer only in the browser. Text/metadata never waits for Three.js.
+  THREE = await import("three");
+  if (disposed || !containerEl.value || !canvasEl.value) return;
 
   isMobile =
     window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
@@ -922,7 +925,7 @@ onBeforeUnmount(() => {
     class="glitch-portrait"
     :style="{ opacity: renderedOpacity }"
   >
-    <canvas ref="canvasEl" class="glitch-portrait__canvas" />
+    <canvas ref="canvasEl" class="glitch-portrait__canvas" aria-hidden="true" />
   </div>
 </template>
 

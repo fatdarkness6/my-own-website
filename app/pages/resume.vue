@@ -16,10 +16,8 @@ const resumeProjects = computed(() => extraProjects.value.map((project) => {
 }));
 
 usePortfolioSeo({
+  page: "resume",
   type: "ProfilePage",
-  title: () => c("Résumé — Arsam Sarkhosh | Full-Stack Engineer"),
-  description:
-    () => c("Download Arsam Sarkhosh's résumé. A quick overview of Vue, Nuxt, full-stack engineering and AI application experience."),
 });
 
 const highlights = content(["vue-nuxt", "backends", "ai"].map(
@@ -45,7 +43,7 @@ const title = content([
       <div class="cv-intro__copy">
         <p class="cv-label">
           <AnimationTypedLine
-            :text="c(&quot;// THE ENGINEER. AT A GLANCE.&quot;)"
+            :text="c('// THE ENGINEER. AT A GLANCE.')"
             :speed="12"
             :glitch="11000"
             v-bind="line('label')"
@@ -66,7 +64,7 @@ const title = content([
           <span><q-icon name="location_on" aria-hidden="true" /> {{ resumeProfile.location }}</span>
           <span v-for="language in resumeProfile.languages" :key="language.name">{{ language.name }} / <bdi dir="ltr">{{ language.level }}</bdi></span>
         </div>
-        <nav class="cv-contact" :aria-label="c(&quot;Résumé contact links&quot;)">
+        <nav class="cv-contact" :aria-label="c('Résumé contact links')">
           <a :href="`mailto:${contactDetails.email}`">{{ contactDetails.email }}</a>
           <a :href="contactDetails.linkedin" target="_blank" rel="noopener noreferrer">{{ c("LinkedIn") }}<span class="cv-sr-only">{{ c("(opens in a new tab)") }}</span></a>
           <a :href="contactDetails.github" target="_blank" rel="noopener noreferrer">{{ c("GitHub") }}<span class="cv-sr-only">{{ c("(opens in a new tab)") }}</span></a>
@@ -84,7 +82,7 @@ const title = content([
               name="download"
               size="22px"
               aria-hidden="true"
-            /><AnimationGlitchText :text="c(&quot;Download résumé&quot;)" />
+            /><AnimationGlitchText :text="c('Download résumé')" />
           </q-btn>
           <q-btn
             :href="resumeDocument.href"
@@ -119,7 +117,7 @@ const title = content([
       <section class="cv-strengths" aria-labelledby="cv-strengths-title">
         <div class="cv-section-bar">
           <h2 id="cv-strengths-title">
-            <CommonPageGlitch :text="c(&quot;01 / CORE STRENGTHS&quot;)" />
+            <CommonPageGlitch :text="c('01 / CORE STRENGTHS')" />
           </h2>
           <span>{{ c("THREE AREAS. ONE ENGINEER.") }}</span>
         </div>
@@ -154,7 +152,7 @@ const title = content([
       >
         <div class="cv-section-bar">
           <h2 id="cv-experience-title">
-            <CommonPageGlitch :text="c(&quot;02 / EMPLOYMENT HISTORY&quot;)" />
+            <CommonPageGlitch :text="c('02 / EMPLOYMENT HISTORY')" />
           </h2>
           <span>{{ resumeExperience.length }} {{ c("EXPERIENCE RECORDS") }}</span>
         </div>
@@ -219,12 +217,12 @@ const title = content([
         </q-list>
       </section>
       <section class="cv-experience" aria-labelledby="cv-skills-title">
-        <div class="cv-section-bar"><h2 id="cv-skills-title"><CommonPageGlitch :text="c(&quot;03 / TECHNICAL TOOLSET&quot;)" /></h2><span>{{ c("ACROSS THE STACK.") }}</span></div>
+        <div class="cv-section-bar"><h2 id="cv-skills-title"><CommonPageGlitch :text="c('03 / TECHNICAL TOOLSET')" /></h2><span>{{ c("ACROSS THE STACK.") }}</span></div>
         <div class="cv-skill-list"><div v-for="group in resumeProfile.skills" :key="group.label"><h3>{{ group.label }}</h3><div class="cv-tags"><q-badge v-for="skill in group.items" :key="skill" outline>{{ skill }}</q-badge></div></div></div>
       </section>
       <section class="cv-experience" aria-labelledby="cv-work-title">
-        <div class="cv-section-bar"><h2 id="cv-work-title"><CommonPageGlitch :text="c(&quot;04 / PROJECT ARCHIVE&quot;)" /></h2><span>{{ resumeProjects.length }} {{ c("PROJECTS / FROM THE RÉSUMÉ") }}</span></div>
-        <q-expansion-item class="cv-records cv-project-archive" :label="c(&quot;Explore projects &amp; side projects&quot;)" :caption="c(&quot;The complete list, without crowding the page.&quot;)" expand-icon="add" expanded-icon="remove" :duration="180">
+        <div class="cv-section-bar"><h2 id="cv-work-title"><CommonPageGlitch :text="c('04 / PROJECT ARCHIVE')" /></h2><span>{{ resumeProjects.length }} {{ c("PROJECTS / FROM THE RÉSUMÉ") }}</span></div>
+        <q-expansion-item class="cv-records cv-project-archive" :label="c('Explore projects &amp; side projects')" :caption="c('The complete list, without crowding the page.')" expand-icon="add" expanded-icon="remove" :duration="180">
           <q-list separator>
             <q-item v-for="project in resumeProjects" :key="project.id" class="cv-project-item">
               <q-item-section><h3>{{ project.name }}</h3><p>{{ project.summary }}</p></q-item-section>
@@ -241,17 +239,17 @@ const title = content([
       <div>
         <p class="cv-label">{{ c("// NEXT CHAPTER") }}</p>
         <h2 class="section-title">
-          <CommonPageGlitch :text="c(&quot;LET'S WORK&quot;)" />
-          <span><CommonPageGlitch :text="c(&quot;TOGETHER.&quot;)" :interval="10000" /></span>
+          <CommonPageGlitch :text="c('LET\'S WORK')" />
+          <span><CommonPageGlitch :text="c('TOGETHER.')" :interval="10000" /></span>
         </h2>
       </div>
       <q-btn
-        :to="localePath(&quot;/contact&quot;)"
+        :to="localePath('/contact')"
         no-caps
         no-ripple
         unelevated
         class="cv-button cv-button--primary"
-        ><AnimationGlitchText :text="c(&quot;Start a conversation&quot;)" /><q-icon
+        ><AnimationGlitchText :text="c('Start a conversation')" /><q-icon
           name="north_east"
           size="18px"
           aria-hidden="true"

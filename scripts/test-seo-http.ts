@@ -1,7 +1,22 @@
 import assert from "node:assert/strict";
-import { SITE_URL, SITE_ROUTES, SITE_LOCALES, SOCIAL_IMAGE, localizedPath } from "../shared/seo.ts";
+import { SITE_URL, SITE_ROUTES, SITE_LOCALES, SOCIAL_IMAGE, PAGE_SEO, localizedPath } from "../shared/seo.ts";
 import { projects } from "../app/assets/data/projects.ts";
 import { projectPath } from "../shared/projectRoutes.ts";
+import { identity } from "../app/assets/data/identity.ts";
+import { translationKey } from "../app/utils/translationKey.ts";
+import { createI18n } from "vue-i18n";
+import { createJiti } from "jiti";
+
+const jiti = createJiti(import.meta.url);
+const translators = new Map();
+for (const locale of SITE_LOCALES) {
+  const { default: messages } = await jiti.import<{ default: Record<string, Record<string, string>> }>(`../i18n/locales/${locale}.ts`);
+  const i18n = createI18n({ legacy: false, locale, messages: { [locale]: messages } });
+  translators.set(locale, (source: string) => i18n.global.t(`copy.${translationKey(source)}`));
+}
+const decodeHtml = (value: string = "") => value.replace(/&#(x[0-9a-f]+|\d+);/gi, (_, number) =>
+  String.fromCodePoint(number[0].toLowerCase() === "x" ? parseInt(number.slice(1), 16) : Number(number)))
+  .replace(/&(quot|apos|lt|gt|amp);/g, (_, name: string) => ({ quot: '"', apos: "'", lt: "<", gt: ">", amp: "&" })[name]!);
 
 const origin = process.argv[2] || "http://127.0.0.1:3001";
 const preview = process.argv.includes("--preview");
@@ -11,6 +26,7 @@ const attributes = (html: string, tag: string) => [...html.matchAll(new RegExp(`
 const pageTitles = new Map<string, Set<string>>();
 for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   const project = projects.find((record) => projectPath(record.id) === path);
+  const translate = translators.get(language)!;
   const route = localizedPath(path, language);
   const response = await fetch(`${origin}${route}`);
   assert.equal(response.status, 200, route);
@@ -26,6 +42,7 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   assert.ok(links.some((link) => link.rel === "manifest" && link.href === "/site.webmanifest"), `${route}: manifest`);
   const alternates = links.filter((link) => link.rel === "alternate" && link.hreflang);
   assert.equal(alternates.length, 8, `${route}: language alternates`);
+  assert.ok(alternates.some((link) => link.hreflang === "x-default" && link.href === `${SITE_URL}${path}`), `${route}: x-default`);
   for (const locale of SITE_LOCALES) assert.ok(alternates.some((link) => link.hreflang === locale && link.href === `${SITE_URL}${localizedPath(path, locale)}`));
   const metadata = attributes(html, "meta");
   for (const property of ["og:title", "og:description", "og:url", "og:image"]) {
@@ -48,6 +65,18 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   assert.equal([...html.matchAll(/<h1\b/g)].length, 1, `${route}: one primary heading`);
   assert.ok(/<main\b[^>]*id="main-content"/.test(html), `${route}: main landmark`);
   const title = html.match(/<title>(.*?)<\/title>/)![1]!;
+  const pageKey = path === "/" ? "home" : path.slice(1) as keyof typeof PAGE_SEO;
+  const expectedTitle = project ? `${project.name} | ${translate(identity.name)}` : translate(PAGE_SEO[pageKey].title);
+  const expectedDescription = project ? `${translate(identity.name)}: ${translate(project.summary)}` : translate(PAGE_SEO[pageKey].description);
+  assert.equal(decodeHtml(title), expectedTitle, `${route}: localized title`);
+  assert.equal(decodeHtml(metadata.find((meta) => meta.name === "description")?.content), expectedDescription, `${route}: localized description`);
+  for (const platform of ["og", "twitter"]) {
+    const field = platform === "og" ? "property" : "name";
+    assert.equal(decodeHtml(metadata.find((meta) => meta[field] === `${platform}:title`)?.content), expectedTitle, `${route}: ${platform} title`);
+    assert.equal(decodeHtml(metadata.find((meta) => meta[field] === `${platform}:description`)?.content), expectedDescription, `${route}: ${platform} description`);
+  }
+  assert.equal(metadata.find((meta) => meta.property === "og:locale")?.content, language);
+  assert.equal(metadata.filter((meta) => meta.property === "og:locale:alternate").length, SITE_LOCALES.length - 1);
   const titles = pageTitles.get(language) || new Set<string>();
   assert.ok(!titles.has(title), `${route}: duplicated page title`);
   titles.add(title); pageTitles.set(language, titles);
@@ -57,15 +86,28 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   assert.ok(!JSON.stringify(graph).includes("arsamsarkhosh.vercel.app"), `${route}: old domain in structured data`);
   assert.equal(graph.find((entry: { "@type": string }) => entry["@type"] === "WebSite")?.url, `${SITE_URL}/`);
   assert.equal(graph.find((entry: { "@type": string }) => entry["@type"] === "Person")?.url, `${SITE_URL}/`);
+  const person = graph.find((entry: { "@type": string }) => entry["@type"] === "Person");
+  assert.equal(person.jobTitle, translate(identity.role), `${route}: consistent professional identity`);
+  assert.deepEqual(person.sameAs, [identity.contact.github, identity.contact.linkedin]);
+  if (path === "/about" || path === "/resume") assert.ok(graph.some((entry: { "@type": string; mainEntity?: { "@id": string } }) =>
+    entry["@type"] === "ProfilePage" && entry.mainEntity?.["@id"] === `${SITE_URL}/#person`));
+  const semanticHtml = html.replace(/<script\b[^>]*>.*?<\/script>/gs, "");
+  assert.ok(!/Full[- ]Stack Engineer|Senior Developer|AI Engineer/i.test(semanticHtml), `${route}: stale positioning`);
+  if (path === "/") {
+    assert.ok(semanticHtml.includes(`aria-label="${translate(identity.name)}"`), `${route}: semantic full name`);
+    assert.ok(semanticHtml.includes(translate(identity.role.toUpperCase())), `${route}: visible professional identity`);
+  }
   assert.ok(graph.some((entry: { "@type": string; name: string }) => entry["@type"] === "Person" && entry.name === "Arsam Sarkhosh"));
   assert.ok(graph.some((entry: { "@id": string }) => entry["@id"] === `${expectedUrl}#webpage`));
   if (project) {
     const record = graph.find((entry: { "@id": string }) => entry["@id"] === `${expectedUrl}#project`);
     assert.ok(record, `${route}: project entity`);
-    assert.equal(record.creator["@id"], `${SITE_URL}/#person`);
+    assert.equal(record[project.contributionOnly ? "contributor" : "creator"]["@id"], `${SITE_URL}/#person`);
+    if (project.contributionOnly) assert.equal(record.creator, undefined, `${route}: contribution is not authorship`);
     assert.ok(graph.some((entry: { "@type": string }) => entry["@type"] === "BreadcrumbList"));
     const content = html.replace(/<script\b[^>]*>.*?<\/script>/gs, "");
     assert.ok(content.includes(project.name), `${route}: rendered project name`);
+    assert.ok(decodeHtml(content).includes(translate(project.description)), `${route}: project description exists before JavaScript`);
     assert.ok(content.includes('q-expansion-item--expanded'), `${route}: visible technical details`);
   }
   if (path === "/projects") {
@@ -115,6 +157,11 @@ for (const file of ["/favicon.ico", "/favicon.svg", "/favicon-96x96.png", "/appl
 const unknown = await fetch(`${origin}/this-page-does-not-exist`);
 assert.equal(unknown.status, 404);
 for (const locale of SITE_LOCALES) {
+  for (const path of ["/about", "/projects/docintel"]) {
+    const response = await fetch(`${origin}${localizedPath(path, locale)}/?ref=test`, { redirect: "manual" });
+    assert.equal(response.status, 308, `${locale}: trailing slash redirect`);
+    assert.equal(response.headers.get("location"), `${localizedPath(path, locale)}?ref=test`);
+  }
   const selected = await fetch(`${origin}${localizedPath("/projects", locale)}?project=docintel&utm_source=test`, { redirect: "manual" });
   assert.equal(selected.status, 200, `${locale}: query selection without redirect`);
   const selectedHtml = await selected.text();

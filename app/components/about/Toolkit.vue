@@ -17,7 +17,7 @@ const current = computed(
         <strong>{{ c("INTERFACE → SYSTEM → DELIVERY") }}</strong>
         <span class="dossier-toolkit__hub-line" />
       </div>
-      <div class="dossier-toolkit__nodes" role="group" :aria-label="c(&quot;Explore my tools&quot;)">
+      <div class="dossier-toolkit__nodes" role="group" :aria-label="c('Explore my tools')">
         <q-btn
           v-for="tool in aboutPageCopy.tools"
           :key="tool.id"

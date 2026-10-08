@@ -1,10 +1,10 @@
 # Arsam Sarkhosh — portfolio
 
-Personal website of [Arsam Sarkhosh](https://www.arsamsarkhosh.ir/),
-a full-stack developer working with Vue, Nuxt, Node.js and Python.
-Browse the [projects](https://www.arsamsarkhosh.ir/projects), including
-[DocIntel](https://www.arsamsarkhosh.ir/projects/docintel) and its
-[FastAPI backend](https://www.arsamsarkhosh.ir/projects/docintel-backend).
+Personal website of [Arsam Sarkhosh](https://arsamsarkhosh.ir/),
+a software developer building web applications, backend systems and AI-assisted tools.
+Browse the [projects](https://arsamsarkhosh.ir/projects), including
+[DocIntel](https://arsamsarkhosh.ir/projects/docintel) and its
+[FastAPI backend](https://arsamsarkhosh.ir/projects/docintel-backend).
 
 A Nuxt 4 / Vue 3 portfolio with Quasar, snap-scrolling homepage sections,
 typed text, WebGL backgrounds, a Three.js portrait, and shared audio.
@@ -12,8 +12,9 @@ typed text, WebGL backgrounds, a Three.js portrait, and shared audio.
 ## Development
 
 SEO and search-engine setup: see [docs/seo.md](docs/seo.md).
-The canonical domain is `https://www.arsamsarkhosh.ir`. Vercel redirects the old
-production hostname and the apex domain to the same paths on this domain.
+The canonical domain is `https://arsamsarkhosh.ir`. Deploy the redirect-rule
+cleanup, make the apex serve production directly in Vercel, then redirect www
+to it. Follow the ordered release checklist in `docs/seo.md` to avoid a loop.
 
 ```sh
 npm ci
@@ -22,6 +23,7 @@ npm run dev
 
 ```sh
 npm run build
+npm run typecheck
 npm run preview
 ```
 
@@ -43,6 +45,9 @@ npm run preview
 
 ## Where to make changes
 
+- Name, professional identity and contacts: `app/assets/data/identity.ts`.
+- Page metadata: `app/assets/data/pageSeo.ts` and the corresponding locale keys.
+- Canonical policy and sitemap: `shared/seo.ts`; supported languages: `shared/locales.ts`.
 - Headings and accent segments: `app/assets/data/homeCopy.ts`.
 - Translations, RTL and localized routes: see [i18n/README.md](i18n/README.md).
 - Project cards: `app/assets/data/projects.ts`.

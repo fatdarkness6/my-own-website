@@ -26,8 +26,8 @@ function onToggle() {
   toggle(props.src);
 }
 
-function onVolumeChange(v: number) {
-  setVolume(v / 100);
+function onVolumeChange(v: number | null) {
+  if (v !== null) setVolume(v / 100);
 }
 
 onMounted(() => {
@@ -40,7 +40,7 @@ onMounted(() => {
     class="music-ctrl row items-center no-wrap"
     :class="{ 'music-ctrl--playing': state.playing }"
     role="group"
-    :aria-label="c(&quot;Background audio controls&quot;)"
+    :aria-label="c('Background audio controls')"
   >
     <span class="music-ctrl__signal" aria-hidden="true" />
 
@@ -53,7 +53,7 @@ onMounted(() => {
       :dense="buttonDense"
       no-ripple
       :icon="icon"
-      :aria-label="c(&quot;Toggle background music&quot;)"
+      :aria-label="c('Toggle background music')"
       @click="onToggle"
     >
       <q-tooltip>{{ c("Background music:") }} {{ c(label) }}</q-tooltip>
@@ -67,7 +67,7 @@ onMounted(() => {
       :dense="buttonDense"
       no-ripple
       icon="tune"
-      :aria-label="c(&quot;Music settings&quot;)"
+      :aria-label="c('Music settings')"
     >
       <q-menu
         anchor="bottom end"
@@ -115,7 +115,7 @@ onMounted(() => {
               :max="100"
               :step="1"
               label
-              :aria-label="c(&quot;Background music volume&quot;)"
+              :aria-label="c('Background music volume')"
               @update:model-value="onVolumeChange"
               class="music-menu__slider"
             />

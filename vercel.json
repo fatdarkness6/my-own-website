@@ -4,13 +4,7 @@
     {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "arsamsarkhosh\\.vercel\\.app" }],
-      "destination": "https://www.arsamsarkhosh.ir/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "arsamsarkhosh\\.ir" }],
-      "destination": "https://www.arsamsarkhosh.ir/:path*",
+      "destination": "https://arsamsarkhosh.ir/:path*",
       "permanent": true
     }
   ]

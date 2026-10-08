@@ -24,6 +24,8 @@ export interface Project {
   headline: string;
   description: string;
   ownership: string;
+  /** Existing products where the record describes a contribution, not authorship. */
+  contributionOnly?: boolean;
   layers: { label: string; title: string; tools: string }[];
   contributions: string[];
   note: string;
@@ -45,11 +47,11 @@ export const projects: Project[] = [
     file: "arilvo/",
     name: "ARILVO",
     year: "2026",
-    role: "FULL-STACK / WEB PLATFORM",
+    role: "FRONTEND / WEB PLATFORM",
     status: "live",
     summary:
-      "Multilingual MEP/BIM platform I built with Nuxt SSR and SEO.",
-    stack: ["NUXT", "QUASAR", "TYPESCRIPT", "GSAP", "I18N"],
+      "Frontend development for a multilingual MEP/BIM company website, with Nuxt SSR, localization and SEO.",
+    stack: ["NUXT", "VUE", "QUASAR", "TYPESCRIPT", "GSAP"],
     screenshot: {
       src: "/images/projects/arilvo.jpg",
       mimeType: "image/jpeg",
@@ -58,15 +60,15 @@ export const projects: Project[] = [
     },
     category: "web",
     headline: "Engineering a multilingual presence.",
-    description: "A business platform for MEP and BIM services in European markets. Built from the ground up, connecting a custom visual identity with server-rendered content and three languages.",
-    ownership: "End-to-end development",
+    description: "A website for an MEP/BIM engineering company. I built its frontend from scratch with Nuxt, Vue, TypeScript, Quasar and GSAP, including responsive interfaces and Italian, English and German content.",
+    ownership: "Frontend development",
     layers: [
       { label: "EXPERIENCE", title: "Custom interface", tools: "Vue / Quasar / GSAP" },
       { label: "APPLICATION", title: "Server rendering", tools: "Nuxt / TypeScript" },
       { label: "CONTENT", title: "Three languages", tools: "Italian / English / German" },
     ],
     contributions: [
-      "Defined the application architecture and implemented the UI/UX with reusable components.",
+      "Designed the frontend structure and implemented the interface with reusable components.",
       "Built responsive layouts and custom animations across the platform.",
       "Handled localization, SEO and deployment.",
     ],
@@ -92,7 +94,7 @@ export const projects: Project[] = [
     },
     category: "ai",
     headline: "From documents to contextual answers.",
-    description: "The frontend of an AI document intelligence platform, bringing document summaries, grounded question answering and spreadsheet insights into one workspace. The interface is deployed on Vercel; authentication and document processing depend on the separately published backend, which is not deployed yet.",
+    description: "The frontend of an AI-assisted document intelligence platform, bringing document summaries, grounded question answering and spreadsheet insights into one workspace. The interface is deployed on Vercel; authentication and document processing depend on the separately published backend, which is not deployed yet.",
     ownership: "Frontend architecture & interface development",
     layers: [
       { label: "WORKSPACE", title: "Document interface", tools: "Nuxt / Vue / Quasar" },
@@ -128,6 +130,7 @@ export const projects: Project[] = [
     headline: "Reworking the system behind the service.",
     description: "An HVAC and services website for Northern Italy. Work on an existing codebase focused on making its interface, content infrastructure and multilingual experience more maintainable.",
     ownership: "Contribution to an existing platform",
+    contributionOnly: true,
     layers: [
       { label: "INTERFACE", title: "Responsive website", tools: "Next.js / React" },
       { label: "CONTENT", title: "CMS integration", tools: "Strapi" },
@@ -135,8 +138,8 @@ export const projects: Project[] = [
     ],
     contributions: [
       "Integrated and configured Strapi alongside the content database.",
-      "Refactored existing components and removed unused code to simplify the architecture.",
-      "Improved responsive layouts, localization, navigation and image handling; debugged stability issues.",
+      "Refactored and reorganized 250+ files, simplifying the structure and removing unused code.",
+      "Implemented a custom hero and responsive sections; fixed localization, routing, Swiper transitions and image handling.",
     ],
     note: "Existing project, focused contribution — not presented as a ground-up build.",
   },
@@ -146,10 +149,10 @@ export const projects: Project[] = [
     status: "live",
     file: "raymand_group/",
     name: "RAYMAND GROUP",
-    role: "FULL-STACK",
+    role: "FRONTEND / CORPORATE WEBSITE",
     summary:
-      "Business website built with Nuxt, Node.js and MongoDB.",
-    stack: ["NUXT", "NODE.JS", "MONGODB"],
+      "A corporate website for Raymand Group, with Persian, English and German content and responsive Nuxt interfaces.",
+    stack: ["NUXT", "VUE", "TYPESCRIPT", "QUASAR"],
     screenshot: {
       src: "/images/projects/raymand-group.jpg",
       mimeType: "image/jpeg",
@@ -158,19 +161,19 @@ export const projects: Project[] = [
     },
     category: "web",
     headline: "Connecting the interface to the business.",
-    description: "A business website built across the frontend and backend, bringing a Nuxt interface together with a Node.js application layer and MongoDB storage.",
-    ownership: "Frontend & backend implementation",
+    description: "A multilingual corporate website for a group working in healthcare, laboratory services, strategic technology, group purchasing and health technology management. I designed and developed the site with Nuxt, Vue, TypeScript and Quasar.",
+    ownership: "Website design & development",
     layers: [
-      { label: "INTERFACE", title: "Business website", tools: "Nuxt / Vue" },
-      { label: "APPLICATION", title: "Backend services", tools: "Node.js" },
-      { label: "STORAGE", title: "Application data", tools: "MongoDB" },
+      { label: "INTERFACE", title: "Responsive website", tools: "Nuxt / Vue / Quasar" },
+      { label: "CONTENT", title: "Three languages", tools: "Persian / English / German" },
+      { label: "DELIVERY", title: "Structure & deployment", tools: "TypeScript / Nuxt" },
     ],
     contributions: [
-      "Implemented the website frontend with Nuxt and Vue.",
-      "Connected the interface to backend services and application data.",
-      "Worked across implementation, integration and delivery of the business website.",
+      "Designed the site and developed responsive interfaces with Nuxt, Vue, TypeScript and Quasar.",
+      "Organized the company content and implemented Persian, English and German presentation.",
+      "Handled the website structure, responsive behavior and deployment.",
     ],
-    note: "A connected full-stack implementation, from the visible interface to its data layer.",
+    note: "Company services presented across three languages and responsive layouts.",
   },
   {
     id: "docintel-backend",

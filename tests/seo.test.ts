@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFile } from "node:fs/promises";
-import { SITE_URL, SITE_LOCALES, SITE_ROUTES, buildRobots, buildSitemap, indexingAllowed, localizedPath, serializeJsonLd, siteOrigin } from "../shared/seo.ts";
+import { readFile, readdir } from "node:fs/promises";
+import { SITE_URL, SITE_LOCALES, SITE_ROUTES, buildRobots, buildSitemap, canonicalUrl, indexingAllowed, localizedPath, serializeJsonLd, siteOrigin } from "../shared/seo.ts";
 import { projects } from "../app/assets/data/projects.ts";
 import { projectPath } from "../shared/projectRoutes.ts";
 
@@ -12,13 +12,15 @@ test("canonical origins ignore paths, queries and fragments; reject unsafe schem
 });
 
 test("production domain aliases and stale deployment settings resolve to the new HTTPS origin", () => {
-  assert.equal(SITE_URL, "https://www.arsamsarkhosh.ir");
+  assert.equal(SITE_URL, "https://arsamsarkhosh.ir");
   for (const origin of [
     "https://arsamsarkhosh.vercel.app", "https://arsamsarkhosh.ir",
     "http://www.arsamsarkhosh.ir", "https://ARSAMSARKHOSH.IR/about?ref=old#profile",
   ]) assert.equal(siteOrigin(origin), SITE_URL);
-  assert.equal(siteOrigin("http://localhost:3000"), "http://localhost:3000");
-  assert.equal(siteOrigin("https://another-portfolio.example"), "https://another-portfolio.example");
+  assert.equal(siteOrigin("http://localhost:3000"), SITE_URL);
+  assert.equal(siteOrigin("https://another-portfolio.example"), SITE_URL);
+  assert.equal(canonicalUrl("http://localhost:3000/fa/about/?ref=test#profile"), `${SITE_URL}/fa/about`);
+  assert.equal(canonicalUrl("/"), `${SITE_URL}/`);
   const sitemap = buildSitemap("https://arsamsarkhosh.vercel.app");
   assert.ok(!sitemap.includes("vercel.app"));
   assert.ok(sitemap.includes(`<loc>${SITE_URL}/fa</loc>`));
@@ -28,14 +30,15 @@ test("domain redirect configuration targets only the old production hosts and ke
   const config = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
   const matching = (hostname: string) => config.redirects.filter((rule: { has: { type: string; value: string }[] }) =>
     rule.has.some((condition) => condition.type === "host" && new RegExp(`^(?:${condition.value})$`).test(hostname)));
-  for (const hostname of ["arsamsarkhosh.vercel.app", "arsamsarkhosh.ir"]) {
+  for (const hostname of ["arsamsarkhosh.vercel.app"]) {
     const rules = matching(hostname);
     assert.equal(rules.length, 1);
     assert.equal(rules[0].source, "/:path*");
     assert.equal(rules[0].destination, `${SITE_URL}/:path*`);
     assert.equal(rules[0].permanent, true);
   }
-  for (const hostname of ["www.arsamsarkhosh.ir", "localhost", "my-own-website-git-test.vercel.app", "arsamsarkhoshXvercelXapp"])
+  // Vercel's dashboard must switch the primary domain before adding a www redirect.
+  for (const hostname of ["arsamsarkhosh.ir", "www.arsamsarkhosh.ir", "localhost", "my-own-website-git-test.vercel.app", "arsamsarkhoshXvercelXapp"])
     assert.equal(matching(hostname).length, 0, hostname);
 });
 
@@ -56,6 +59,13 @@ test("all 70 localized pages have unique URLs and reciprocal sitemap alternates"
   }
   assert.ok(!xml.includes("lastmod"));
   assert.ok(locations.every((location) => !location?.includes("?")));
+});
+
+test("the sitemap route inventory stays synchronized with actual page files", async () => {
+  const files = await readdir(new URL("../app/pages/", import.meta.url), { recursive: true });
+  const routes = files.filter((file) => file.endsWith(".vue") && !file.includes("["))
+    .map((file) => `/${file.replace(/\\/g, "/").replace(/\.vue$/, "")}`.replace(/\/index$/, "") || "/");
+  assert.deepEqual([...SITE_ROUTES].sort(), [...routes, ...projects.map(({ id }) => projectPath(id))].sort());
 });
 
 test("production robots advertises the sitemap; previews are excluded", () => {

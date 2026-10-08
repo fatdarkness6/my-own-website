@@ -29,11 +29,11 @@ export const homeCopy = Object.freeze({
   about: {
     title: [
       {
-        text: "ARCHITECTING HIGH-SPEED WEB SOLUTIONS WITH CLEAN CODE",
+        text: "WEB APPLICATIONS",
         interval: 5000,
       },
       { text: " ", glitch: false },
-      { text: "& MODERN TECH.", accent: true, interval: 6200 },
+      { text: "& BACKEND SYSTEMS.", accent: true, interval: 6200 },
     ],
   },
   projects: {

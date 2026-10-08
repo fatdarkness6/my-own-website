@@ -1,8 +1,9 @@
+import { identity } from "./identity.ts";
 // Shared identity and résumé toolkit copy. About-only content lives in aboutPage.ts.
 export const aboutCopy = {
-  name: "Arsam Sarkhosh",
-  role: "Full-Stack Engineer",
-  summary: "I build production web applications with Vue, Nuxt, Node.js and Python—from responsive interfaces to APIs and AI-powered workflows—with a visual identity of their own.",
+  name: identity.name,
+  role: identity.role,
+  summary: "I develop web applications with Vue, Nuxt, Node.js and Python, combining responsive interfaces, backend APIs and AI-assisted features.",
   tools: [{
     id: "vue-nuxt",
     name: "Vue / Nuxt",
@@ -28,7 +29,7 @@ export const aboutCopy = {
     icon: "dns",
     title: "Beyond the browser.",
     text: "I build application logic and REST APIs with Node.js and Python/FastAPI, connecting the interface to the services behind it.",
-    evidence: "Authentication, document processing and backend integrations in full-stack projects; Strapi CMS integration on Arvand Termo Tec.",
+    evidence: "Authentication and document processing in DocIntel; Strapi CMS integration in the existing Arvand Termo Tec application.",
     tags: ["REST APIs", "Node.js", "Python"]
   }, {
     id: "data",
@@ -36,9 +37,9 @@ export const aboutCopy = {
     layer: "DATABASE",
     icon: "storage",
     title: "Data with a clear purpose.",
-    text: "PostgreSQL and MongoDB support the applications I build. For document workflows, pgvector adds vector storage and semantic search.",
-    evidence: "PostgreSQL and pgvector in Docintel; MongoDB in Raymand Group. I use Git to keep changes traceable as systems evolve.",
-    tags: ["PostgreSQL", "MongoDB", "pgvector"]
+    text: "I use PostgreSQL and SQLAlchemy for application data, with pgvector for document embeddings and semantic retrieval.",
+    evidence: "DocIntel stores documents and embeddings in PostgreSQL and uses pgvector to retrieve relevant source passages.",
+    tags: ["PostgreSQL", "SQLAlchemy", "pgvector"]
   }, {
     id: "ai",
     name: "AI apps",
@@ -46,7 +47,7 @@ export const aboutCopy = {
     icon: "psychology",
     title: "AI inside useful software.",
     text: "I integrate LLM features into applications, from document understanding to embeddings, semantic retrieval and contextual Q&A.",
-    evidence: "Docintel applies RAG-style retrieval and vector search to document workflows. My focus is building the product around the models.",
+    evidence: "DocIntel applies RAG-style retrieval and vector search to document workflows. My focus is building the product around the models.",
     tags: ["LLM integration", "Embeddings", "RAG"]
   }, {
     id: "creative",

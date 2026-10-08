@@ -1,9 +1,5 @@
-// Public contact destinations. Keep address changes in this one place.
-export const contactDetails = {
-  email: "arsamsarkhosh4@gmail.com",
-  linkedin: "https://ir.linkedin.com/in/arsam-sarkhosh-3abb40420",
-  github: "https://github.com/fatdarkness6",
-};
+import { identity } from "./identity.ts";
+export const contactDetails = identity.contact;
 
 export const contactIntents = [
   {
@@ -23,7 +19,7 @@ export const contactIntents = [
     label: "Discuss a role",
     icon: "badge",
     summary: "Your team. The work ahead. My part in it.",
-    subject: "Engineering role",
+    subject: "Software development role",
     prompt: "Tell me about the role.",
     placeholder: "What is your team building? Share the role, stack, working setup and what you’d like me to own…",
     pointers: ["Your team and what it is building", "The role, stack and responsibilities", "Working setup and next steps"],

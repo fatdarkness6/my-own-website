@@ -9,9 +9,9 @@ const expanded = ref<string | null>("frontend");
   <div class="dossier-profile">
     <div class="dossier-profile__intro">
       <p class="dossier-lead">
-        <CommonPageGlitch :text="c(&quot;From interface&quot;)" />
+        <CommonPageGlitch :text="c('From interface')" />
         <br />
-        <span class="dossier-accent"><CommonPageGlitch :text="c(&quot;to production.&quot;)" :interval="10000" /></span>
+        <span class="dossier-accent"><CommonPageGlitch :text="c('to production.')" :interval="10000" /></span>
       </p>
       <p class="dossier-body">{{ c("Strong Vue/Nuxt experience, backed by work across services, data, integrations and production delivery.") }}</p>
       <div class="dossier-tags">
@@ -20,7 +20,7 @@ const expanded = ref<string | null>("frontend");
       </div>
       <span class="dossier-label dossier-muted">{{ c("EXPAND A RECORD FOR TECHNICAL CONTEXT ↓") }}</span>
     </div>
-    <q-list class="dossier-records" :aria-label="c(&quot;Engineering responsibilities&quot;)">
+    <q-list class="dossier-records" :aria-label="c('Engineering responsibilities')">
       <q-expansion-item
         v-for="(entry, index) in aboutPageCopy.profile"
         :key="entry.id"

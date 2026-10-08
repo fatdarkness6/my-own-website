@@ -8,10 +8,10 @@
   <path d="M66 32H1168V564L1134 598H32V66Z" fill="none" stroke="#3b82f6" stroke-width="2"/>
   <path d="M84 66H162M66 84V146M1116 564H1038M1134 546V484" fill="none" stroke="#93c5fd" stroke-width="3"/>
   <g font-family="Arial, sans-serif">
-    <text x="90" y="135" font-size="20" font-weight="700" letter-spacing="5" fill="#93c5fd">PORTFOLIO / FULL-STACK DEVELOPMENT</text>
+    <text x="90" y="135" font-size="20" font-weight="700" letter-spacing="5" fill="#93c5fd">PORTFOLIO / SOFTWARE DEVELOPER</text>
     <text x="86" y="283" font-size="100" font-weight="800" fill="#f8fafc">ARSAM</text>
     <text x="86" y="388" font-size="100" font-weight="800" fill="#3b82f6">SARKHOSH</text>
-    <text x="90" y="455" font-size="26" fill="#cbd5e1">Frontend interfaces. Backend APIs. AI applications.</text>
+    <text x="90" y="455" font-size="26" fill="#cbd5e1">Web applications. Backend systems. AI-assisted tools.</text>
     <text x="90" y="538" font-size="21" fill="#93c5fd">Vue / Nuxt / Node.js / Python</text>
   </g>
   <path d="M835 184H1057V318H945V440H1067" fill="none" stroke="#3b82f6" stroke-width="2" opacity=".5"/>

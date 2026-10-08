@@ -98,7 +98,7 @@ onBeforeUnmount(() => ro?.disconnect());
       <header class="projects__head">
         <p class="projects__eyebrow eyebrow">
           <AnimationTypedLine
-            :text="c(&quot;// 03. PROJECTS&quot;)"
+            :text="c('// 03. PROJECTS')"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"
@@ -193,7 +193,7 @@ onBeforeUnmount(() => ro?.disconnect());
                     target="_blank"
                     class="pcard__link"
                   >
-                    <AnimationGlitchText :text="c(&quot;> live&quot;)" />
+                    <AnimationGlitchText :text="c('> live')" />
                   </q-btn>
                   <q-btn
                     v-if="p.repo"
@@ -205,7 +205,7 @@ onBeforeUnmount(() => ro?.disconnect());
                     target="_blank"
                     class="pcard__link"
                   >
-                    <AnimationGlitchText :text="c(&quot;> source&quot;)" />
+                    <AnimationGlitchText :text="c('> source')" />
                   </q-btn>
                 </div>
               </AnimationGlitchCard>
@@ -224,7 +224,7 @@ onBeforeUnmount(() => ro?.disconnect());
             :icon="rtl ? 'chevron_right' : 'chevron_left'"
             class="projects__arrow gt-xs"
             :disable="!canPrev"
-            :aria-label="c(&quot;Previous project&quot;)"
+            :aria-label="c('Previous project')"
             @click="go(-1)"
           />
 
@@ -248,13 +248,13 @@ onBeforeUnmount(() => ro?.disconnect());
             :icon="rtl ? 'chevron_left' : 'chevron_right'"
             class="projects__arrow gt-xs"
             :disable="!canNext"
-            :aria-label="c(&quot;Next project&quot;)"
+            :aria-label="c('Next project')"
             @click="go(1)"
           />
         </div>
 
-        <q-btn unelevated square no-caps :to="localePath(&quot;/projects&quot;)" class="projects__cta">
-          <AnimationGlitchText :text="c(&quot;> cd ./projects --all&quot;)" />
+        <q-btn unelevated square no-caps :to="localePath('/projects')" class="projects__cta">
+          <AnimationGlitchText :text="c('> cd ./projects --all')" />
           <q-icon name="arrow_forward" size="18px" class="q-ml-sm" />
         </q-btn>
       </footer>

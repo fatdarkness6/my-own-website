@@ -1,6 +1,7 @@
 <script setup>
 const { c, content, rtl } = usePortfolioI18n();
 import { homeCopy as sourceCopy } from "~/assets/data/homeCopy";
+import { identity } from "~/assets/data/identity";
 
 const props = defineProps({
   avatarSrc: { type: String, default: "/images/background.png" },
@@ -16,7 +17,7 @@ const activePortraitSrc = computed(() =>
 const introReady = useState("introReady", () => false);
 const introPlayed = useState("introPlayed", () => false);
 
-const eyebrow = "FULL-STACK ENGINEER";
+const eyebrow = identity.role.toUpperCase();
 // Keep Latin technology names separate from localized prose for stable bidi layout.
 const technologySegments = sourceCopy.hero.technologies;
 const taglineSegments = content(sourceCopy.hero.tagline);
@@ -49,7 +50,7 @@ watch(
 
 <template>
   <section class="hero">
-    <div class="hero__visual" :class="{ 'is-revealed': finished }">
+    <div class="hero__visual" :class="{ 'is-revealed': finished }" role="img" :aria-label="c('Stylized portrait of Arsam Sarkhosh with blue light effects')">
       <AnimationGlitchPortrait
         :key="activePortraitSrc"
         :src="activePortraitSrc"
@@ -104,16 +105,16 @@ watch(
         />
       </p>
 
-      <h1 class="hero__name title">
+      <h1 class="hero__name title" :aria-label="c(identity.name)">
         <AnimationTypedLine
-          :text="c(&quot;ARSAM&quot;)"
+          :text="c('ARSAM')"
           :speed="45"
           :glitch="4500"
           class="hero__name-row"
           v-bind="line('first-name')"
         />
         <AnimationTypedLine
-          :text="c(&quot;SARKHOSH&quot;)"
+          :text="c('SARKHOSH')"
           :speed="45"
           :glitch="5200"
           :accent-terms="['SARKHOSH']"

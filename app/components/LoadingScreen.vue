@@ -37,7 +37,7 @@ const bootLines = [
   { label: "Establishing secure uplink", tag: "OK" },
   { label: "Decrypting portfolio assets", tag: "OK" },
   { label: "Compiling UI components", tag: "OK" },
-  { label: "Starting arsam-sarkhosh.dev", tag: "OK" },
+  { label: "Starting arsamsarkhosh.ir", tag: "OK" },
 ];
 
 const lines = reactive(
@@ -444,7 +444,7 @@ onBeforeUnmount(() => {
       class="loader"
       :class="`is-${phase}`"
       role="status"
-      :aria-label="c(&quot;Loading&quot;)"
+      :aria-label="c('Loading')"
       @click="handleActivate"
     >
       <canvas ref="rainCanvas" class="loader__rain" aria-hidden="true" />
@@ -472,7 +472,7 @@ onBeforeUnmount(() => {
           <section class="boot">
             <p class="boot__head">{{ c("ARSAM_SARKHOSH_OS [v3.11.24]") }}</p>
 
-            <p class="boot__head boot__head--dim">{{ c("(c) Full-Stack Systems. All rights reserved.") }}</p>
+            <p class="boot__head boot__head--dim">{{ c("© Arsam Sarkhosh. All rights reserved.") }}</p>
 
             <div class="boot__log">
               <div

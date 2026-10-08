@@ -1,7 +1,7 @@
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin<{ lenis: Lenis | null }>((nuxtApp) => {
   const router = useRouter();
   let pagePath = router.currentRoute.value.path;
   function changedPage() {

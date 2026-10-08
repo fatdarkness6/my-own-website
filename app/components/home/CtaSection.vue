@@ -52,7 +52,7 @@ const year = new Date().getFullYear();
       <header class="cta__copy">
         <p class="cta__eyebrow eyebrow">
           <AnimationTypedLine
-            :text="c(&quot;// 05. CONTACT&quot;)"
+            :text="c('// 05. CONTACT')"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"
@@ -96,13 +96,13 @@ const year = new Date().getFullYear();
           <p class="cta-term__prompt">
             <span class="cta-term__sign" aria-hidden="true">$</span>
             <AnimationTypedLine
-              :text="c(&quot;./connect --to arsam&quot;)"
+              :text="c('./connect --to arsam')"
               :speed="22"
               v-bind="line('prompt')"
             />
           </p>
 
-          <ul class="cta-term__log" :aria-label="c(&quot;Connection status&quot;)">
+          <ul class="cta-term__log" :aria-label="c('Connection status')">
             <li
               v-for="l in logs"
               :key="l.id"
@@ -126,12 +126,12 @@ const year = new Date().getFullYear();
             square
             no-caps
             no-ripple
-            :to="localePath(&quot;/contact&quot;)"
+            :to="localePath('/contact')"
             :disable="!finished"
             class="cta-term__btn"
           >
             <AnimationTypedLine
-              :text="c(&quot;> open ./contact&quot;)"
+              :text="c('> open ./contact')"
               :speed="20"
               v-bind="line('button')"
             />

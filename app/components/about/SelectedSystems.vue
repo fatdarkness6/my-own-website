@@ -28,7 +28,7 @@ const systems = usePortfolioI18n().content(sourceCopy.systems.map((system) => ({
         <p class="dossier-system__note">{{ system.note }}</p>
       </q-card-section>
       <q-card-section class="dossier-system__footer">
-        <div class="dossier-tags" :aria-label="c(&quot;Project technologies&quot;)">
+        <div class="dossier-tags" :aria-label="c('Project technologies')">
           <q-badge v-for="tool in system.stack" :key="tool" outline>{{ tool }}</q-badge>
         </div>
         <q-btn
@@ -39,7 +39,7 @@ const systems = usePortfolioI18n().content(sourceCopy.systems.map((system) => ({
           no-ripple
           class="dossier-button"
         >
-          <AnimationGlitchText :text="c(&quot;View project&quot;)" />
+          <AnimationGlitchText :text="c('View project')" />
           <q-icon name="north_east" size="18px" aria-hidden="true" />
         </q-btn>
       </q-card-section>

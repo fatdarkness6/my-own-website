@@ -1,5 +1,6 @@
 <script setup>
 const { c, localePath } = usePortfolioI18n();
+import { identity } from "~/assets/data/identity";
 import { homeCopy } from "~/assets/data/homeCopy";
 
 const $q = useQuasar();
@@ -10,8 +11,7 @@ let copyStarted = false;
 const playedCards = new WeakSet();
 
 const titleSegments = usePortfolioI18n().content(homeCopy.about.title);
-const description =
-  "Full-stack engineer building production apps, APIs and interactive experiences with Vue, Nuxt, Node.js and Python.";
+const description = identity.summary;
 
 const { play, line } = useTypingSequence(["eyebrow", "title", "desc"], {
   onceKey: "home-about-copy",
@@ -51,7 +51,7 @@ watch(
       <div class="about__copy">
         <p class="about__eyebrow">
           <AnimationTypedLine
-            :text="c(&quot;// 02. ABOUT&quot;)"
+            :text="c('// 02. ABOUT')"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"

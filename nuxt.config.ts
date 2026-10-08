@@ -1,13 +1,23 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { SITE_NAME, SITE_URL, siteOrigin } from "./shared/seo";
+import { locales } from "./shared/locales";
 
 const canonicalOrigin = siteOrigin(process.env.NUXT_PUBLIC_SITE_URL || SITE_URL);
-const indexable = process.env.VERCEL_ENV !== "preview" && process.env.NUXT_PUBLIC_SEO_INDEXABLE !== "false";
+const indexable = process.env.NODE_ENV === "production" && process.env.VERCEL_ENV !== "preview" && process.env.NUXT_PUBLIC_SEO_INDEXABLE !== "false";
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  nitro: { compressPublicAssets: true },
+  nitro: {
+    compressPublicAssets: true,
+    typescript: { tsConfig: { compilerOptions: { allowImportingTsExtensions: true } } },
+  },
+  typescript: {
+    // Shared data also runs directly in Node's TypeScript maintenance scripts.
+    tsConfig: { compilerOptions: { allowImportingTsExtensions: true } },
+    sharedTsConfig: { compilerOptions: { allowImportingTsExtensions: true } },
+    nodeTsConfig: { compilerOptions: { allowImportingTsExtensions: true, types: ["node"] } },
+  },
   routeRules: {
     // These files were JPEGs served under PNG names. Preserve existing image links.
     "/images/projects/arilvo.png": { redirect: { to: "/images/projects/arilvo.jpg", statusCode: 301 } },
@@ -44,15 +54,7 @@ export default defineNuxtConfig({
     defaultLocale: "en",
     strategy: "prefix_except_default",
     detectBrowserLanguage: false,
-    locales: [
-      { code: "en", language: "en", name: "English", dir: "ltr", file: "en.ts" },
-      { code: "es", language: "es", name: "Español", dir: "ltr", file: "es.ts" },
-      { code: "de", language: "de", name: "Deutsch", dir: "ltr", file: "de.ts" },
-      { code: "fr", language: "fr", name: "Français", dir: "ltr", file: "fr.ts" },
-      { code: "it", language: "it", name: "Italiano", dir: "ltr", file: "it.ts" },
-      { code: "ar", language: "ar", name: "العربية", dir: "rtl", file: "ar.ts" },
-      { code: "fa", language: "fa", name: "فارسی", dir: "rtl", file: "fa.ts" },
-    ],
+    locales: locales.map((locale) => ({ ...locale })),
     vueI18n: "./config.ts",
   },
   postcss: {

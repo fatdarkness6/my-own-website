@@ -16,10 +16,8 @@ const { activeSection, navigateToSection: scrollToAboutSection } = useSectionHas
 );
 
 usePortfolioSeo({
+  page: "about",
   type: "ProfilePage",
-  title: () => c("About Arsam Sarkhosh — Full-Stack Engineer"),
-  description:
-    () => c("Full-stack engineer specializing in Vue, Nuxt, Node.js and Python. Explore frontend systems, backend APIs, databases, AI integrations and production delivery."),
 });
 
 const { element, line, started } = useViewportTyping(
@@ -74,7 +72,7 @@ const { element, line, started } = useViewportTyping(
             class="dossier-button dossier-button--primary"
             @click="scrollToAboutSection($event, 'profile')"
           >
-            <AnimationGlitchText :text="c(&quot;Explore engineering profile&quot;)" />
+            <AnimationGlitchText :text="c('Explore engineering profile')" />
             <q-icon name="south" size="18px" aria-hidden="true" />
           </q-btn>
           <span class="dossier-label dossier-muted">{{ c("SCROLL TO DECODE") }}</span>
@@ -87,7 +85,7 @@ const { element, line, started } = useViewportTyping(
       >
         <AnimationGlitchCard
           image="/images/background.png"
-          :alt="c(&quot;Stylized portrait of Arsam Sarkhosh with blue light effects&quot;)"
+          :alt="c('Stylized portrait of Arsam Sarkhosh with blue light effects')"
           :interval="10000"
           class="dossier-portrait"
         >
@@ -104,12 +102,12 @@ const { element, line, started } = useViewportTyping(
           </div>
         </AnimationGlitchCard>
         <div class="dossier-portrait__footnote">
-          <span>{{ c("VUE / NUXT → FULL-STACK DELIVERY") }}</span>
+          <span>{{ c("INTERFACES / APIs / DEPLOYMENT") }}</span>
           <span>{{ c("[ A/S ]") }}</span>
         </div>
       </CommonHackerReveal>
     </section>
-    <nav class="dossier-index" :aria-label="c(&quot;About page chapters&quot;)">
+    <nav class="dossier-index" :aria-label="c('About page chapters')">
       <span class="dossier-label dossier-index__label">{{ c("FILE CONTENTS") }}</span>
       <q-btn
         v-for="chapter in aboutPageCopy.chapters"
@@ -171,39 +169,39 @@ const { element, line, started } = useViewportTyping(
       <div>
         <p class="dossier-label">{{ c("// PROJECTS / EXPERIENCE / CONTACT") }}</p>
         <h2 class="section-title">
-          <CommonPageGlitch :text="c(&quot;EXPLORE THE WORK.&quot;)" />
+          <CommonPageGlitch :text="c('EXPLORE THE WORK.')" />
           <span class="dossier-accent"
-            ><CommonPageGlitch :text="c(&quot;LET'S TALK.&quot;)" :interval="10000"
+            ><CommonPageGlitch :text="c('LET\'S TALK.')" :interval="10000"
           /></span>
         </h2>
       </div>
       <div class="dossier-exit__actions">
         <q-btn
-          :to="localePath(&quot;/contact&quot;)"
+          :to="localePath('/contact')"
           unelevated
           no-caps
           no-ripple
           class="dossier-button dossier-button--primary"
         >
-          <AnimationGlitchText :text="c(&quot;Contact&quot;)" />
+          <AnimationGlitchText :text="c('Contact')" />
           <q-icon name="north_east" size="18px" aria-hidden="true" />
         </q-btn>
-        <q-btn :to="localePath(&quot;/projects&quot;)" flat no-caps no-ripple class="dossier-button">
-          <AnimationGlitchText :text="c(&quot;View projects&quot;)" />
+        <q-btn :to="localePath('/projects')" flat no-caps no-ripple class="dossier-button">
+          <AnimationGlitchText :text="c('View projects')" />
           <q-icon name="east" size="18px" aria-hidden="true" />
         </q-btn>
         <q-btn
-          :to="localePath(&quot;/resume&quot;)"
+          :to="localePath('/resume')"
           flat
           no-caps
           no-ripple
           class="dossier-button dossier-button--quiet"
         >
-          <AnimationGlitchText :text="c(&quot;View résumé&quot;)" />
+          <AnimationGlitchText :text="c('View résumé')" />
         </q-btn>
       </div>
       <div class="dossier-exit__bottom">
-        <span>{{ c("ARSAM SARKHOSH / FULL-STACK ENGINEER") }}</span>
+        <span>{{ c("ARSAM SARKHOSH / SOFTWARE DEVELOPER") }}</span>
         <a href="#about-main" @click="scrollToAboutSection($event, 'about-main')">
           {{ c("BACK TO TOP ↑") }}
         </a>

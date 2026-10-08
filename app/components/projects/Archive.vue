@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { c, localePath, rtl } = usePortfolioI18n();
+import { PAGE_SEO } from "#shared/seo";
 import { projects as sourceProjects } from "~/assets/data/projects";
 import { findProjectId, projectPath } from "#shared/projectRoutes";
 const props = defineProps<{ projectId?: string }>();
@@ -21,10 +22,10 @@ const selectedId = computed({
     void router.push({ path: route.path, query: { ...route.query, project: id }, hash: route.hash });
   },
 });
-function selectProject(event: MouseEvent, id: string) {
+function selectProject(event: Event, id: string) {
   // Keep real, crawlable links and native open-in-new-tab behavior. An ordinary
   // click changes only the selection query, so the archive never remounts.
-  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || (event.button !== undefined && event.button !== 0)) return;
+  if (event instanceof MouseEvent && (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0)) return;
   event.preventDefault();
   selectedId.value = id;
 }
@@ -54,11 +55,11 @@ usePortfolioSeo({
   canonicalPath: props.projectId ? () => projectPath(current.value.id) : undefined,
   project: () => props.projectId ? current.value : undefined,
   title: () => props.projectId
-    ? `${current.value.name} — ${current.value.stack.slice(0, 2).join(" / ")} | ${c("Arsam Sarkhosh")}`
-    : c("Projects — Arsam Sarkhosh | Full-Stack Engineer"),
+    ? `${current.value.name} | ${c("Arsam Sarkhosh")}`
+    : c(PAGE_SEO.projects.title),
   description: () => props.projectId
     ? `${c("Arsam Sarkhosh")}: ${current.value.summary}`
-    : c("Explore Arsam Sarkhosh's project files: multilingual web platforms, full-stack applications and AI document intelligence. Architecture, tools and contributions."),
+    : c(PAGE_SEO.projects.description),
 });
 const fileNumber = (id: string) =>
   String(projects.value.findIndex((project) => project.id === id) + 1).padStart(
@@ -112,7 +113,7 @@ const title = computed(() => props.projectId
       <div>
         <p class="archive-label">
           <AnimationTypedLine
-            :text="c(&quot;// SELECTED WORK. OPEN FOR INSPECTION.&quot;)"
+            :text="c('// SELECTED WORK. OPEN FOR INSPECTION.')"
             :speed="12"
             :glitch="11000"
             v-bind="line('label')"
@@ -127,7 +128,7 @@ const title = computed(() => props.projectId
         </h1>
         <p class="archive-lead">
           <CommonPageGlitch
-            :text="projectId ? current.headline : c(&quot;A quick look at what I build. Pick a project. See it in action.&quot;)"
+            :text="projectId ? current.headline : c('A quick look at what I build. Pick a project. See it in action.')"
             :interval="14000"
           />
         </p>
@@ -139,12 +140,12 @@ const title = computed(() => props.projectId
       </div>
     </header>
 
-    <section class="archive-workspace" :aria-label="c(&quot;Interactive project archive&quot;)">
+    <section class="archive-workspace" :aria-label="c('Interactive project archive')">
       <div class="archive-toolbar">
         <span class="archive-path"
           ><span aria-hidden="true">~/</span>{{ c("work /") }}</span
         >
-        <div class="archive-filters" role="group" :aria-label="c(&quot;Filter projects&quot;)">
+        <div class="archive-filters" role="group" :aria-label="c('Filter projects')">
           <q-btn
             v-for="option in filters"
             :key="option.id"
@@ -159,7 +160,7 @@ const title = computed(() => props.projectId
         </div>
       </div>
       <div class="archive-browser">
-        <nav class="archive-directory" :aria-label="c(&quot;Choose a project&quot;)">
+        <nav class="archive-directory" :aria-label="c('Choose a project')">
           <div class="archive-directory__heading archive-label">
             <span>{{ c("PROJECT INDEX") }}</span
             ><span>{{ visibleProjects.length }} / {{ projects.length }}</span>
@@ -260,7 +261,7 @@ const title = computed(() => props.projectId
                   <CommonPageGlitch :text="c(current.summary)" :interval="14000" />
                 </p>
                 <p v-if="current.availability" class="archive-availability">{{ current.availability }}</p>
-                <div class="archive-tags" :aria-label="c(&quot;Project technologies&quot;)">
+                <div class="archive-tags" :aria-label="c('Project technologies')">
                   <q-badge v-for="tech in current.stack" :key="tech" outline>{{
                     tech
                   }}</q-badge>
@@ -277,7 +278,7 @@ const title = computed(() => props.projectId
                   no-ripple
                   class="archive-button archive-button--primary"
                 >
-                  <AnimationGlitchText :text="c(&quot;Explore live project&quot;)" /><q-icon
+                  <AnimationGlitchText :text="c('Explore live project')" /><q-icon
                     name="north_east"
                     size="18px"
                     aria-hidden="true"
@@ -302,8 +303,8 @@ const title = computed(() => props.projectId
                 :key="current.id"
                 class="archive-more"
                 :default-opened="Boolean(projectId)"
-                :label="c(&quot;Under the hood&quot;)"
-                :caption="c(&quot;My contribution, architecture &amp; tools&quot;)"
+                :label="c('Under the hood')"
+                :caption="c('My contribution, architecture &amp; tools')"
                 expand-icon="add"
                 expanded-icon="remove"
               >
@@ -316,7 +317,7 @@ const title = computed(() => props.projectId
                 <section class="archive-system" aria-labelledby="system-title">
                   <div class="archive-subheading">
                     <h3 id="system-title">
-                      <CommonPageGlitch :text="c(&quot;01 / SYSTEM MAP&quot;)" />
+                      <CommonPageGlitch :text="c('01 / SYSTEM MAP')" />
                     </h3>
                     <span aria-hidden="true">{{ c("[ CONNECTED LAYERS ]") }}</span>
                   </div>
@@ -342,7 +343,7 @@ const title = computed(() => props.projectId
                 >
                   <div class="archive-subheading">
                     <h3 id="contribution-title">
-                      <CommonPageGlitch :text="c(&quot;02 / MY CONTRIBUTION&quot;)" />
+                      <CommonPageGlitch :text="c('02 / MY CONTRIBUTION')" />
                     </h3>
                   </div>
                   <p class="archive-ownership">{{ current.ownership }}</p>
@@ -374,18 +375,18 @@ const title = computed(() => props.projectId
       <div>
         <p class="archive-label">{{ c("// THERE'S A PERSON BEHIND THESE BUILDS.") }}</p>
         <h2 class="section-title">
-          <CommonPageGlitch :text="c(&quot;MEET THE&quot;)" />
-          <span><CommonPageGlitch :text="c(&quot;ENGINEER.&quot;)" :interval="10000" /></span>
+          <CommonPageGlitch :text="c('MEET THE')" />
+          <span><CommonPageGlitch :text="c('ENGINEER.')" :interval="10000" /></span>
         </h2>
       </div>
-      <q-btn :to="localePath(&quot;/about&quot;)" flat no-caps no-ripple class="archive-button"
-        ><AnimationGlitchText :text="c(&quot;Behind the signal&quot;)" /><q-icon
+      <q-btn :to="localePath('/about')" flat no-caps no-ripple class="archive-button"
+        ><AnimationGlitchText :text="c('Behind the signal')" /><q-icon
           name="east"
           size="20px"
           aria-hidden="true"
       /></q-btn>
       <div class="archive-exit__bottom">
-        <span>{{ c("ARSAM SARKHOSH / FULL-STACK ENGINEER") }}</span
+        <span>{{ c("ARSAM SARKHOSH / SOFTWARE DEVELOPER") }}</span
         ><a href="#projects-main">{{ c("BACK TO TOP ↑") }}</a>
       </div>
     </footer>

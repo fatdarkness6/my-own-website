@@ -8,6 +8,8 @@ determine the language; there are no browser-language redirects.
 ## Editing copy
 
 - Keep shared project, résumé and section structure in `app/assets/data/`.
+- Keep identity/contact details in `app/assets/data/identity.ts`, page metadata
+  in `app/assets/data/pageSeo.ts`, and supported languages in `shared/locales.ts`.
 - `english.ts` combines canonical source strings with short interface copy.
 - Edit visitor-facing copy by its readable key in `locales/{code}.ts`, including
   `locales/en.ts` for English. English falls back to its source string when
@@ -41,6 +43,6 @@ are respected. Locale changes remount pages but project-query changes do not.
 
 ## Checks
 
-Run `npm run test:i18n` and `npm run build`. Review long translations at mobile
+Run `npm run test:i18n`, `npm run typecheck` and `npm run build`. Review long translations at mobile
 widths and verify language switching from a selected project. Translations are
 an initial localization pass; native-speaker editorial review is recommended.

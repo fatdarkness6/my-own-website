@@ -11,10 +11,8 @@ const contactIntents = usePortfolioI18n().content(sourceIntents);
 const contactTitle = usePortfolioI18n().content(sourceTitle);
 
 usePortfolioSeo({
+  page: "contact",
   type: "ContactPage",
-  title: () => c("Contact — Arsam Sarkhosh | Full-Stack Engineer"),
-  description:
-    () => c("Discuss a web application, an engineering role or a collaboration with Arsam Sarkhosh. Vue, Nuxt, backend systems and AI-powered applications."),
 });
 
 const { element, line, started } = useViewportTyping(
@@ -97,7 +95,7 @@ async function copyText(text: string, success: string) {
       <div>
         <p class="channel-label">
           <AnimationTypedLine
-            :text="c(&quot;// A DIRECT LINE TO THE ENGINEER&quot;)"
+            :text="c('// A DIRECT LINE TO THE ENGINEER')"
             :speed="14"
             :glitch="11000"
             v-bind="line('label')"
@@ -110,7 +108,7 @@ async function copyText(text: string, success: string) {
             v-bind="line('title')"
           />
         </h1>
-        <nav class="channel-socials" :aria-label="c(&quot;Connect with Arsam&quot;)">
+        <nav class="channel-socials" :aria-label="c('Connect with Arsam')">
           <q-btn
             :href="contactDetails.github"
             target="_blank"
@@ -163,11 +161,11 @@ async function copyText(text: string, success: string) {
       </div>
       <div class="channel-hero__aside">
         <span class="channel-label"
-          ><CommonPageGlitch :text="c(&quot;HAVE SOMETHING IN MIND?&quot;)"
+          ><CommonPageGlitch :text="c('HAVE SOMETHING IN MIND?')"
         /></span>
         <p>
           <CommonPageGlitch
-            :text="c(&quot;A product to build, a system to improve, or a team to join. Tell me where you want to take it.&quot;)"
+            :text="c('A product to build, a system to improve, or a team to join. Tell me where you want to take it.')"
             :interval="14000"
           />
         </p>
@@ -181,14 +179,14 @@ async function copyText(text: string, success: string) {
       <section class="channel-routes" aria-labelledby="channel-route-title">
         <div class="channel-section-bar">
           <h2 id="channel-route-title">
-            <CommonPageGlitch :text="c(&quot;01 / WHAT BRINGS YOU HERE?&quot;)" />
+            <CommonPageGlitch :text="c('01 / WHAT BRINGS YOU HERE?')" />
           </h2>
           <span>{{ c("CHOOSE A DIRECTION") }}</span>
         </div>
         <div
           class="channel-route-grid"
           role="group"
-          :aria-label="c(&quot;Conversation topic&quot;)"
+          :aria-label="c('Conversation topic')"
         >
           <q-btn
             v-for="item in contactIntents"
@@ -247,7 +245,7 @@ async function copyText(text: string, success: string) {
             </h2>
             <p class="channel-body channel-composer__intro">
               <CommonPageGlitch
-                :text="c(&quot;A few useful details are enough to get started.&quot;)"
+                :text="c('A few useful details are enough to get started.')"
                 :interval="14000"
               />
             </p>
@@ -260,8 +258,8 @@ async function copyText(text: string, success: string) {
                   outlined
                   square
                   stack-label
-                  :label="c(&quot;Your name&quot;)"
-                  :placeholder="c(&quot;What should I call you?&quot;)"
+                  :label="c('Your name')"
+                  :placeholder="c('What should I call you?')"
                   autocomplete="name"
                   name="name"
                   maxlength="100"
@@ -277,8 +275,8 @@ async function copyText(text: string, success: string) {
                   outlined
                   square
                   stack-label
-                  :label="c(&quot;Your email&quot;)"
-                  :placeholder="c(&quot;you@company.com&quot;)"
+                  :label="c('Your email')"
+                  :placeholder="c('you@company.com')"
                   type="email"
                   autocomplete="email"
                   name="email"
@@ -296,7 +294,7 @@ async function copyText(text: string, success: string) {
                 outlined
                 square
                 stack-label
-                :label="c(&quot;Your message&quot;)"
+                :label="c('Your message')"
                 :placeholder="intent.placeholder"
                 type="textarea"
                 name="message"
@@ -312,7 +310,7 @@ async function copyText(text: string, success: string) {
               />
               <q-expansion-item
                 class="channel-preview"
-                :label="c(&quot;Preview your message&quot;)"
+                :label="c('Preview your message')"
                 expand-icon="add"
                 expanded-icon="remove"
                 :duration="180"
@@ -380,19 +378,19 @@ async function copyText(text: string, success: string) {
 
         <aside
           class="channel-sidebar"
-          :aria-label="c(&quot;Contact details and conversation guide&quot;)"
+          :aria-label="c('Contact details and conversation guide')"
         >
           <q-card flat square class="channel-endpoint">
             <ContactSignal />
             <q-card-section>
               <span class="channel-label">{{ c("THE OTHER END OF THE LINE") }}</span>
               <h2>
-                <CommonPageGlitch :text="c(&quot;Arsam Sarkhosh&quot;)" /><span
+                <CommonPageGlitch :text="c('Arsam Sarkhosh')" /><span
                   class="channel-accent"
                   >.</span
                 >
               </h2>
-              <p class="channel-body">{{ c("Full-Stack Engineer") }}<br />{{ c("Vue / Nuxt / Node.js / Python") }}</p>
+              <p class="channel-body">{{ c("Software Developer") }}<br />{{ c("Vue / Nuxt / Node.js / Python") }}</p>
               <div v-if="hasEmail" class="channel-email">
                 <a :href="`mailto:${contactDetails.email}`">{{
                   contactDetails.email
@@ -401,7 +399,7 @@ async function copyText(text: string, success: string) {
                   flat
                   no-ripple
                   icon="content_copy"
-                  :aria-label="c(&quot;Copy email address&quot;)"
+                  :aria-label="c('Copy email address')"
                   @click="
                     copyText(contactDetails.email, 'Email address copied.')
                   "
@@ -411,7 +409,7 @@ async function copyText(text: string, success: string) {
           </q-card>
           <div class="channel-guide">
             <span class="channel-label">{{ c("A USEFUL STARTING POINT") }}</span>
-            <h2><CommonPageGlitch :text="c(&quot;Give me the context.&quot;)" /></h2>
+            <h2><CommonPageGlitch :text="c('Give me the context.')" /></h2>
             <ul>
               <li v-for="(pointer, index) in intent.pointers" :key="pointer">
                 <span aria-hidden="true">0{{ index + 1 }}</span
@@ -429,19 +427,19 @@ async function copyText(text: string, success: string) {
         <span class="channel-label">{{ c("MORE CONTEXT BEFORE WE TALK") }}</span>
         <p>
           <CommonPageGlitch
-            :text="c(&quot;See the work behind the conversation.&quot;)"
+            :text="c('See the work behind the conversation.')"
             :interval="13000"
           />
         </p>
       </div>
-      <nav :aria-label="c(&quot;Explore more&quot;)">
-        <q-btn :to="localePath(&quot;/projects&quot;)" flat no-caps no-ripple class="channel-button"
-          ><AnimationGlitchText :text="c(&quot;View projects&quot;)" /><q-icon
+      <nav :aria-label="c('Explore more')">
+        <q-btn :to="localePath('/projects')" flat no-caps no-ripple class="channel-button"
+          ><AnimationGlitchText :text="c('View projects')" /><q-icon
             name="east"
             size="18px"
             aria-hidden="true" /></q-btn
-        ><q-btn :to="localePath(&quot;/resume&quot;)" flat no-caps no-ripple class="channel-button"
-          ><AnimationGlitchText :text="c(&quot;View résumé&quot;)" /><q-icon
+        ><q-btn :to="localePath('/resume')" flat no-caps no-ripple class="channel-button"
+          ><AnimationGlitchText :text="c('View résumé')" /><q-icon
             name="east"
             size="18px"
             aria-hidden="true"

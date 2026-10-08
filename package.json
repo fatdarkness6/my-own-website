@@ -8,6 +8,7 @@
     "test:seo:http": "node scripts/test-seo-http.ts",
     "resume:pdf": "node scripts/generate-resume.ts",
     "build": "nuxt build",
+    "typecheck": "nuxt typecheck",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -23,8 +24,12 @@
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
+    "@types/node": "^24.19.1",
+    "@types/three": "^0.186.0",
     "nuxt-quasar-ui": "^3.0.1",
     "postcss-rtlcss": "^6.0.0",
-    "sass": "^1.105.0"
+    "sass": "^1.105.0",
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.3.12"
   }
 }

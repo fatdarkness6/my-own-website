@@ -48,7 +48,7 @@ watch(
       <header class="resume__copy">
         <p class="resume__eyebrow">
           <AnimationTypedLine
-            :text="c(&quot;// 04. RESUME&quot;)"
+            :text="c('// 04. RESUME')"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"
@@ -101,7 +101,7 @@ watch(
           </svg>
           <span class="resume-index__filename">
             <AnimationTypedLine
-              :text="c(&quot;resume.index&quot;)"
+              :text="c('resume.index')"
               :speed="20"
               :glitch="5800"
               v-bind="line('document')"
@@ -110,7 +110,7 @@ watch(
           <span class="resume-index__bar-mark" aria-hidden="true">[ ]</span>
         </div>
 
-        <ol class="resume-index__list" :aria-label="c(&quot;Résumé contents&quot;)">
+        <ol class="resume-index__list" :aria-label="c('Résumé contents')">
           <li
             v-for="entry in entries"
             :key="entry.id"
@@ -152,7 +152,7 @@ watch(
           square
           no-caps
           no-ripple
-          :to="localePath(&quot;/resume&quot;)"
+          :to="localePath('/resume')"
           :disable="!finished"
           class="resume-index__link"
         >
