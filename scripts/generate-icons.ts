@@ -8,7 +8,7 @@ const sharp = require(process.argv[2] || "sharp");
 const output = new URL("../public/", import.meta.url);
 const svg = await readFile(new URL("favicon.svg", output), "utf8");
 const render = (source: string, size: number) => sharp(Buffer.from(source), { density: 384 })
-  .resize(size, size).png().toBuffer();
+  .resize(size, size).png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer();
 
 for (const size of [16, 32, 48, 96, 192, 512]) {
   await writeFile(new URL(`favicon-${size}x${size}.png`, output), await render(svg, size));

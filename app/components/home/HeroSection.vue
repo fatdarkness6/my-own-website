@@ -2,11 +2,12 @@
 const { c, content, rtl } = usePortfolioI18n();
 import { homeCopy as sourceCopy } from "~/assets/data/homeCopy";
 import { identity } from "~/assets/data/identity";
+import { portraitImages } from "~/assets/data/images";
 
 const props = defineProps({
-  avatarSrc: { type: String, default: "/images/background.png" },
-  portraitSrc: { type: String, default: "/images/background.png" },
-  rtlPortraitSrc: { type: String, default: "/images/background-rtl-languages.png" },
+  avatarSrc: { type: String, default: portraitImages.home },
+  portraitSrc: { type: String, default: portraitImages.home },
+  rtlPortraitSrc: { type: String, default: portraitImages.homeRtl },
   portraitOpacity: { type: Number, default: 0.8 },
 });
 

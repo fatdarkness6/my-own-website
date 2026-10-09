@@ -1,3 +1,5 @@
+import { portraitImages } from "./images.ts";
+
 /** Public identity shared by visible copy, metadata and the downloadable résumé. */
 export const identity = {
   name: "Arsam Sarkhosh",
@@ -6,7 +8,7 @@ export const identity = {
   alternateNames: ["آرسام سرخوش", "أرسام سارخوش"],
   role: "Software Developer",
   summary: "Building web applications, backend systems, and AI-assisted tools.",
-  image: "/images/background.png",
+  image: portraitImages.home,
   contact: {
     email: "arsamsarkhosh4@gmail.com",
     linkedin: "https://ir.linkedin.com/in/arsam-sarkhosh-3abb40420",

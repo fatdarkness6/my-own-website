@@ -10,5 +10,5 @@ const sharp = require(process.argv[2] || "sharp");
 const input = fileURLToPath(new URL("../assets/seo/social-card.svg", import.meta.url));
 const directory = fileURLToPath(new URL("../public/images/og/", import.meta.url));
 await mkdir(directory, { recursive: true });
-await sharp(input).png().toFile(`${directory}/portfolio.png`);
+await sharp(input).png({ compressionLevel: 9, adaptiveFiltering: true }).toFile(`${directory}/portfolio.png`);
 console.log("Generated public/images/og/portfolio.png (1200 × 630)");

@@ -1,7 +1,10 @@
 export type ProjectStatus = "live" | "wip" | "archived";
 
 export interface ProjectScreenshot {
+  /** JPEG retained for social previews and existing public links. */
   src: string;
+  /** Same-resolution compressed image used throughout the interface. */
+  optimizedSrc?: string;
   alt: string;
   width?: number;
   height?: number;
@@ -54,6 +57,7 @@ export const projects: Project[] = [
     stack: ["NUXT", "VUE", "QUASAR", "TYPESCRIPT", "GSAP"],
     screenshot: {
       src: "/images/projects/arilvo.jpg",
+      optimizedSrc: "/images/projects/arilvo.webp",
       mimeType: "image/jpeg",
       width: 1270, height: 714,
       alt: "ARILVO homepage featuring MEP engineering services and a building systems cutaway",
@@ -88,6 +92,7 @@ export const projects: Project[] = [
     stack: ["NUXT", "VUE", "QUASAR", "TYPESCRIPT"],
     screenshot: {
       src: "/images/projects/docintel.jpg",
+      optimizedSrc: "/images/projects/docintel.webp",
       mimeType: "image/jpeg",
       width: 1585, height: 892,
       alt: "DocIntel homepage with a purple document intelligence headline, AI summary and cited question-answer preview",
@@ -122,6 +127,7 @@ export const projects: Project[] = [
     stack: ["NEXT.JS", "STRAPI", "POSTGRESQL"],
     screenshot: {
       src: "/images/projects/arvand-termo-tec.jpg",
+      optimizedSrc: "/images/projects/arvand-termo-tec.webp",
       mimeType: "image/jpeg",
       width: 1265, height: 712,
       alt: "Arvand Termo Tec homepage with blue and orange styling and a modern home",
@@ -155,6 +161,7 @@ export const projects: Project[] = [
     stack: ["NUXT", "VUE", "TYPESCRIPT", "QUASAR"],
     screenshot: {
       src: "/images/projects/raymand-group.jpg",
+      optimizedSrc: "/images/projects/raymand-group.webp",
       mimeType: "image/jpeg",
       width: 1265, height: 712,
       alt: "Raymand Group homepage showing healthcare and laboratory technology services",

@@ -142,7 +142,7 @@ onBeforeUnmount(() => ro?.disconnect());
                 class="projects__clickable-card"
                 @pointerdown="cardPointerStart = { x: $event.clientX, y: $event.clientY }"
                 @click="openProject($event, p.id)"
-                :image="(p.screenshot ?? projectPlaceholder).src"
+                :image="p.screenshot?.optimizedSrc || (p.screenshot ?? projectPlaceholder).src"
                 :alt="(p.screenshot ?? projectPlaceholder).alt"
                 :interval="5200 + i * 900"
               >

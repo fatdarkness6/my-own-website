@@ -51,6 +51,7 @@ npm run preview
 - Headings and accent segments: `app/assets/data/homeCopy.ts`.
 - Translations, RTL and localized routes: see [i18n/README.md](i18n/README.md).
 - Project cards: `app/assets/data/projects.ts`.
+- Portraits and screenshot compression: see [docs/images.md](docs/images.md).
 - Project archive/detail view: `app/components/projects/Archive.vue`; localized
   URLs and sitemap entries derive from the same project records through `shared/projectRoutes.ts`.
   Project selection updates the current page's `?project=` query without resetting

@@ -3,6 +3,7 @@ import { SITE_URL, SITE_ROUTES, SITE_LOCALES, SOCIAL_IMAGE, PAGE_SEO, localizedP
 import { projects } from "../app/assets/data/projects.ts";
 import { projectPath } from "../shared/projectRoutes.ts";
 import { identity } from "../app/assets/data/identity.ts";
+import { portraitImages } from "../app/assets/data/images.ts";
 import { translationKey } from "../app/utils/translationKey.ts";
 import { createI18n } from "vue-i18n";
 import { createJiti } from "jiti";
@@ -191,4 +192,21 @@ assert.equal(attributes(queryHtml, "link").find((link) => link.rel === "canonica
 const image = await fetch(`${origin}${SOCIAL_IMAGE}`);
 assert.equal(image.status, 200);
 assert.ok(image.headers.get("content-type")?.includes("image/png"));
+for (const path of [
+  ...Object.values(portraitImages),
+  ...projects.flatMap(({ screenshot }) => screenshot?.optimizedSrc ? [screenshot.optimizedSrc] : []),
+]) {
+  const response = await fetch(`${origin}${path}`);
+  assert.equal(response.status, 200, `optimized image: ${path}`);
+  assert.ok(response.headers.get("content-type")?.startsWith("image/webp"), `${path}: WebP MIME type`);
+  const bytes = Buffer.from(await response.arrayBuffer());
+  assert.equal(bytes.toString("ascii", 0, 4), "RIFF", `${path}: RIFF container`);
+  assert.equal(bytes.toString("ascii", 8, 12), "WEBP", `${path}: actual WebP content`);
+}
+for (const path of Object.values(portraitImages)) {
+  const legacy = await fetch(`${origin}${path.replace(/\.webp$/, ".png")}`, { redirect: "manual" });
+  assert.equal(legacy.status, 301, `${path}: legacy portrait redirect`);
+  assert.equal(legacy.headers.get("location"), path);
+}
+console.log("PASS optimized WebP images, MIME types and legacy portrait links");
 console.log(`PASS ${preview ? "preview" : "production"} SEO across ${SITE_ROUTES.length * SITE_LOCALES.length} routes, project links, query selections, verification, sitemap, robots, 404s and social image`);

@@ -7,6 +7,7 @@
     "test:seo": "node --test tests/seo.test.ts",
     "test:seo:http": "node scripts/test-seo-http.ts",
     "resume:pdf": "node scripts/generate-resume.ts",
+    "images:optimize": "node scripts/optimize-images.ts",
     "build": "nuxt build",
     "typecheck": "nuxt typecheck",
     "dev": "nuxt dev",

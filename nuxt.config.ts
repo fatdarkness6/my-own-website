@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { SITE_NAME, SITE_URL, siteOrigin } from "./shared/seo";
 import { locales } from "./shared/locales";
+import { portraitImages } from "./app/assets/data/images";
 
 const canonicalOrigin = siteOrigin(process.env.NUXT_PUBLIC_SITE_URL || SITE_URL);
 const indexable = process.env.NODE_ENV === "production" && process.env.VERCEL_ENV !== "preview" && process.env.NUXT_PUBLIC_SEO_INDEXABLE !== "false";
@@ -19,6 +20,10 @@ export default defineNuxtConfig({
     nodeTsConfig: { compilerOptions: { allowImportingTsExtensions: true, types: ["node"] } },
   },
   routeRules: {
+    // Keep published portrait URLs working after migrating their payloads to WebP.
+    "/images/background.png": { redirect: { to: portraitImages.home, statusCode: 301 } },
+    "/images/background-rtl-languages.png": { redirect: { to: portraitImages.homeRtl, statusCode: 301 } },
+    "/images/arsam-sarkhosh-about.png": { redirect: { to: portraitImages.about, statusCode: 301 } },
     // These files were JPEGs served under PNG names. Preserve existing image links.
     "/images/projects/arilvo.png": { redirect: { to: "/images/projects/arilvo.jpg", statusCode: 301 } },
     "/images/projects/docintel.png": { redirect: { to: "/images/projects/docintel.jpg", statusCode: 301 } },

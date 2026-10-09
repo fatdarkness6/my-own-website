@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { c, localePath, content } = usePortfolioI18n();
 import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
+import { portraitImages } from "~/assets/data/images";
 const aboutPageCopy = content(sourceCopy);
 const { $lenis } = useNuxtApp();
 const introReady = useState("introReady", () => false);
@@ -84,7 +85,7 @@ const { element, line, started } = useViewportTyping(
         class="dossier-identity__visual"
       >
         <AnimationGlitchCard
-          image="/images/arsam-sarkhosh-about.png"
+          :image="portraitImages.about"
           :alt="c('Stylized portrait of Arsam Sarkhosh with blue light effects')"
           :interval="10000"
           class="dossier-portrait"

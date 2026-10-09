@@ -14,7 +14,7 @@ defineProps<{
   <div class="project-preview" :class="{ 'project-preview--compact': compact }">
     <img
       v-if="screenshot"
-      :src="screenshot.src"
+      :src="screenshot.optimizedSrc || screenshot.src"
       :alt="compact ? '' : screenshot.alt"
       :width="screenshot.width || 1270"
       :height="screenshot.height || 714"

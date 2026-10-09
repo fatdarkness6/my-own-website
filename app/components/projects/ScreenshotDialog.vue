@@ -88,7 +88,7 @@ onBeforeUnmount(stopObserving);
           <div class="archive-lightbox__canvas" :style="{ width: imageWidth ? `${Math.max(viewport.width, imageWidth)}px` : '100%' }">
             <img
               v-if="screenshot"
-              :src="screenshot.src"
+              :src="screenshot.optimizedSrc || screenshot.src"
               :alt="screenshot.alt"
               :style="{ width: imageWidth ? `${imageWidth}px` : '100%' }"
               width="1270"
