@@ -1,5 +1,5 @@
 <script setup>
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, content } = usePortfolioI18n();
 import { identity } from "~/assets/data/identity";
 import { homeCopy } from "~/assets/data/homeCopy";
 
@@ -10,7 +10,7 @@ const copyFinished = ref(false);
 let copyStarted = false;
 const playedCards = new WeakSet();
 
-const titleSegments = usePortfolioI18n().content(homeCopy.about.title);
+const titleSegments = content(homeCopy.about.title);
 const description = identity.summary;
 
 const { play, line } = useTypingSequence(["eyebrow", "title", "desc"], {

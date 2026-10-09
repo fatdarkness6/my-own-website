@@ -23,9 +23,13 @@ const accentTerms = computed(() =>
     .map(({ text }) => text),
 );
 
+const preparedSegments = computed(() => props.segments.map((segment) => ({
+  segment, characters: graphemes(segment.text),
+})));
+const direction = computed(() => textDirection(text.value));
 const characters = computed(() =>
-  props.segments.flatMap((segment) =>
-    graphemes(segment.text).map((character) => ({
+  preparedSegments.value.flatMap(({ segment, characters }) =>
+    characters.map((character) => ({
       character,
       accent: Boolean(segment.accent),
       glitch: segment.glitch !== false,
@@ -51,8 +55,8 @@ const resetCharacters = () => {
 
 const completedSegments = computed(() => {
   let offset = 0;
-  return props.segments.map((segment) => {
-    const count = graphemes(segment.text).length;
+  return preparedSegments.value.map(({ segment, characters }) => {
+    const count = characters.length;
     const display = displayedCharacters.value.slice(offset, offset + count).join("");
     offset += count;
     return { ...segment, display: display || segment.text };
@@ -138,7 +142,7 @@ onBeforeUnmount(() => {
     <span
       class="segmented-line__complete"
       :class="{ 'is-glitching': glitching }"
-      :dir="textDirection(text)"
+      :dir="direction"
       aria-hidden="true"
     >
       <span

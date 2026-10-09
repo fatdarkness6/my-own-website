@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{ active: boolean }>();
 
-const visible = ref(true);
+const { visible } = useAnimationEnvironment();
 const tracks = [
   "M24 900V660L100 584V370L42 312V0",
   "M112 900V750L176 686V448L116 388V160L180 96V0",
@@ -11,15 +11,6 @@ const tracks = [
   "M1226 900V814L1176 764V562L1236 502V270L1176 210V0",
 ];
 
-function updateVisibility() {
-  visible.value = !document.hidden;
-}
-
-onMounted(() => {
-  updateVisibility();
-  document.addEventListener("visibilitychange", updateVisibility);
-});
-onBeforeUnmount(() => document.removeEventListener("visibilitychange", updateVisibility));
 </script>
 
 <template>

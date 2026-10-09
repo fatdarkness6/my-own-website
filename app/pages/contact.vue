@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, content } = usePortfolioI18n();
 import { copyToClipboard } from "quasar";
 import {
   contactDetails,
@@ -7,8 +7,8 @@ import {
   contactTitle as sourceTitle,
   type ContactIntent,
 } from "~/assets/data/contact";
-const contactIntents = usePortfolioI18n().content(sourceIntents);
-const contactTitle = usePortfolioI18n().content(sourceTitle);
+const contactIntents = content(sourceIntents);
+const contactTitle = content(sourceTitle);
 
 usePortfolioSeo({
   page: "contact",

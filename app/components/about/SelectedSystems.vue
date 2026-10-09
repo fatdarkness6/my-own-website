@@ -1,11 +1,11 @@
 <script setup lang="ts">
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, content } = usePortfolioI18n();
 import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
 import { projects } from "~/assets/data/projects";
 import { projectPath } from "#shared/projectRoutes";
 
 // Keep project identity and deep links aligned with Home and /projects.
-const systems = usePortfolioI18n().content(sourceCopy.systems.map((system) => ({
+const systems = content(sourceCopy.systems.map((system) => ({
   ...system,
   project: projects.find((project) => project.id === system.id)!,
 })));

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, content } = usePortfolioI18n();
 import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
-const aboutPageCopy = usePortfolioI18n().content(sourceCopy);
+const aboutPageCopy = content(sourceCopy);
 </script>
 
 <template>

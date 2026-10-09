@@ -54,9 +54,10 @@ const words = computed(() => {
   let offset = 0;
   let index = 0;
   return (props.text.match(/\S+|\s+/gu) ?? []).map((text) => {
-    const count = graphemes(text).length;
+    const characters = graphemes(text);
+    const count = characters.length;
     const item = {
-      text, start: index, count, whitespace: /^\s+$/u.test(text),
+      text, characters, start: index, count, whitespace: /^\s+$/u.test(text),
       accent: Array.from({ length: text.length }, (_, i) => offset + i)
         .some((i) => accentIndexes.value.has(i)),
       direction: textDirection(text),
@@ -66,7 +67,7 @@ const words = computed(() => {
     return item;
   });
 });
-const visibleWord = (word) => graphemes(word.text)
+const visibleWord = (word) => word.characters
   .slice(0, Math.max(0, revealedCount.value - word.start)).join("");
 
 let typingTimeout = null;

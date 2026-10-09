@@ -1,16 +1,16 @@
 <script setup>
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, content } = usePortfolioI18n();
 import { homeCopy } from "~/assets/data/homeCopy";
 import { resumeSections } from "~/assets/data/resume";
 
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
-const titleSegments = usePortfolioI18n().content(homeCopy.resume.title);
+const titleSegments = content(homeCopy.resume.title);
 const description =
   "A closer look at the applications I've built, the tools I use and how I work.";
 const linkText = "View my résumé";
 
-const entries = usePortfolioI18n().content(resumeSections);
+const entries = content(resumeSections);
 
 const order = [
   "eyebrow",

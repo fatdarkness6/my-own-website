@@ -5,25 +5,11 @@ withDefaults(defineProps<{ text: string; interval?: number }>(), {
 
 const element = ref<HTMLElement | null>(null);
 const visible = ref(false);
-const tabVisible = ref(true);
-const reducedMotion = ref(false);
+const { visible: tabVisible, reducedMotion } = useAnimationEnvironment();
 const introReady = useState("introReady", () => false);
 let observer: IntersectionObserver | undefined;
-let motionPreference: MediaQueryList | undefined;
-
-function updateVisibility() {
-  tabVisible.value = !document.hidden;
-}
-function updateMotion() {
-  reducedMotion.value = motionPreference?.matches ?? false;
-}
 
 onMounted(() => {
-  updateVisibility();
-  document.addEventListener("visibilitychange", updateVisibility);
-  motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-  updateMotion();
-  motionPreference.addEventListener("change", updateMotion);
   if ("IntersectionObserver" in window && element.value) {
     observer = new IntersectionObserver(([entry]) => {
       visible.value = entry?.isIntersecting ?? false;
@@ -34,8 +20,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   observer?.disconnect();
-  document.removeEventListener("visibilitychange", updateVisibility);
-  motionPreference?.removeEventListener("change", updateMotion);
 });
 </script>
 

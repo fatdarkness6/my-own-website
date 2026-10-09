@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { projectPath } from "#shared/projectRoutes";
-const { c, localePath, locale } = usePortfolioI18n();
+const { c, localePath, locale, content } = usePortfolioI18n();
 import { aboutCopy as sourceAbout } from "~/assets/data/about";
 import { contactDetails } from "~/assets/data/contact";
 import { resumeDocument, resumeProfile as sourceProfile, resumeExperience as sourceExperience, resumeProjects as sourceResumeProjects } from "~/assets/data/resume";
 import { projects as sourceProjects } from "~/assets/data/projects";
-const { content } = usePortfolioI18n();
 const resumeProfile = content(sourceProfile);
 const resumeExperience = content(sourceExperience);
 const projects = content(sourceProjects);

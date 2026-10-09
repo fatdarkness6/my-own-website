@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const { c, localePath, rtl } = usePortfolioI18n();
+const { c, localePath, rtl, content } = usePortfolioI18n();
 import { PAGE_SEO } from "#shared/seo";
 import { projects as sourceProjects } from "~/assets/data/projects";
 import { findProjectId, projectPath } from "#shared/projectRoutes";
 const props = defineProps<{ projectId?: string }>();
-const projects = usePortfolioI18n().content(sourceProjects);
+const projects = content(sourceProjects);
 const filters = [
   { id: "all", label: "All files" },
   { id: "web", label: "Web platforms" },
@@ -80,7 +80,7 @@ const { element, line, started } = useViewportTyping(
     viewport: { threshold: 0 },
   },
 );
-const archiveTitle = usePortfolioI18n().content([
+const archiveTitle = content([
   { text: "BUILT. ", glitch: false },
   { text: "NOT JUST IMAGINED.", accent: true, interval: 8000 },
 ]);

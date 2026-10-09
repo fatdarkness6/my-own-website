@@ -1,10 +1,10 @@
 <script setup>
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, content } = usePortfolioI18n();
 import { homeCopy } from "~/assets/data/homeCopy";
 
 const { sections, currentIndex, isAnimating } = useScrollSections();
 
-const titleSegments = usePortfolioI18n().content(homeCopy.cta.title);
+const titleSegments = content(homeCopy.cta.title);
 const description =
   "Have a project, a role, or just an idea? Open a secure channel and send me a message.";
 

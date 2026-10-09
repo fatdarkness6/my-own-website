@@ -36,7 +36,12 @@ export function scrambleGrapheme(character: string, alphabet: readonly string[])
 }
 
 export function scrambleText(text: string, revealed: number, alphabet: readonly string[]): string {
-  return graphemes(text).map((character, index) => {
+  return scrambleCharacters(graphemes(text), revealed, alphabet);
+}
+
+/** Reuse segmented source characters throughout an animation run. */
+export function scrambleCharacters(characters: readonly string[], revealed: number, alphabet: readonly string[]): string {
+  return characters.map((character, index) => {
     if (index < revealed || !/\p{Letter}|\p{Number}/u.test(character)) return character;
     return scrambleGrapheme(character, alphabet);
   }).join("");

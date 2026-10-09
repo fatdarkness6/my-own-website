@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{ active: boolean }>();
 
-const visible = ref(true);
+const { visible } = useAnimationEnvironment();
 const records = Array.from({ length: 11 }, (_, index) => ({
   y: 92 + index * 68,
   width: 60 + ((index * 29) % 120),
@@ -9,15 +9,6 @@ const records = Array.from({ length: 11 }, (_, index) => ({
   number: String(index + 1).padStart(2, "0"),
 }));
 
-function updateVisibility() {
-  visible.value = !document.hidden;
-}
-
-onMounted(() => {
-  updateVisibility();
-  document.addEventListener("visibilitychange", updateVisibility);
-});
-onBeforeUnmount(() => document.removeEventListener("visibilitychange", updateVisibility));
 </script>
 
 <template>

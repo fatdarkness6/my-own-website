@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onBeforeUnmount } from "vue";
+import { computed, onMounted, onBeforeUnmount } from "vue";
 import { useGlitchText } from "~/composables/useGlitchText";
 import { textDirection } from "~/utils/animatedText";
 
@@ -18,6 +18,7 @@ const INTERACTIVE = 'a, button, [role="button"], .q-btn, .q-item';
 
 // 🎲 Pool of glitch visual styles
 const STYLES = ["rgb", "shake", "flicker", "block", "scanline"];
+const direction = computed(() => textDirection(props.text));
 
 const { el, display, active, lockedWidth, currentStyle, run } = useGlitchText(
   props,
@@ -46,7 +47,7 @@ onBeforeUnmount(() => {
   <span
     ref="el"
     class="glitch-text"
-    :dir="textDirection(text)"
+    :dir="direction"
     :class="[
       { 'is-glitching': active },
       active ? `glitch-style--${currentStyle}` : '',

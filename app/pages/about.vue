@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const { c, localePath } = usePortfolioI18n();
+const { c, localePath, content } = usePortfolioI18n();
 import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
-const aboutPageCopy = usePortfolioI18n().content(sourceCopy);
+const aboutPageCopy = content(sourceCopy);
 const { $lenis } = useNuxtApp();
 const introReady = useState("introReady", () => false);
 const { activeSection, navigateToSection: scrollToAboutSection } = useSectionHash(
@@ -84,7 +84,7 @@ const { element, line, started } = useViewportTyping(
         class="dossier-identity__visual"
       >
         <AnimationGlitchCard
-          image="/images/background.png"
+          image="/images/arsam-sarkhosh-about.png"
           :alt="c('Stylized portrait of Arsam Sarkhosh with blue light effects')"
           :interval="10000"
           class="dossier-portrait"

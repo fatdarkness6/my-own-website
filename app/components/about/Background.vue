@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{ active: boolean }>();
 
-const visible = ref(true);
+const { visible } = useAnimationEnvironment();
 // Deterministic geometry keeps the server and client markup identical.
 const traces = Array.from({ length: 12 }, (_, index) => {
   const width = 24 + index * 12;
@@ -18,17 +18,6 @@ const cells = Array.from({ length: 48 }, (_, index) => ({
   delay: `${index * -0.37}s`,
 }));
 
-function updateVisibility() {
-  visible.value = !document.hidden;
-}
-
-onMounted(() => {
-  updateVisibility();
-  document.addEventListener("visibilitychange", updateVisibility);
-});
-onBeforeUnmount(() =>
-  document.removeEventListener("visibilitychange", updateVisibility),
-);
 </script>
 
 <template>

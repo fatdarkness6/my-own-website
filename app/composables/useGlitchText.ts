@@ -1,5 +1,5 @@
 import { ref, watch, onBeforeUnmount } from "vue";
-import { graphemes, glitchAlphabet, scrambleText } from "~/utils/animatedText";
+import { graphemes, glitchAlphabet, scrambleCharacters } from "~/utils/animatedText";
 
 interface GlitchTextProps {
   text: string;
@@ -75,7 +75,7 @@ export function useGlitchText(
       if (now - lastScramble >= props.speed) {
         lastScramble = now;
         const revealed = Math.floor((elapsed / runDuration) * original.length);
-        display.value = scrambleText(props.text, revealed, alphabet);
+        display.value = scrambleCharacters(original, revealed, alphabet);
       }
 
       raf = requestAnimationFrame(frame);
