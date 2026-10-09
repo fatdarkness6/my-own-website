@@ -9,6 +9,7 @@ import { contactIntents, contactTitle } from "../app/assets/data/contact.ts";
 
 // Interface copy lives here; long-form copy still comes from canonical data.
 export const ui = {
+  employmentPartTime: "Part-time", employmentFullTime: "Full-time", workModeRemote: "Remote", workModeHybrid: "Hybrid",
   screenshotZoomIn: "Zoom in", screenshotZoomOut: "Zoom out", screenshotFit: "Fit image", screenshotPan: "Swipe or scroll to explore",
   home: "Home", about: "About", projects: "Projects", resume: "Resume", audioPlaying: "PLAYING",
   language: "Choose language", menu: "Open menu", main: "Main", contact: "Contact",

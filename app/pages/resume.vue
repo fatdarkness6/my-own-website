@@ -176,7 +176,7 @@ const title = content([
                   <h3><CommonPageGlitch :text="c(experience.company)" /></h3>
                   <span>{{ experience.period }}</span>
                 </div>
-                <p class="cv-record__meta">{{ experience.role }} / {{ experience.location }}</p>
+                <p class="cv-record__meta">{{ [experience.role, experience.employmentType, experience.location, experience.workMode].filter(Boolean).join(' / ') }}</p>
                 <p class="cv-record__summary">
                   <CommonPageGlitch :text="c(experience.summary)" :interval="14000" />
                 </p>

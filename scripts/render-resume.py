@@ -60,7 +60,8 @@ for experience in data["experience"]:
     block = [
         Paragraph(text(experience["company"]) + ' <font color="#475569">/ '
                   + text(experience["role"]) + "</font>", project_title),
-        Paragraph(text(experience["location"]) + " &nbsp; | &nbsp; " + text(experience["period"]), small),
+        Paragraph(text(" / ".join(filter(None, [experience["location"], experience.get("workMode"), experience.get("employmentType")])))
+                  + " &nbsp; | &nbsp; " + text(experience["period"]), small),
     ]
     block.extend(Paragraph("- " + text(item), bullet) for item in experience["bullets"])
     block.append(Spacer(1, 7))

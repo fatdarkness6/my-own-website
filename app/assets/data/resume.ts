@@ -8,7 +8,7 @@ export const resumeDocument = {
   pages: 2,
 };
 
-// Professional information transcribed from Arsam's supplied résumé.
+// Professional information from Arsam's résumé and supplied LinkedIn experience screenshot.
 // Birth year, marital status and references' private details are intentionally omitted.
 export const resumeProfile = {
   name: aboutCopy.name,
@@ -35,58 +35,64 @@ export const resumeProfile = {
 
 export const resumeExperience = [
   {
-    id: "arilvo", company: "Arilvo", role: "Software Developer", location: "Italy", period: "Aug 2026 - Sep 2026",
-    summary: "Frontend development and deployment for a multilingual MEP/BIM engineering company website.",
+    id: "arvand-termo-tec", company: "Arvand Termo Tec", role: "Full Stack Developer", location: "Italy", period: "Jul 2026 - Present",
+    employmentType: "Part-time", workMode: "Remote",
+    summary: "Development, CMS integration and maintainability improvements for a multilingual Next.js and Strapi platform.",
     bullets: [
-      "Built the frontend from scratch, including reusable Nuxt and Quasar components, responsive UI, SEO, localization and deployment.",
-      "Built reusable components and GSAP interactions, with Italian, English and German content and a foundation for future backend integration.",
+      "Configured Strapi CMS and refactored 250+ frontend files, removing duplicated code and improving maintainability.",
+      "Built responsive sections and fixed localization, navigation, Swiper and image issues across languages.",
+    ],
+    stack: ["Next.js", "React", "Strapi", "JavaScript", "Node.js"], projectId: "arvand-termo-tec",
+  },
+  {
+    id: "arilvo", company: "Arilvo", role: "Frontend Developer", location: "Italy", period: "Jul 2026 - Present",
+    employmentType: "Part-time", workMode: "Remote",
+    summary: "Frontend ownership for a multilingual web platform, from architecture and responsive UI to SEO and deployment.",
+    bullets: [
+      "Built the Nuxt/Vue frontend from scratch with reusable Quasar components, GSAP interactions and Italian, English and German localization.",
+      "Optimized frontend performance, managed production deployment and prepared the architecture for future backend and dynamic-content integration.",
     ],
     stack: ["Nuxt", "Vue", "Quasar", "TypeScript", "GSAP", "i18n"], projectId: "arilvo",
   },
   {
-    id: "arvand-termo-tec", company: "Arvand Termo Tec", role: "Software Developer", location: "Italy", period: "Jul 2026 - Aug 2026",
-    summary: "CMS integration, architecture cleanup and stability improvements for an existing business website.",
+    id: "raymand-group", company: "Raymand Group", role: "Full Stack Developer", location: "Tehran, Iran", period: "Jun 2025 - Aug 2026",
+    employmentType: "Full-time", workMode: "Hybrid",
+    summary: "Developed and maintained a multilingual corporate website for a group of medical equipment companies.",
     bullets: [
-      "Integrated Strapi into a Next.js application and refactored and reorganized 250+ files for maintainability.",
-      "Built a responsive hero and resolved localization, routing, invalid URL and Swiper image-transition issues while removing unnecessary code.",
+      "Built responsive Nuxt/Vue interfaces with SSR, a headless CMS and i18n for dynamic multilingual content.",
+      "Collaborated on API and authentication integration, localization and deployment; improved performance and cross-browser compatibility.",
     ],
-    stack: ["Next.js", "React", "Strapi"], projectId: "arvand-termo-tec",
+    stack: ["Nuxt", "Vue", "SSR", "Headless CMS", "i18n", "API integration"], projectId: "raymand-group",
   },
   {
-    id: "raymand-group", company: "Raymand Group", role: "Web Developer", location: "Tehran, Iran", period: "Since Jun 2025",
-    summary: "Design, development and deployment of a multilingual corporate website for a healthcare and laboratory technology group.",
+    id: "gruppodanesh", company: "Gruppodanesh", role: "Frontend Developer", location: "Italy", period: "Jun 2024 - Nov 2025",
+    employmentType: "Full-time", workMode: "Remote",
+    summary: "End-to-end development and ongoing improvement of a React single-page application.",
     bullets: [
-      "Designed and developed responsive Nuxt, Vue, TypeScript and Quasar interfaces for the company website.",
-      "Structured the website content, implemented Persian, English and German versions and handled deployment.",
-    ],
-    stack: ["Nuxt", "Vue", "TypeScript", "Quasar"], projectId: "raymand-group",
-  },
-  {
-    id: "gruppodanesh", company: "Gruppodanesh", role: "Front-End Developer", location: "Venice, Italy", period: "Jul 2024 - Nov 2025",
-    summary: "React company website with SPA behavior and performance improvements.",
-    bullets: [
-      "Developed the company's React website and implemented SPA features for a smoother user experience.",
-      "Built visit-tracking features to give the client insight into website usage and opportunities for improvement.",
+      "Owned the website's architecture and implementation, maintaining a clean and scalable React codebase.",
+      "Built custom traffic and engagement analytics; improved performance, responsiveness and user experience.",
     ],
     stack: ["React", "JavaScript", "SPA"],
   },
   {
-    id: "pouya-salamat-fartak", company: "Pouya Salamat Fartak", role: "Front-End Developer", location: "Tehran, Iran", period: "Sep 2024 - Aug 2025",
-    summary: "Nuxt SaaS development within a nine-person team, including four frontend developers.",
+    id: "ability-tech-australia", company: "Ability Tech Australia", role: "Frontend Developer", location: "Australia", period: "Dec 2024 - Mar 2025",
+    employmentType: "Part-time", workMode: "Remote",
+    summary: "Frontend development for a home-services management SaaS platform.",
     bullets: [
-      "Worked as one of four frontend developers in a nine-person team preparing a Nuxt SaaS application.",
-      "Integrated REST APIs and implemented structured forms for creating, retrieving, editing and deleting records.",
+      "Integrated backend APIs into Nuxt 3, Quasar and TypeScript interfaces for creating, retrieving, updating and deleting records.",
+      "Built structured data-management forms, customer feedback and review workflows with a responsive, maintainable interface.",
     ],
-    stack: ["Nuxt", "REST APIs", "Forms"],
+    stack: ["Nuxt 3", "Quasar", "TypeScript", "REST APIs"],
   },
   {
-    id: "miarze", company: "Miarze", role: "Front-End Developer", location: "Tehran, Iran", period: "Dec 2024 - May 2025",
-    summary: "Frontend improvements for a home-goods import and export business.",
+    id: "miarze", company: "Miarze", role: "Frontend Developer", location: "Tehran, Iran", period: "Nov 2024 - Mar 2025",
+    employmentType: "Part-time",
+    summary: "Responsive Nuxt navigation and an AI-powered product-evaluation interface.",
     bullets: [
-      "Improved the user interface and responsive behavior across devices.",
-      "Built adaptive Nuxt navigation for large menus and an interface connected to AI-based product rating.",
+      "Built a dynamic Nuxt 2 menu that adapts item heights to the available viewport, keeping navigation accessible.",
+      "Integrated an external AI service for product evaluation, with responsive interfaces and efficient API-driven data presentation.",
     ],
-    stack: ["Nuxt", "Responsive UI", "API integration"],
+    stack: ["Nuxt 2", "Vue", "API integration", "Responsive UI"],
   },
 ];
 
