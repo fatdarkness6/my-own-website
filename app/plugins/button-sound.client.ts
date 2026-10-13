@@ -24,7 +24,7 @@ export default defineNuxtPlugin(() => {
   }
 
   function playClick(): void {
-    play({ volume: 0.6, offset: 0, delayMs: 0 });
+    play({ volume: 0.1, offset: 0, delayMs: 0 });
   }
 
   function onPointerDown(event: PointerEvent): void {

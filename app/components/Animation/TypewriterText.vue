@@ -11,7 +11,7 @@ const props = defineProps({
   prefix: { type: String, default: "> " }, // terminal-style prompt
   sound: { type: Boolean, default: true },
   soundSrc: { type: String, default: "/sound/type-01.mp3" },
-  soundVolume: { type: Number, default: 0.35 },
+  soundVolume: { type: Number, default: 0.2 },
   // minimum time (ms) between two clicks so each one is actually heard
   soundMinInterval: { type: Number, default: 70 },
   cursor: { type: Boolean, default: true },
@@ -57,9 +57,14 @@ const words = computed(() => {
     const characters = graphemes(text);
     const count = characters.length;
     const item = {
-      text, characters, start: index, count, whitespace: /^\s+$/u.test(text),
-      accent: Array.from({ length: text.length }, (_, i) => offset + i)
-        .some((i) => accentIndexes.value.has(i)),
+      text,
+      characters,
+      start: index,
+      count,
+      whitespace: /^\s+$/u.test(text),
+      accent: Array.from({ length: text.length }, (_, i) => offset + i).some(
+        (i) => accentIndexes.value.has(i),
+      ),
       direction: textDirection(text),
     };
     offset += text.length;
@@ -67,8 +72,10 @@ const words = computed(() => {
     return item;
   });
 });
-const visibleWord = (word) => word.characters
-  .slice(0, Math.max(0, revealedCount.value - word.start)).join("");
+const visibleWord = (word) =>
+  word.characters
+    .slice(0, Math.max(0, revealedCount.value - word.start))
+    .join("");
 
 let typingTimeout = null;
 let cursorInterval = null;
@@ -131,10 +138,13 @@ onMounted(() => {
   }
 });
 
-watch(() => props.text, () => {
-  if (isTyping.value) start();
-  else displayed.value = props.text;
-});
+watch(
+  () => props.text,
+  () => {
+    if (isTyping.value) start();
+    else displayed.value = props.text;
+  },
+);
 
 onBeforeUnmount(() => {
   disposed = true;
@@ -149,12 +159,32 @@ onBeforeUnmount(() => {
     <span class="typewriter__text">
       <template v-for="(word, index) in words" :key="index">
         <template v-if="word.whitespace">{{ word.text }}</template>
-        <span v-else class="typewriter__word" :dir="word.direction" :class="{ 'is-accent': word.accent }">
-          <span class="typewriter__word-reserve" aria-hidden="true">{{ word.text }}</span>
-          <span class="typewriter__word-live">{{ visibleWord(word) }}<span
-            v-if="cursor && revealedCount > word.start && revealedCount <= word.start + word.count"
-            class="typewriter__cursor-anchor" aria-hidden="true"
-          ><span class="typewriter__cursor" :class="{ 'is-hidden': !showCursor }">█</span></span></span>
+        <span
+          v-else
+          class="typewriter__word"
+          :dir="word.direction"
+          :class="{ 'is-accent': word.accent }"
+        >
+          <span class="typewriter__word-reserve" aria-hidden="true">{{
+            word.text
+          }}</span>
+          <span class="typewriter__word-live"
+            >{{ visibleWord(word)
+            }}<span
+              v-if="
+                cursor &&
+                revealedCount > word.start &&
+                revealedCount <= word.start + word.count
+              "
+              class="typewriter__cursor-anchor"
+              aria-hidden="true"
+              ><span
+                class="typewriter__cursor"
+                :class="{ 'is-hidden': !showCursor }"
+                >█</span
+              ></span
+            ></span
+          >
         </span>
       </template>
     </span>
