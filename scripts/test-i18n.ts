@@ -111,44 +111,21 @@ test("graphemes preserve Arabic marks, Persian ZWNJ and emoji", () => {
   assert.equal(scrambleGrapheme("سَ", ["ب"]), "بَ");
 });
 
-test("ongoing ARILVO and Arvand roles share the confirmed July 2026 start in every locale", async () => {
-  const { resumeExperience } = await jiti.import<{ resumeExperience: { id: string; period: string }[] }>("../app/assets/data/resume.ts");
-  const ids = ["arilvo", "arvand-termo-tec"];
-  const period = "Jul 2026 - Present";
-  for (const id of ids) assert.equal(resumeExperience.find((record) => record.id === id)?.period, period, id);
-  const en = createI18n({ legacy: false, locale: "en", messages: { en: englishLocale.default } });
-  assert.equal(en.global.t(`copy.${translationKey(period)}`), period);
-  for (const { code, translations } of languages) {
-    const language = await jiti.import<{ default: ReturnType<typeof catalog> }>(`../i18n/locales/${code}.ts`);
-    const localized = createI18n({ legacy: false, locale: code, messages: { [code]: language.default } });
-    for (const id of ids) {
-      assert.equal(localized.global.t(`copy.${translationKey(period)}`), translations[`resumeExperience.${id}.period`], `${code}: ${id}`);
-    }
-  }
-});
-
-test("résumé experience matches the supplied LinkedIn timeline and localizes all visible fields", async () => {
+test("résumé experience comes from editable JSON and localizes all visible fields", async () => {
   type Experience = {
     id: string; role: string; period: string; location: string; employmentType: string;
     workMode?: string; summary: string; bullets: string[];
   };
   const { resumeExperience } = await jiti.import<{ resumeExperience: Experience[] }>("../app/assets/data/resume.ts");
-  const expected = [
-    ["arvand-termo-tec", "Full Stack Developer", "Jul 2026 - Present", "Part-time", "Remote"],
-    ["arilvo", "Frontend Developer", "Jul 2026 - Present", "Part-time", "Remote"],
-    ["raymand-group", "Full Stack Developer", "Jun 2025 - Aug 2026", "Full-time", "Hybrid"],
-    ["gruppodanesh", "Frontend Developer", "Jun 2024 - Nov 2025", "Full-time", "Remote"],
-    ["ability-tech-australia", "Frontend Developer", "Dec 2024 - Mar 2025", "Part-time", "Remote"],
-    ["miarze", "Frontend Developer", "Nov 2024 - Mar 2025", "Part-time", undefined],
-  ];
-  assert.deepEqual(resumeExperience.map(({ id, role, period, employmentType, workMode }) =>
-    [id, role, period, employmentType, workMode]), expected);
+  const source = JSON.parse(await readFile(new URL("../content/resume.json", import.meta.url), "utf8"));
+  assert.deepEqual(JSON.parse(JSON.stringify(resumeExperience)), source.experience);
+  assert.equal(new Set(resumeExperience.map(({ id }) => id)).size, resumeExperience.length);
   for (const { code } of languages) {
     const language = await jiti.import<{ default: ReturnType<typeof catalog> }>(`../i18n/locales/${code}.ts`);
     for (const record of resumeExperience) {
-      for (const source of [record.role, record.period, record.location, record.employmentType,
+      for (const text of [record.role, record.period, record.location, record.employmentType,
         record.workMode, record.summary, ...record.bullets].filter((value): value is string => Boolean(value))) {
-        assert.ok(translationKey(source) in language.default.copy, `${code}: missing experience copy ${source}`);
+        assert.ok(translationKey(text) in language.default.copy, `${code}: missing experience copy ${text}`);
       }
     }
   }

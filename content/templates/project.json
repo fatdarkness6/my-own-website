@@ -1,0 +1,21 @@
+{
+  "id": "my-new-project",
+  "file": "my-new-project/",
+  "name": "My new project",
+  "year": "2026",
+  "role": "DEVELOPER TOOL / CLI",
+  "statusLabel": "OPEN SOURCE",
+  "category": "tools",
+  "summary": "One sentence explaining the problem this project solves.",
+  "headline": "A short, clear project headline.",
+  "description": "Explain what you built, who it helps and how it works.",
+  "ownership": "Describe your actual role",
+  "stack": ["PYTHON"],
+  "layers": [
+    { "label": "APPLICATION", "title": "Main component", "tools": "Python" }
+  ],
+  "contributions": ["Describe a specific contribution."],
+  "note": "Describe any limitations or the current project status.",
+  "repo": "https://github.com/YOUR-USERNAME/YOUR-REPOSITORY",
+  "programmingLanguage": ["Python"]
+}

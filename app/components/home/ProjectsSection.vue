@@ -1,6 +1,6 @@
 <script setup>
 const { c, localePath, rtl, content } = usePortfolioI18n();
-import { projects, projectPlaceholder } from "~/assets/data/projects";
+import { featuredProjects, projectPlaceholder } from "~/assets/data/projects";
 import { projectPath } from "#shared/projectRoutes";
 import { homeCopy } from "~/assets/data/homeCopy";
 
@@ -11,7 +11,7 @@ const { sections, currentIndex, isAnimating } = useScrollSections();
 const titleSegments = content(homeCopy.projects.title);
 const description = "Selected platforms and systems I've built or worked on.";
 
-const featured = content(projects.slice(0, 4));
+const featured = content(featuredProjects);
 const projectLocation = (id) => localePath(projectPath(id));
 let cardPointerStart = null;
 function openProject(event, id) {

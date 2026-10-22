@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Portfolio projects",
+  "description": "Shared project catalog. IDs create permanent localized page URLs. Do not rename published IDs without adding redirects.",
+  "type": "object",
+  "required": ["featuredIds", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "featuredIds": { "description": "Project IDs shown on Home, in display order.", "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+    "items": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "file", "name", "role", "summary", "category", "stack", "headline", "description", "ownership", "layers", "contributions", "note"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "description": "Stable URL slug, e.g. my-project. Must be unique." },
+          "file": { "type": "string", "minLength": 1, "description": "Decorative directory label, e.g. my-project/." },
+          "name": { "type": "string", "minLength": 1 },
+          "year": { "type": "string" },
+          "role": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["live", "wip", "archived"], "description": "Use live only for a hosted app with a live URL. Omit for source-only projects." },
+          "statusLabel": { "type": "string", "minLength": 1 },
+          "category": { "enum": ["web", "ai", "tools"] },
+          "summary": { "type": "string", "minLength": 1 },
+          "availability": { "type": "string", "minLength": 1 },
+          "headline": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "ownership": { "type": "string", "minLength": 1 },
+          "note": { "type": "string", "minLength": 1 },
+          "stack": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "contributions": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "programmingLanguage": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "contributionOnly": { "type": "boolean", "description": "Set true when this is a contribution to an existing product, not authorship." },
+          "live": { "type": "string", "format": "uri", "pattern": "^https?://" },
+          "repo": { "type": "string", "format": "uri", "pattern": "^https?://" },
+          "license": { "type": "string", "format": "uri", "pattern": "^https?://" },
+          "layers": {
+            "type": "array", "minItems": 1,
+            "items": { "type": "object", "required": ["label", "title", "tools"], "additionalProperties": false, "properties": {
+              "label": { "type": "string", "minLength": 1 }, "title": { "type": "string", "minLength": 1 }, "tools": { "type": "string", "minLength": 1 }
+            } }
+          },
+          "screenshot": {
+            "description": "Optional. Omit this whole object for CLI/source-only projects. Paths are relative to public/.",
+            "type": "object", "required": ["src", "alt"], "additionalProperties": false,
+            "properties": {
+              "src": { "type": "string", "pattern": "^/images/" },
+              "optimizedSrc": { "type": "string", "pattern": "^/images/" },
+              "alt": { "type": "string", "minLength": 1 },
+              "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 },
+              "mimeType": { "enum": ["image/jpeg", "image/png"] }
+            }
+          }
+        },
+        "anyOf": [{ "required": ["live"] }, { "required": ["repo"] }]
+      }
+    }
+  }
+}

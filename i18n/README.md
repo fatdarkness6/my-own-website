@@ -7,12 +7,15 @@ determine the language; there are no browser-language redirects.
 
 ## Editing copy
 
-- Keep shared project, résumé and section structure in `app/assets/data/`.
-- Keep identity/contact details in `app/assets/data/identity.ts`, page metadata
-  in `app/assets/data/pageSeo.ts`, and supported languages in `shared/locales.ts`.
-- `english.ts` combines canonical source strings with short interface copy.
-- Edit visitor-facing copy by its readable key in `locales/{code}.ts`, including
-  `locales/en.ts` for English. English falls back to its source string when
+- Edit shared projects, résumé and page content in `content/*.json`. The files in
+  `app/assets/data/` are compatibility adapters. See `content/README.md`.
+- Keep identity/contact details in `content/profile.json`, page metadata in
+  `content/seo.json`, and supported languages in `shared/locales.ts`.
+- `english.ts` combines canonical source strings with `content/interface.json`.
+  Interface source strings remain stable lookup IDs; change their visible text
+  with overrides in `content/translations/`, not by renaming the source strings.
+- Edit visitor-facing copy by its readable key in `content/translations/{code}.json`, including
+  `content/translations/en.json` for English. English falls back to its source string when
   there is no editorial override. Keep source strings stable: they also serve
   as lookup IDs for components, so changing them requires updating all usages.
 - Write natural, language-specific copy rather than translating slogans
@@ -43,6 +46,6 @@ are respected. Locale changes remount pages but project-query changes do not.
 
 ## Checks
 
-Run `npm run test:i18n`, `npm run typecheck` and `npm run build`. Review long translations at mobile
+Run `npm run content:check`, `npm run test:i18n`, `npm run typecheck` and `npm run build`. Review long translations at mobile
 widths and verify language switching from a selected project. Translations are
 an initial localization pass; native-speaker editorial review is recommended.
