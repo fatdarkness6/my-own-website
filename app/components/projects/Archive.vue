@@ -9,6 +9,7 @@ const filters = [
   { id: "all", label: "All files" },
   { id: "web", label: "Web platforms" },
   { id: "ai", label: "AI applications" },
+  { id: "tools", label: "Developer tools" },
 ] as const;
 const filter = useState<(typeof filters)[number]["id"]>("projects-filter", () => "all");
 const route = useRoute();

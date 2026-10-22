@@ -9,6 +9,7 @@ import { contactIntents, contactTitle } from "../app/assets/data/contact.ts";
 
 // Interface copy lives here; long-form copy still comes from canonical data.
 export const ui = {
+  developerTools: "Developer tools", cliSource: "COMMAND-LINE TOOL / OPEN SOURCE",
   employmentPartTime: "Part-time", employmentFullTime: "Full-time", workModeRemote: "Remote", workModeHybrid: "Hybrid",
   screenshotZoomIn: "Zoom in", screenshotZoomOut: "Zoom out", screenshotFit: "Fit image", screenshotPan: "Swipe or scroll to explore",
   home: "Home", about: "About", projects: "Projects", resume: "Resume", audioPlaying: "PLAYING",
@@ -48,7 +49,7 @@ export const ui = {
   seoContactDesc: PAGE_SEO.contact.description,
 };
 
-const structural = new Set(["id", "code", "icon", "class", "src", "optimizedSrc", "href", "live", "repo", "file", "filename", "status", "category", "level", "number", "projectId"]);
+const structural = new Set(["id", "code", "icon", "class", "src", "optimizedSrc", "href", "live", "repo", "file", "filename", "status", "category", "level", "number", "projectId", "programmingLanguage", "license"]);
 export function flatten(source: unknown, prefix = "", result: Record<string, string> = {}) {
   if (typeof source === "string") result[prefix] = source;
   else if (Array.isArray(source)) source.forEach((item, index) => {

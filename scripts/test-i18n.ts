@@ -50,6 +50,25 @@ test("page titles, descriptions and project summaries are localized", () => {
   }
 });
 
+test("ghssh developer-tool copy is localized without translating code metadata", async () => {
+  const required = Object.entries(english).filter(([key]) =>
+    key === "developerTools" || key === "cliSource" ||
+    (key.startsWith("projects.ghssh.") && !/\.(name|year|stack\.\d+|layers\.[01]\.tools)$/.test(key)));
+  assert.ok(required.length >= 20);
+  assert.ok(!Object.keys(english).some((key) => /^projects\.ghssh\.(license|programmingLanguage)/.test(key)));
+  for (const { code } of languages) {
+    const language = await jiti.import<{ default: ReturnType<typeof catalog> }>(`../i18n/locales/${code}.ts`);
+    const localized = createI18n({ legacy: false, locale: code, messages: { [code]: language.default } });
+    for (const [key, source] of required) {
+      const id = translationKey(source);
+      assert.ok(id in language.default.copy, `${code}: missing ${key}`);
+      const value = localized.global.t(`copy.${id}`);
+      assert.ok(value.trim(), `${code}: empty ${key}`);
+      if (["ar", "fa"].includes(code)) assert.ok(/\p{Script=Arabic}/u.test(value), `${code}: incorrect script ${key}`);
+    }
+  }
+});
+
 test("professional copy is present in every language, including English", async () => {
   for (const { code, translations } of languages) {
     for (const key of Object.keys(englishLocale.translations)) {

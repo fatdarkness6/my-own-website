@@ -23,7 +23,7 @@ export interface Project {
   availability?: string;
   stack: string[];
   screenshot?: ProjectScreenshot;
-  category: "web" | "ai";
+  category: "web" | "ai" | "tools";
   headline: string;
   description: string;
   ownership: string;
@@ -34,6 +34,8 @@ export interface Project {
   note: string;
   live?: string;
   repo?: string;
+  programmingLanguage?: string[];
+  license?: string;
 }
 
 // Shared fallback for projects that do not have a screenshot yet.
@@ -209,5 +211,35 @@ export const projects: Project[] = [
     ],
     note: "Published source, not a live API. The current implementation uses FastAPI background tasks and local upload/report storage.",
     repo: "https://github.com/fatdarkness6/docIntel-backend",
+  },
+  {
+    id: "ghssh",
+    file: "ghssh/",
+    name: "ghssh",
+    year: "2026",
+    role: "DEVELOPER TOOL / CLI",
+    statusLabel: "OPEN SOURCE",
+    summary: "Python CLI for switching GitHub SSH accounts and synchronizing repository commit identities on Linux and Windows.",
+    availability: "Windows installer and Linux installation instructions are available on GitHub.",
+    stack: ["PYTHON", "TYPER", "RICH", "GIT", "OPENSSH"],
+    category: "tools",
+    headline: "Switch accounts. Keep commit identity in sync.",
+    description: "A Python command-line tool for managing named GitHub accounts, their SSH keys and commit identities on Linux and Windows. A switch selects the saved SSH key and updates the commit name and email in the chosen Git repository. Guided setup, dry-run previews, fingerprint checks, backups and local rollback support the workflow. Existing commits, browser sessions and HTTPS logins remain unchanged.",
+    ownership: "CLI architecture & cross-platform development",
+    layers: [
+      { label: "ACCOUNTS", title: "Named GitHub profiles", tools: "Python / Typer / Rich" },
+      { label: "IDENTITY", title: "SSH & repository identity", tools: "Git / OpenSSH / Windows / Linux" },
+      { label: "RECOVERY", title: "Backups & rollback", tools: "Preflight checks / Fingerprints / Atomic writes" },
+    ],
+    contributions: [
+      "Built guided account setup and switching with Python, Typer and Rich.",
+      "Connected SSH key selection with repository-local Git commit names and emails.",
+      "Implemented dry-run previews, fingerprint validation, backups and rollback of local file changes on failure.",
+      "Added Windows packaging and automated tests for account, SSH and recovery workflows.",
+    ],
+    note: "SSH selection affects projects sharing that configuration; commit identity changes only in the selected repository. Backups contain private keys and must be protected.",
+    repo: "https://github.com/fatdarkness6/ghssh",
+    programmingLanguage: ["Python"],
+    license: "https://github.com/fatdarkness6/ghssh/blob/main/LICENSE",
   },
 ];

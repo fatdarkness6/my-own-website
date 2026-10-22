@@ -107,6 +107,8 @@ export function usePortfolioSeo(options: PortfolioSeoOptions) {
         inLanguage: locale.value, keywords: record.stack.join(", "),
         ...(record.screenshot ? { image: image.value } : {}),
         ...(record.repo && !record.live ? { codeRepository: record.repo } : {}),
+        ...(record.programmingLanguage ? { programmingLanguage: record.programmingLanguage } : {}),
+        ...(record.license ? { license: record.license } : {}),
         sameAs: [record.live, record.repo].filter(Boolean),
       }, {
         "@type": "BreadcrumbList", "@id": `${canonical.value}#breadcrumbs`,

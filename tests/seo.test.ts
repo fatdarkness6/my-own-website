@@ -42,12 +42,13 @@ test("domain redirect configuration targets only the old production hosts and ke
     assert.equal(matching(hostname).length, 0, hostname);
 });
 
-test("all 70 localized pages have unique URLs and reciprocal sitemap alternates", () => {
+test("all localized pages have unique URLs and reciprocal sitemap alternates", () => {
   const xml = buildSitemap(SITE_URL);
   const entries = [...xml.matchAll(/<url>(.*?)<\/url>/g)].map((match) => match[1]!);
-  assert.equal(entries.length, 70);
+  const expectedCount = SITE_ROUTES.length * SITE_LOCALES.length;
+  assert.equal(entries.length, expectedCount);
   const locations = entries.map((entry) => entry.match(/<loc>(.*?)<\/loc>/)![1]);
-  assert.equal(new Set(locations).size, 70);
+  assert.equal(new Set(locations).size, expectedCount);
   for (const path of SITE_ROUTES) for (const locale of SITE_LOCALES) {
     const location = `${SITE_URL}${localizedPath(path, locale)}`;
     const entry = entries.find((value) => value.includes(`<loc>${location}</loc>`))!;
@@ -66,6 +67,21 @@ test("the sitemap route inventory stays synchronized with actual page files", as
   const routes = files.filter((file) => file.endsWith(".vue") && !file.includes("["))
     .map((file) => `/${file.replace(/\\/g, "/").replace(/\.vue$/, "")}`.replace(/\/index$/, "") || "/");
   assert.deepEqual([...SITE_ROUTES].sort(), [...routes, ...projects.map(({ id }) => projectPath(id))].sort());
+});
+
+test("ghssh has a permanent project route and accurate source-code metadata", () => {
+  const project = projects.find(({ id }) => id === "ghssh")!;
+  assert.ok(project);
+  assert.equal(project.category, "tools");
+  assert.equal(project.repo, "https://github.com/fatdarkness6/ghssh");
+  assert.equal(project.live, undefined, "a CLI repository is not a hosted web app");
+  assert.equal(project.screenshot, undefined, "do not invent a screenshot for a CLI");
+  assert.deepEqual(project.programmingLanguage, ["Python"]);
+  assert.equal(project.license, `${project.repo}/blob/main/LICENSE`);
+  assert.ok(SITE_ROUTES.includes(projectPath(project.id)));
+  const sitemap = buildSitemap(SITE_URL);
+  for (const locale of SITE_LOCALES) assert.ok(sitemap.includes(
+    `<loc>${SITE_URL}${localizedPath(projectPath(project.id), locale)}</loc>`));
 });
 
 test("production robots advertises the sitemap; previews are excluded", () => {

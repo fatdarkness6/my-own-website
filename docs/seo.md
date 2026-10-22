@@ -18,9 +18,19 @@ Explicit URLs determine language; there are no browser-language redirects.
 Arabic and Persian retain SSR language/direction, joined-script typing, localized
 glitch character pools, Quasar language packs and their existing RTL layouts.
 
-There are five main pages and five permanent project pages per language:
-**70 indexable canonical URLs**. The sitemap derives project paths from the shared
+There are five main pages and six permanent project pages per language:
+**77 indexable canonical URLs**, including the ghssh developer tool added on
+2026-10-22 (six project pages per language). The sitemap derives project paths from the shared
 project catalog, and a regression test compares its route inventory with page files.
+
+The ghssh record is based on its repository README, package metadata and security
+documentation. Its Python CLI cover and Developer tools filter are distinct from
+web applications. All six non-English catalogs translate its project copy and new
+interface labels. The permanent `/projects/ghssh` route inherits localized titles,
+descriptions, canonical/hreflang links, social metadata and breadcrumbs; its
+SoftwareSourceCode entity also identifies the repository, Python and MIT license.
+The existing social card remains the fallback; no screenshot or hosted app is
+claimed. Home's four featured projects remain unchanged.
 
 ## Positioning and evidence
 

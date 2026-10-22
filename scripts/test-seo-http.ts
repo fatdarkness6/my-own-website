@@ -103,6 +103,12 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   if (project) {
     const record = graph.find((entry: { "@id": string }) => entry["@id"] === `${expectedUrl}#project`);
     assert.ok(record, `${route}: project entity`);
+    if (project.repo && !project.live) {
+      assert.equal(record["@type"], "SoftwareSourceCode", `${route}: source-code schema`);
+      assert.equal(record.codeRepository, project.repo, `${route}: repository URL`);
+    }
+    if (project.programmingLanguage) assert.deepEqual(record.programmingLanguage, project.programmingLanguage);
+    if (project.license) assert.equal(record.license, project.license);
     assert.equal(record[project.contributionOnly ? "contributor" : "creator"]["@id"], `${SITE_URL}/#person`);
     if (project.contributionOnly) assert.equal(record.creator, undefined, `${route}: contribution is not authorship`);
     assert.ok(graph.some((entry: { "@type": string }) => entry["@type"] === "BreadcrumbList"));
@@ -110,6 +116,11 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
     assert.ok(content.includes(project.name), `${route}: rendered project name`);
     assert.ok(decodeHtml(content).includes(translate(project.description)), `${route}: project description exists before JavaScript`);
     assert.ok(content.includes('q-expansion-item--expanded'), `${route}: visible technical details`);
+    if (project.category === "tools") {
+      for (const source of [project.role, project.availability!, project.note, "COMMAND-LINE TOOL / OPEN SOURCE"])
+        assert.ok(decodeHtml(content).includes(translate(source)), `${route}: localized developer-tool copy`);
+      assert.ok(attributes(content, "a").some((anchor) => anchor.href === project.repo), `${route}: source-code action`);
+    }
   }
   if (path === "/projects") {
     const anchors = attributes(html, "a");
@@ -168,6 +179,11 @@ for (const locale of SITE_LOCALES) {
   const selectedHtml = await selected.text();
   assert.ok(/<div[^>]*id="project-file"[^>]*aria-label="[^"]*DOCINTEL/.test(selectedHtml), `${locale}: selected query project`);
   assert.equal(attributes(selectedHtml, "link").find((link) => link.rel === "canonical")?.href, `${SITE_URL}${localizedPath("/projects", locale)}`);
+  const tool = await fetch(`${origin}${localizedPath("/projects", locale)}?project=ghssh`, { redirect: "manual" });
+  assert.equal(tool.status, 200, `${locale}: developer-tool query selection without redirect`);
+  const toolHtml = await tool.text();
+  assert.ok(/<div[^>]*id="project-file"[^>]*aria-label="[^"]*ghssh/.test(toolHtml), `${locale}: selected CLI project`);
+  assert.equal(attributes(toolHtml, "link").find((link) => link.rel === "canonical")?.href, `${SITE_URL}${localizedPath("/projects", locale)}`);
   const switched = await fetch(`${origin}${localizedPath("/projects/arilvo", locale)}?project=docintel&utm_source=test`, { redirect: "manual" });
   assert.equal(switched.status, 200, `${locale}: detail query selection`);
   const switchedHtml = await switched.text();

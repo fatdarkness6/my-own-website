@@ -25,7 +25,7 @@ defineProps<{
     <div v-else class="project-preview__cover">
       <div class="project-preview__art" aria-hidden="true">
         <span class="project-preview__orbit" />
-        <q-icon :name="category === 'ai' ? 'description' : 'web'" />
+        <q-icon :name="category === 'tools' ? 'terminal' : category === 'ai' ? 'description' : 'web'" />
         <span class="project-preview__cross project-preview__cross--first"
           >+</span
         >
@@ -35,7 +35,7 @@ defineProps<{
       </div>
       <strong>{{ name }}</strong>
       <span class="project-preview__caption">{{
-        c(sourceOnly ? "BACKEND API / SOURCE AVAILABLE" : compact ? "PROJECT COVER" : "PROJECT COVER / SCREENSHOT COMING SOON")
+        c(category === 'tools' ? "COMMAND-LINE TOOL / OPEN SOURCE" : sourceOnly ? "BACKEND API / SOURCE AVAILABLE" : compact ? "PROJECT COVER" : "PROJECT COVER / SCREENSHOT COMING SOON")
       }}</span>
     </div>
   </div>
