@@ -1,12 +1,13 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { VERT, FRAG } from "~/graphics/sectionBackgroundShaders";
+import { HOME_SECTIONS, SCENE_IDS } from "#shared/homeSections";
 
 const props = defineProps({
   index: { type: Number, default: 0 },
   scenes: {
     type: Array,
-    default: () => ["signal", "terminal", "rain", "circuit", "radar"],
+    default: () => HOME_SECTIONS.map(({ scene }) => scene),
   },
   accent: { type: String, default: "#3b82f6" },
   intensity: { type: Number, default: 1 }, // overall brightness 0..1.5
@@ -16,9 +17,6 @@ const props = defineProps({
   renderScale: { type: Number, default: 1 }, // fraction of device pixels (desktop)
   mobileRenderScale: { type: Number, default: 0.5 },
 });
-
-// hero, about, projects, resume, cta
-const SCENE_IDS = { signal: 0, terminal: 1, rain: 2, circuit: 3, radar: 4 };
 
 const canvasEl = ref(null);
 

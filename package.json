@@ -5,6 +5,8 @@
   "scripts": {
     "content:check": "node scripts/check-content.ts",
     "content:translations": "node scripts/check-content.ts --report-translations",
+    "blog:new": "node scripts/blog.ts new",
+    "blog:add": "node scripts/blog.ts add",
     "prebuild": "node scripts/check-content.ts",
     "test:i18n": "node scripts/test-i18n.ts",
     "test:seo": "node --test tests/seo.test.ts",

@@ -154,7 +154,7 @@ onBeforeUnmount(() => ro?.disconnect());
                 </template>
 
                 <p class="pcard__meta">
-                  <template v-if="p.year">{{ p.year }} · </template>{{ p.role }}
+                  <template v-if="p.year"><CommonLocalizedDate :value="p.year" /> · </template>{{ p.role }}
                 </p>
 
                 <h3 class="pcard__name">

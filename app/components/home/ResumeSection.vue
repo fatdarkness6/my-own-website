@@ -48,7 +48,7 @@ watch(
       <header class="resume__copy">
         <p class="resume__eyebrow">
           <AnimationTypedLine
-            :text="c('// 04. RESUME')"
+            :text="c('// 05. RESUME')"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"

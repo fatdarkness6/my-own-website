@@ -101,8 +101,49 @@ needs a commit/push and a successful deployment. These JSON files are not a live
 
 ## Blog articles
 
-The first article adapts the owner's latest LinkedIn post about Strapi and Next.js
-ISR. Its original Persian and English translation are stored in `blog.json`.
+### Quick workflow — no Vue or route edits
+
+```sh
+npm run blog:new -- my-post --source "https://www.linkedin.com/posts/your-original-post/" --lang fa,en
+```
+
+This creates **only** `content/drafts/my-post.json`, using the editable
+`templates/blog.json`. It does not add a public page. Replace every `TODO:` value
+with your title, summary, tags and article sections. Remove languages you have not
+actually written; `--lang fa` is the default, and any site language is supported.
+An optional `--project ghssh` reuses that project's image and related-project link.
+No image or project is required. The date defaults to today's date in Tehran;
+use `--date 2026-10-28` to explicitly set the date this adaptation joins the blog.
+The original LinkedIn post's date is never guessed.
+
+When the article is ready:
+
+```sh
+npm run blog:add -- content/drafts/my-post.json --check
+npm run blog:add -- content/drafts/my-post.json
+npm run content:check
+```
+
+`--check` validates without changing anything. The second command adds the article
+to the end of `blog.json` → `posts` (the array controls display order). It refuses
+unfinished placeholders, duplicate IDs/sources, invalid dates/links, missing cover
+files, broken project references and mismatched translated section IDs. It never
+overwrites an existing draft, removes your draft, commits, pushes or deploys.
+The app, blog cards, actual-language routes and SEO continue to derive from this
+one published catalog. To edit a published article, edit its existing entry in
+`blog.json`; do not add it again. Review the diff and run the normal checks before
+publishing. You can still copy `templates/blog.json` into the catalog manually,
+but remove every placeholder and run `content:check` first.
+
+خلاصه: دستور اول یک پیش‌نویس جدا می‌سازد. متن‌های `TODO:` را جایگزین کنید،
+سپس با `blog:add --check` بررسی و با `blog:add` به فهرست مقاله‌ها اضافه کنید.
+فقط زبان‌هایی را نگه دارید که متن کاملشان آماده است؛ نیازی به تغییر کامپوننت،
+مسیر یا فایل سئو نیست. پیش‌نویس روی سایت نمایش داده نمی‌شود.
+
+### Article fields and optional visuals
+
+The articles adapt the owner's verified LinkedIn posts. Their actual text and
+translations are stored in `blog.json`.
 The source URL links to the original post. `publishedAt` is the date the adaptation
 was added to this blog; it is not a guessed LinkedIn publication date. Only add
 `sourcePublishedAt` when an exact original date is known.
@@ -153,6 +194,35 @@ IDs, language availability and shared section anchors. Never add invented posts,
 results, publication dates or translations as layout filler.
 SSR, localization, RTL, typing, glitch animations and URL selection keep their
 existing behavior.
+
+### Home preview
+
+The Home Blog snap panel uses `blog.json` too, in the same article order as the
+blog page. There is no second list to maintain. It displays one article at a time
+with Previous/Next and All articles controls. The workbench also provides direct
+selection through up to six numbered files; the visible file window follows the
+current article as the catalog grows. Titles use `home.json` → `blog`;
+interface translations remain in `translations/`. Article links always point to
+an actual supplied language version, not a missing translated page.
+
+### Dates
+
+Keep stored dates Gregorian: `YYYY-MM-DD` for an exact day, `YYYY-MM` when only
+the month is known, or `YYYY` for a year. Existing résumé periods such as
+`Jul 2026 - Present` are supported without rewriting their source data.
+
+The common `CommonLocalizedDate` component follows the selected site language:
+
+```vue
+<CommonLocalizedDate value="2026-10-28" />
+<CommonLocalizedDate value="Jul 2026 - Present" range />
+```
+
+Persian uses the Persian calendar; the other supported languages use localized
+Gregorian dates. Month/year-only records may span two Persian months/years:
+the formatter preserves that precision rather than inventing an exact day.
+For animated text, use `useLocalizedDate().formatDate(value)` or
+`.formatPeriod(period)`. SEO dates and `<time datetime>` stay machine-readable ISO.
 
 The downloadable résumé is a generated PDF, not a live view of the JSON. After
 editing résumé information, regenerate and visually inspect it using the existing

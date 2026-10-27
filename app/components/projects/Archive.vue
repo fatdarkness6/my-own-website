@@ -250,7 +250,7 @@ const title = computed(() => props.projectId
                     <p class="archive-label">
                       {{ current.role
                       }}<template v-if="current.year">
-                        / {{ current.year }}</template
+                        / <CommonLocalizedDate :value="current.year" /></template
                       >
                     </p>
                     <h2><CommonPageGlitch :text="c(current.name)" /></h2>

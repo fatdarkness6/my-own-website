@@ -240,6 +240,7 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 .scroll-container .hero,
 .scroll-container .about,
 .scroll-container .projects,
+.scroll-container .home-blog,
 .scroll-container .resume,
 .scroll-container .cta {
   background: transparent !important;
@@ -248,6 +249,7 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 /* Keep text readable on top of the moving background */
 .scroll-container .about__inner,
 .scroll-container .projects__inner,
+.scroll-container .home-blog__inner,
 .scroll-container .resume__inner,
 .scroll-container .cta__inner {
   text-shadow: 0 0 12px rgba(0, 0, 0, 0.85);

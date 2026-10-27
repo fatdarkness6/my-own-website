@@ -9,7 +9,7 @@ export interface HomeCopySegment {
 
 type HomeCopy = {
   hero: { technologies: HomeCopySegment[]; tagline: HomeCopySegment[] };
-} & Record<"about" | "projects" | "resume" | "cta", { title: HomeCopySegment[] }>;
+} & Record<"about" | "projects" | "blog" | "resume" | "cta", { title: HomeCopySegment[] }>;
 
 // Edit segments in content/home.json; visible overrides live in content/translations/.
 export const homeCopy = Object.freeze(data satisfies HomeCopy);

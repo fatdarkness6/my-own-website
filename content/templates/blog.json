@@ -1,0 +1,24 @@
+{
+  "id": "replace-me",
+  "sourceUrl": "TODO: Original LinkedIn post URL",
+  "publishedAt": "TODO: Date added to the blog (YYYY-MM-DD)",
+  "tags": ["TODO: Technical topic"],
+  "versions": {
+    "en": {
+      "title": "TODO: Article title in this language",
+      "summary": "TODO: One or two sentences describing what the reader will learn",
+      "sections": [
+        {
+          "id": "the-problem",
+          "title": "TODO: Section heading in this language",
+          "paragraphs": ["TODO: Explain the actual problem in your own words"]
+        },
+        {
+          "id": "the-solution",
+          "title": "TODO: Section heading in this language",
+          "paragraphs": ["TODO: Explain what you built or changed and what you learned"]
+        }
+      ]
+    }
+  }
+}

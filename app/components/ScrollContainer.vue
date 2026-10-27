@@ -2,6 +2,7 @@
 const { c, localePath } = usePortfolioI18n();
 import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
 import { useScrollSections } from "~/composables/useScrollSections";
+import { homeSection } from "#shared/homeSections";
 
 const props = defineProps({
   transitionDuration: { type: Number, default: 900 },
@@ -39,6 +40,7 @@ const trackStyle = computed(() => ({
   transform: `translate3d(0, -${currentIndex.value * 100}%, 0)`,
   transitionDuration: `${props.transitionDuration}ms`,
 }));
+const sceneNames = computed(() => sections.map(({ id }) => homeSection(id)?.scene ?? "signal"));
 
 watch(
   () => props.transitionDuration,
@@ -286,7 +288,7 @@ onBeforeUnmount(() => {
     <!-- one shared hacker background for every section -->
     <AnimationSectionBackground
       :index="currentIndex"
-      :scenes="['signal', 'terminal', 'rain', 'circuit', 'radar']"
+      :scenes="sceneNames"
       :transition-duration="transitionDuration"
       :intensity="0.9"
     />
@@ -315,7 +317,7 @@ onBeforeUnmount(() => {
         type="button"
         class="scroll-dots__dot"
         :class="{ 'is-active': i === currentIndex }"
-        :aria-label="`${c(['Home', 'About', 'Projects', 'Resume', 'Contact'][i] || 'Home')} — ${i + 1}`"
+        :aria-label="`${c(homeSection(section.id)?.label || 'Home')} — ${i + 1}`"
         :aria-current="i === currentIndex ? 'true' : undefined"
         @click="handleDotClick(i)"
       />

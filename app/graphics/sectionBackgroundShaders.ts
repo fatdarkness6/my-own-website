@@ -275,12 +275,53 @@ vec3 sceneRadar(vec2 fc) {
   return col;
 }
 
+/* ---------- SCENE 5 : DISPATCH / publishing packets (home blog) ----------
+   Staggered document frames travel along editorial lanes. No second canvas or
+   animation loop: this runs only when the shared renderer selects this scene. */
+vec3 sceneDispatch(vec2 fc) {
+  vec2 size = uRes / uScale;
+  vec2 p = fc / uScale;
+  float lane = floor(p.y / 144.0);
+  float speed = mix(12.0, 26.0, hash11(lane + 7.0));
+  p.x += uTime * speed + lane * 83.0;
+  vec2 cell = floor(p / vec2(258.0, 144.0));
+  vec2 q = mod(p, vec2(258.0, 144.0));
+  float seed = hash21(cell);
+  float present = step(0.28, seed);
+  vec2 center = vec2(118.0, 64.0);
+  vec2 halfSize = vec2(100.0, 49.0);
+  vec2 d = abs(q - center) - halfSize;
+  float frame = (1.0 - smoothstep(0.55, 1.4, abs(max(d.x, d.y))));
+  // Cut opposing corners, echoing the site's cards and buttons.
+  float notch = step(34.0, q.x + q.y) * step(q.x + q.y, 315.0);
+  frame *= notch;
+  float header = step(31.0, q.x) * step(q.x, 85.0 + seed * 95.0)
+    * step(28.0, q.y) * step(q.y, 31.0);
+  float row = floor((q.y - 45.0) / 13.0);
+  float rowLength = 45.0 + 120.0 * hash11(row + seed * 99.0);
+  float lines = step(45.0, q.y) * step(q.y, 91.0) * step(31.0, q.x)
+    * step(q.x, 31.0 + rowLength) * (1.0 - step(1.2, mod(q.y - 45.0, 13.0)));
+  float tick = step(192.0, q.x) * step(q.x, 203.0) * step(29.0, q.y) * step(q.y, 33.0);
+  float scanX = mod(uTime * 72.0 + lane * 51.0, 258.0);
+  float scan = exp(-abs(q.x - scanX) * 0.13);
+  float rail = (1.0 - smoothstep(0.5, 1.3, abs(q.y - 130.0))) * 0.28;
+  float packet = exp(-pow((q.x - mod(uTime * 100.0, 258.0)) * 0.1, 2.0)) * rail;
+  float edgeSpace = smoothstep(0.1, 0.48, abs(fc.x / uRes.x - 0.5));
+  // Keep the text area calmer without making the document lanes disappear.
+  float quiet = mix(0.58, 1.0, edgeSpace);
+  vec3 col = uAccent * present * (frame * 0.58 + header * 0.60 + lines * 0.30 + tick * 0.9);
+  col += mix(uAccent, vec3(0.8, 0.9, 1.0), 0.4) * present * frame * scan * 0.95;
+  col += uAccent * (rail + packet * 2.0);
+  return col * quiet;
+}
+
 vec3 scene(float s, vec2 fc) {
   if (s < 0.5) return sceneSignal(fc);
   if (s < 1.5) return sceneTerminal(fc);
   if (s < 2.5) return sceneRain(fc);
   if (s < 3.5) return sceneCircuit(fc);
-  return sceneRadar(fc);
+  if (s < 4.5) return sceneRadar(fc);
+  return sceneDispatch(fc);
 }
 
 vec3 composite(vec2 fc) {

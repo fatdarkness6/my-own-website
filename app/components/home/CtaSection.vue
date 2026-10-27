@@ -43,7 +43,8 @@ watch(inView, (visible) => visible && play(), {
   flush: "post",
 });
 
-const year = new Date().getFullYear();
+// Serialize the date during SSR so hydration shares exactly the same instant.
+const copyrightDate = useState("copyright-date", () => new Date().toISOString().slice(0, 10));
 </script>
 
 <template>
@@ -52,7 +53,7 @@ const year = new Date().getFullYear();
       <header class="cta__copy">
         <p class="cta__eyebrow eyebrow">
           <AnimationTypedLine
-            :text="c('// 05. CONTACT')"
+            :text="c('// 06. CONTACT')"
             :speed="28"
             :glitch="4200"
             v-bind="line('eyebrow')"
@@ -148,7 +149,7 @@ const year = new Date().getFullYear();
 
       <footer class="cta__foot" :class="{ 'is-revealed': finished }">
         <span>{{ c("// EOF") }}</span>
-        <span>© {{ year }} {{ c("Arsam · built with Nuxt + Quasar") }}</span>
+        <span>© <CommonLocalizedDate :value="copyrightDate" format="year" /> {{ c("Arsam · built with Nuxt + Quasar") }}</span>
       </footer>
     </div>
   </section>

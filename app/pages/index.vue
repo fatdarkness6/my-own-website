@@ -9,6 +9,9 @@
     <ScrollSection id="projects">
       <HomeProjectsSection />
     </ScrollSection>
+    <ScrollSection id="blog">
+      <HomeBlogSection />
+    </ScrollSection>
     <ScrollSection id="resume">
       <HomeResumeSection />
     </ScrollSection>
@@ -19,6 +22,8 @@
 </template>
 
 <script lang="ts" setup>
+import HomeBlogSection from "~/components/home/BlogSection.vue";
+
 definePageMeta({ layout: "scroll" });
 const { c } = usePortfolioI18n();
 

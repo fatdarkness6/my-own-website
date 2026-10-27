@@ -174,7 +174,7 @@ const title = content([
               <q-item-section>
                 <div class="cv-record__title">
                   <h3><CommonPageGlitch :text="c(experience.company)" /></h3>
-                  <span>{{ experience.period }}</span>
+                  <CommonLocalizedDate :value="sourceExperience[index]!.period" range />
                 </div>
                 <p class="cv-record__meta">{{ [experience.role, experience.employmentType, experience.location, experience.workMode].filter(Boolean).join(' / ') }}</p>
                 <p class="cv-record__summary">
