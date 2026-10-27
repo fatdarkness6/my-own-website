@@ -29,6 +29,9 @@ npm run preview
 
 ## Code organization
 
+For the current stack, component map, infrastructure, review findings and validation
+baseline, see [docs/project-review.md](docs/project-review.md).
+
 | Location | Responsibility |
 | --- | --- |
 | `app/pages/` | Route entry points; `index.vue` composes the homepage sections. |
