@@ -57,6 +57,10 @@ for (const project of json.items) for (const src of [project.screenshot?.src, pr
 for (const post of blog.posts) for (const src of [post.cover?.src, post.cover?.optimizedSrc].filter(Boolean)) {
   try { await access(new URL(`public${src}`, root)); } catch { errors.push(`blog.json: missing cover image public${src}.`); }
 }
+for (const post of blog.posts) for (const version of Object.values(post.versions) as { sections: { visual?: { kind: string; projectId?: string } }[] }[]) {
+  for (const section of version.sections) if (section.visual?.kind === "project" && !json.items.find((item: { id: string }) => item.id === section.visual!.projectId)?.screenshot)
+    errors.push(`blog.json: visual references project ${section.visual.projectId} without a screenshot.`);
+}
 for (const file of ["profile", "images", "home", "about", "about-page", "contact", "seo", "resume", "interface"]) await read(`content/${file}.json`);
 const codes = ["en", "es", "de", "fr", "it", "ar", "fa"];
 const required = Object.entries(english).filter(([key, source]) => source !== "API" && (key.startsWith("seo") || key.startsWith("blog") || /^projects\.[^.]+\.(role|statusLabel|summary|description|availability|headline|ownership|note|contributions\.\d+|layers\.\d+\.(label|title))$/.test(key) || /^resumeExperience\.[^.]+\.(role|location|period|employmentType|workMode|summary|bullets\.\d+)$/.test(key)));

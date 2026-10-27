@@ -594,7 +594,7 @@
   "blogLabel": "// ایده‌ها، تصمیم‌ها و آموخته‌های توسعه",
   "blogTitle": "یادداشت‌های فنی.",
   "blogIntro": "یادداشت‌هایی دربارهٔ اپلیکیشن‌های وب، سیستم‌های بک‌اند و کارهایی که پشت پروژه‌هایم انجام می‌دهم.",
-  "blogLatest": "تازه‌ترین مطلب",
+  "blogLatest": "تازه‌ترین مطالب",
   "blogReadArticle": "خواندن مطلب",
   "blogReadOriginal": "خواندن پست اصلی در لینکدین",
   "blogContents": "در این صفحه",
@@ -617,5 +617,6 @@
   "blogCodeCopied": "کد کپی شد",
   "blogCopyFailed": "برای کپی کردن، کد را انتخاب کنید.",
   "blogAdded": "افزوده‌شده به این بلاگ",
-  "blogReadingLanguage": "زبان مطلب"
+  "blogReadingLanguage": "زبان مطلب",
+  "blogProgress": "پیشرفت مطالعه"
 }

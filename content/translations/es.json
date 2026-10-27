@@ -594,7 +594,7 @@
   "blogLabel": "// IDEAS, DECISIONES Y LECCIONES DEL DESARROLLO",
   "blogTitle": "NOTAS DE DESARROLLO.",
   "blogIntro": "Notas sobre aplicaciones web, sistemas backend y el trabajo detrás de mis proyectos.",
-  "blogLatest": "ÚLTIMO ARTÍCULO",
+  "blogLatest": "ÚLTIMOS ARTÍCULOS",
   "blogReadArticle": "Leer artículo",
   "blogReadOriginal": "Leer la publicación original en LinkedIn",
   "blogContents": "En esta página",
@@ -609,7 +609,7 @@
   "blogSource": "FUENTE / LINKEDIN",
   "blogAuthor": "Escrito por",
   "blogReadingTime": "min de lectura",
-  "blogArticleCount": "ARTÍCULO",
+  "blogArticleCount": "ARTÍCULOS",
   "blogCaseStudy": "NOTA DE PROYECTO",
   "seoBlog": "Blog | Arsam Sarkhosh",
   "seoBlogDesc": "Notas de desarrollo de Arsam Sarkhosh sobre aplicaciones web, sistemas backend y lecciones prácticas de sus proyectos.",
@@ -617,5 +617,6 @@
   "blogCodeCopied": "Código copiado",
   "blogCopyFailed": "Selecciona el código para copiarlo.",
   "blogAdded": "Añadido a este blog",
-  "blogReadingLanguage": "Idioma del artículo"
+  "blogReadingLanguage": "Idioma del artículo",
+  "blogProgress": "Progreso de lectura"
 }

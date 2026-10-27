@@ -1,25 +1,27 @@
 <script setup lang="ts">
+import BlogBackground from "~/components/blog/Background.vue";
 import { blogPosts } from "~/assets/data/blog";
 import { identity } from "~/assets/data/identity";
 
 definePageMeta({ readingMode: true });
 const { c } = usePortfolioI18n();
 usePortfolioSeo({ page: "blog", type: "CollectionPage", collection: "blog" });
-const { element, line } = useViewportTyping(["label"], {
+const { element, line, started } = useViewportTyping(["label", "title", "description"], {
   onceKey: "blog-introduction", viewport: { threshold: 0 },
 });
 </script>
 
 <template>
-  <div id="blog-main" ref="element" class="blog-page">
-    <div class="blog-filebar"><span>{{ c('ARSAM / ENGINEERING NOTES') }}</span><span>{{ String(blogPosts.length).padStart(2, '0') }} {{ c('ARTICLE') }}</span></div>
-    <header class="blog-intro">
-      <p class="blog-label"><AnimationTypedLine :text="c('// IDEAS, DECISIONS & LESSONS FROM BUILDING')" :speed="12" v-bind="line('label')" /></p>
-      <h1>{{ c('ENGINEERING NOTES.') }}</h1>
-      <p class="blog-intro__description">{{ c('Notes on web applications, backend systems and the work behind my projects.') }}</p>
+  <div id="blog-main" class="blog-page">
+    <BlogBackground :active="started" />
+    <div class="blog-filebar"><span><CommonPageGlitch :text="c('ARSAM / ENGINEERING NOTES')" :interval="14000" /></span><span>{{ String(blogPosts.length).padStart(2, '0') }} {{ c('ARTICLE') }}</span></div>
+    <header ref="element" class="blog-intro">
+      <p class="blog-label"><AnimationTypedLine :text="c('// IDEAS, DECISIONS & LESSONS FROM BUILDING')" :speed="12" :glitch="11000" v-bind="line('label')" /></p>
+      <h1><AnimationTypedLine :text="c('ENGINEERING NOTES.')" :speed="24" :glitch="8500" v-bind="line('title')" /></h1>
+      <p class="blog-intro__description"><AnimationTypedLine :text="c('Notes on web applications, backend systems and the work behind my projects.')" :speed="10" :glitch="15000" v-bind="line('description')" /></p>
     </header>
     <section class="blog-posts" aria-labelledby="blog-latest">
-      <div class="blog-sectionbar"><h2 id="blog-latest">{{ c('LATEST ARTICLE') }}</h2><span dir="ltr">{{ String(blogPosts.length).padStart(2, '0') }}</span></div>
+      <div class="blog-sectionbar"><h2 id="blog-latest"><CommonPageGlitch :text="c('LATEST ARTICLE')" :interval="12000" /></h2><span dir="ltr">{{ String(blogPosts.length).padStart(2, '0') }}</span></div>
       <div class="blog-grid">
         <CommonHackerReveal v-for="(post, index) in blogPosts" :key="post.id" :show="true" :duration="460"><BlogPostCard :post="post" :number="index + 1" /></CommonHackerReveal>
       </div>

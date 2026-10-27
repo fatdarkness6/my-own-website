@@ -7,7 +7,7 @@ import { portraitImages } from "../app/assets/data/images.ts";
 import { translationKey } from "../app/utils/translationKey.ts";
 import { createI18n } from "vue-i18n";
 import { createJiti } from "jiti";
-import { blogPosts } from "../app/assets/data/blog.ts";
+import { blogCover, blogPosts } from "../app/assets/data/blog.ts";
 import { blogLocales, blogPath, getBlogPost } from "../shared/blogRoutes.ts";
 
 const jiti = createJiti(import.meta.url);
@@ -54,9 +54,9 @@ for (const { path, locales: availableLocales } of SITE_PAGES) for (const languag
   }
   // A bare origin and its trailing-slash root represent the same HTTP URL.
   assert.equal(new URL(metadata.find((meta) => meta.property === "og:url")!.content!).href, expectedUrl);
-  const expectedImage = article?.post.cover || project?.screenshot;
+  const expectedImage = article ? blogCover(article.post) : project?.screenshot;
   assert.equal(metadata.find((meta) => meta.property === "og:image")?.content, `${SITE_URL}${expectedImage?.src || SOCIAL_IMAGE}`);
-  assert.equal(metadata.find((meta) => meta.property === "og:image:type")?.content, article?.post.cover ? "image/jpeg" : project?.screenshot?.mimeType || "image/png");
+  assert.equal(metadata.find((meta) => meta.property === "og:image:type")?.content, expectedImage?.mimeType || "image/png");
   assert.equal(metadata.find((meta) => meta.property === "og:image:width")?.content, String(expectedImage?.width || 1200));
   assert.equal(metadata.find((meta) => meta.property === "og:image:height")?.content, String(expectedImage?.height || 630));
   assert.equal(metadata.find((meta) => meta.name === "google-site-verification")?.content, "QqxjGlyiagYJJ7OqLt3hdM-CxlPSf5QQx5VQJI3kl8E");
@@ -145,13 +145,14 @@ for (const { path, locales: availableLocales } of SITE_PAGES) for (const languag
       const item = list.itemListElement.find((entry: { item: { url: string } }) => entry.item.url === `${SITE_URL}${localizedPath(blogPath(post.id), articleLanguage)}`);
       assert.ok(item, `${route}: article schema points to an existing language`);
       assert.equal(item.item.inLanguage, articleLanguage);
-      if (post.cover) {
-        assert.equal(item.item.image, `${SITE_URL}${post.cover.src}`, `${route}: original cover in article schema`);
-        const cover = attributes(semanticHtml, "img").find((image) => image.src === post.cover!.optimizedSrc);
+      const articleCover = blogCover(post);
+      if (articleCover) {
+        assert.equal(item.item.image, `${SITE_URL}${articleCover.src}`, `${route}: original cover in article schema`);
+        const cover = attributes(semanticHtml, "img").find((image) => image.src === (articleCover.optimizedSrc || articleCover.src));
         assert.ok(cover, `${route}: locally hosted article cover`);
-        assert.equal(decodeHtml(cover.alt), post.versions[articleLanguage]!.coverAlt, `${route}: translated cover alternative text`);
-        assert.equal(cover.width, String(post.cover.width));
-        assert.equal(cover.height, String(post.cover.height));
+        assert.equal(decodeHtml(cover.alt), post.versions[articleLanguage]!.coverAlt || translate(articleCover.alt), `${route}: translated cover alternative text`);
+        assert.equal(cover.width, String(articleCover.width));
+        assert.equal(cover.height, String(articleCover.height));
       }
       assert.ok(anchors.some((anchor) => anchor.href === localizedPath(blogPath(post.id), articleLanguage)), `${route}: crawlable article link`);
       for (const unavailable of SITE_LOCALES.filter((code) => !available.includes(code))) {
@@ -168,7 +169,7 @@ for (const { path, locales: availableLocales } of SITE_PAGES) for (const languag
     assert.equal(record.author["@id"], `${SITE_URL}/#person`);
     assert.equal(record.inLanguage, language);
     assert.equal(record.citation, article.post.sourceUrl);
-    assert.equal(record.image, `${SITE_URL}${article.post.cover?.src || SOCIAL_IMAGE}`, `${route}: article social image`);
+    assert.equal(record.image, `${SITE_URL}${blogCover(article.post)?.src || SOCIAL_IMAGE}`, `${route}: article social image`);
     assert.equal(record.dateModified, undefined, `${route}: no fabricated modification date`);
     assert.equal(metadata.find((meta) => meta.property === "article:published_time")?.content, article.post.publishedAt);
     assert.ok(graph.some((entry: { "@type": string }) => entry["@type"] === "BreadcrumbList"));

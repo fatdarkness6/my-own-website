@@ -4,6 +4,7 @@ import { PAGE_SEO } from "#shared/seo";
 import { projects as sourceProjects } from "~/assets/data/projects";
 import { findProjectId, projectPath } from "#shared/projectRoutes";
 const props = defineProps<{ projectId?: string }>();
+const { navigateToSection } = useSectionNavigation(["projects-main"]);
 const projects = content(sourceProjects);
 const filters = [
   { id: "all", label: "All files" },
@@ -388,7 +389,7 @@ const title = computed(() => props.projectId
       /></q-btn>
       <div class="archive-exit__bottom">
         <span>{{ c("ARSAM SARKHOSH / SOFTWARE DEVELOPER") }}</span
-        ><a href="#projects-main">{{ c("BACK TO TOP ↑") }}</a>
+        ><a href="#projects-main" @click="navigateToSection($event, 'projects-main')">{{ c("BACK TO TOP ↑") }}</a>
       </div>
     </footer>
   </article>

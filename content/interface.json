@@ -262,5 +262,6 @@
   "blogCodeCopied": "Code copied",
   "blogCopyFailed": "Select the code to copy it.",
   "blogAdded": "Added to this blog",
-  "blogReadingLanguage": "Article language"
+  "blogReadingLanguage": "Article language",
+  "blogProgress": "Reading progress"
 }

@@ -4,7 +4,7 @@ import { identity } from "~/assets/data/identity";
 import { projectPath } from "#shared/projectRoutes";
 import { contactDetails } from "~/assets/data/contact";
 import { projects as sourceProjects, type Project } from "~/assets/data/projects";
-import { blogPosts, type BlogPost, type BlogVersion } from "~/assets/data/blog";
+import { blogCover, blogPosts, type BlogPost, type BlogVersion } from "~/assets/data/blog";
 import { blogLocales, blogPath, blogPreview } from "#shared/blogRoutes";
 
 interface PortfolioSeoOptions {
@@ -34,9 +34,11 @@ export function usePortfolioSeo(options: PortfolioSeoOptions) {
   const project = computed(() => toValue(options.project));
   const article = computed(() => toValue(options.blogPost));
   const articleLocales = computed(() => article.value ? blogLocales(article.value.post) : SITE_LOCALES);
-  const imageRecord = computed(() => article.value?.post.cover
-    ? { ...article.value.post.cover, mimeType: "image/jpeg" as const, alt: article.value.version.coverAlt }
-    : project.value?.screenshot);
+  const imageRecord = computed(() => {
+    if (!article.value) return project.value?.screenshot;
+    const cover = blogCover(article.value.post);
+    return cover ? { ...cover, alt: article.value.version.coverAlt || c(cover.alt) } : undefined;
+  });
   const image = computed(() => `${base}${imageRecord.value?.src || SOCIAL_IMAGE}`);
   const title = () => options.title ? toValue(options.title) : c(PAGE_SEO[options.page || "home"].title);
   const description = () => options.description ? toValue(options.description) : c(PAGE_SEO[options.page || "home"].description);
@@ -119,7 +121,7 @@ export function usePortfolioSeo(options: PortfolioSeoOptions) {
             headline: version.title, description: version.summary,
             inLanguage: language, datePublished: post.publishedAt,
             author: { "@id": personId }, citation: post.sourceUrl,
-            ...(post.cover ? { image: `${base}${post.cover.src}` } : {}),
+            ...(blogCover(post) ? { image: `${base}${blogCover(post)!.src}` } : {}),
           },
         })),
       });

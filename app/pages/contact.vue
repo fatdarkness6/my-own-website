@@ -9,6 +9,7 @@ import {
 } from "~/assets/data/contact";
 const contactIntents = content(sourceIntents);
 const contactTitle = content(sourceTitle);
+const { navigateToSection } = useSectionNavigation(["contact-main", "compose"]);
 
 usePortfolioSeo({
   page: "contact",
@@ -169,7 +170,7 @@ async function copyText(text: string, success: string) {
             :interval="14000"
           />
         </p>
-        <a href="#compose" class="channel-jump"
+        <a href="#compose" class="channel-jump" @click="navigateToSection($event, 'compose')"
           >{{ c("START A CONVERSATION") }}<q-icon name="south_east" size="20px" aria-hidden="true"
         /></a>
       </div>
@@ -447,7 +448,7 @@ async function copyText(text: string, success: string) {
       </nav>
       <div class="channel-footer__end">
         <span>{{ c("ARSAM SARKHOSH / LET'S BUILD.") }}</span
-        ><a href="#contact-main">{{ c("BACK TO TOP ↑") }}</a>
+        ><a href="#contact-main" @click="navigateToSection($event, 'contact-main')">{{ c("BACK TO TOP ↑") }}</a>
       </div>
     </footer>
   </article>

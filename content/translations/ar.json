@@ -594,7 +594,7 @@
   "blogLabel": "// أفكار وقرارات ودروس من التطوير",
   "blogTitle": "ملاحظات هندسية.",
   "blogIntro": "ملاحظات حول تطبيقات الويب وأنظمة الخلفية والعمل وراء مشاريعي.",
-  "blogLatest": "أحدث مقال",
+  "blogLatest": "أحدث المقالات",
   "blogReadArticle": "اقرأ المقال",
   "blogReadOriginal": "اقرأ المنشور الأصلي على LinkedIn",
   "blogContents": "في هذه الصفحة",
@@ -609,7 +609,7 @@
   "blogSource": "المصدر / LINKEDIN",
   "blogAuthor": "بقلم",
   "blogReadingTime": "دقائق للقراءة",
-  "blogArticleCount": "مقال",
+  "blogArticleCount": "مقالات",
   "blogCaseStudy": "ملاحظة من مشروع",
   "seoBlog": "المدونة | أرسام سارخوش",
   "seoBlogDesc": "ملاحظات أرسام سارخوش حول تطوير تطبيقات الويب وأنظمة الخلفية ودروس عملية من مشاريعه.",
@@ -617,5 +617,6 @@
   "blogCodeCopied": "تم نسخ الكود",
   "blogCopyFailed": "حدّد الكود لنسخه.",
   "blogAdded": "أُضيف إلى هذه المدونة",
-  "blogReadingLanguage": "لغة المقال"
+  "blogReadingLanguage": "لغة المقال",
+  "blogProgress": "تقدّم القراءة"
 }

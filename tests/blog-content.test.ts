@@ -15,8 +15,10 @@ test("real English and Persian blog content validates against portfolio projects
 test("empty archives and articles with only a real Persian translation are supported", () => {
   assert.deepEqual(validateBlogContent({ posts: [] }, projectIds), []);
   const content = copy();
+  content.posts = [content.posts[0]];
   delete content.posts[0].versions.en;
   delete content.posts[0].projectId;
+  for (const section of content.posts[0].versions.fa.sections) if (section.visual?.kind === "project") delete section.visual;
   content.posts[0].sourcePublishedAt = "2024-02-29";
   content.posts[0].sourceUrl = "https://linkedin.com/feed/update/urn:li:activity:123/";
   assert.deepEqual(validateBlogContent(content, []), []);
@@ -166,4 +168,41 @@ test("section anchors must be valid, unique and present across translations", ()
   const missingAnchor = copy();
   missingAnchor.posts[0].versions.fa.sections[0].id = "different-anchor";
   assert.match(validateBlogContent(missingAnchor).join("\n"), /same section IDs/);
+});
+
+test("code labels describe real samples and cannot be empty or stand alone", () => {
+  for (const sample of [{ codeLabel: "" }, { codeLabel: 1 }, { codeLabel: "Shell" }]) {
+    const content = copy();
+    Object.assign(content.posts[0].versions.en.sections[0], sample);
+    assert.match(validateBlogContent(content).join("\n"), /codeLabel/);
+  }
+  const content = copy();
+  Object.assign(content.posts[0].versions.en.sections[0], { code: "ghssh accounts", codeLabel: "Shell" });
+  assert.deepEqual(validateBlogContent(content, projectIds), []);
+});
+
+test("article visuals validate their kind, localized text and shared project references", () => {
+  const invalid = [null, {}, { kind: "video", caption: "Caption" },
+    { kind: "project", projectId: "missing", caption: "Caption" },
+    { kind: "project", projectId: "arvand-termo-tec", caption: "" },
+    { kind: "flow", title: "Flow", steps: [], caption: "Caption" },
+    { kind: "flow", title: "Flow", steps: [{ title: "A", detail: "A" }, { title: "B", detail: "" }], caption: "Caption" },
+    { kind: "metrics", title: "Local test", items: [{ value: "1", label: "A" }, { value: 2, label: "B" }], caption: "Caption" },
+    { kind: "metrics", title: "Local test", items: [null, null], caption: "Caption" },
+  ];
+  for (const visual of invalid) {
+    const content = copy();
+    content.posts[0].versions.en.sections[0].visual = visual;
+    assert.match(validateBlogContent(content, projectIds).join("\n"), /visual/, JSON.stringify(visual));
+  }
+  const content = copy();
+  content.posts[0].versions.en.sections[0].visual.typo = true;
+  assert.match(validateBlogContent(content, projectIds).join("\n"), /visual.typo: unknown field/);
+});
+
+test("visual-only chapters are supported without inventing paragraph content", () => {
+  const content = copy();
+  delete content.posts[0].cover;
+  content.posts[0].versions = { en: { title: "Note", summary: "Summary", sections: [{ id: "visual", title: "Project", visual: { kind: "project", projectId: "arvand-termo-tec", caption: "The related project." } }] } };
+  assert.deepEqual(validateBlogContent(content, projectIds), []);
 });

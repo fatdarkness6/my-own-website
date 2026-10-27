@@ -1,6 +1,7 @@
 # Image assets
 
-The interface uses quality-90 WebP images at their original dimensions. Cropping,
+The interface uses WebP images at their original dimensions (quality 90 by default,
+82 when an already-compressed source would otherwise grow). Cropping,
 transparency, RTL portrait selection and screenshot zoom behavior are unchanged.
 
 - Portrait source PNGs: `assets/images/originals/` (not publicly served).
@@ -9,7 +10,7 @@ transparency, RTL portrait selection and screenshot zoom behavior are unchanged.
   Home cards, project previews and the enlarged viewer. Both live in `public/images/projects/`.
 - Social cards and browser icons remain PNG; compression is lossless.
 - Blog covers: original LinkedIn artwork in `public/images/blog/` as JPEG plus
-  quality-90 WebP. `content/blog.json` owns paths/dimensions, while each actual
+  compressed WebP. `content/blog.json` owns paths/dimensions, while each actual
   article translation supplies `coverAlt`. Cards use WebP; article social previews
   use the original JPEG. The source post link records provenance.
 - Old portrait PNG URLs redirect to their WebP replacements.

@@ -110,7 +110,9 @@ was added to this blog; it is not a guessed LinkedIn publication date. Only add
 Each post has a stable `id`, an HTTPS LinkedIn `sourceUrl`, `publishedAt`, technical
 `tags`, an optional existing `projectId` and a `versions` object. Each actual
 language version contains `title`, `summary` and `sections`. Sections support
-`paragraphs`, `items`, `code` and `callout`, rendered as escaped Vue text. Keep
+`paragraphs`, `items`, `code` and `callout`, rendered as escaped Vue text. An optional
+`codeLabel` (for example `Shell` or `Next.js / TypeScript`) describes a code sample;
+omit it on sections without code. Keep
 section IDs identical across translations so bookmarks survive language changes.
 No HTML, database, Markdown parser or additional runtime dependency is required.
 
@@ -120,6 +122,24 @@ Optional `cover` metadata supplies a locally hosted JPEG `src`, its WebP
 existing image-maintenance script. Every actual language version then needs a
 `coverAlt` description in that language. Do not hotlink expiring LinkedIn CDN URLs.
 The first cover is the original artwork attached to the linked Strapi/ISR post.
+When `cover` is omitted, cards, article headers and social metadata reuse the
+related project's screenshot through `blogCover`. Do not copy that image into the
+blog folder. A localized `coverAlt` can describe the reused image; otherwise its
+existing project translation is used. Text-only posts still show their source link.
+
+Sections can include an optional localized `visual`:
+
+- `{ "kind": "project", "projectId": "arvand-termo-tec", "caption": "..." }`
+  reuses the screenshot/alt text from `projects.json` without copying image paths.
+- `{ "kind": "flow", "title": "...", "steps": [{ "title": "...", "detail": "..." }, { "title": "...", "detail": "..." }], "caption": "..." }`
+  renders a numbered architecture flow.
+- `{ "kind": "metrics", "title": "...", "items": [{ "value": "...", "label": "..." }, { "value": "...", "label": "..." }], "caption": "..." }`
+  renders labeled measurements. Describe their actual test context; do not turn
+  local results into production claims or compare unlike measurements.
+
+Keep all visual titles, labels and captions in the article's actual language
+version. Validation checks visual shapes, required text and project references;
+the content check also requires referenced projects to have screenshots.
 
 The blog interface has all seven site languages. Article URLs, hreflang and the
 sitemap contain only the versions supplied in `versions`; there is no detail-page

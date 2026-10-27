@@ -190,7 +190,7 @@
   "blogLabel": "// IDEAS, DECISIONS & LESSONS FROM BUILDING",
   "blogTitle": "ENGINEERING NOTES.",
   "blogIntro": "Notes on web applications, backend systems and the work behind my projects.",
-  "blogLatest": "LATEST ARTICLE",
+  "blogLatest": "LATEST ARTICLES",
   "blogReadArticle": "Read article",
   "blogReadOriginal": "Read the original LinkedIn post",
   "blogContents": "On this page",
@@ -205,7 +205,7 @@
   "blogSource": "SOURCE / LINKEDIN",
   "blogAuthor": "Written by",
   "blogReadingTime": "min read",
-  "blogArticleCount": "ARTICLE",
+  "blogArticleCount": "ARTICLES",
   "blogCaseStudy": "PROJECT NOTE",
   "seoBlog": "Blog | Arsam Sarkhosh",
   "seoBlogDesc": "Development notes by Arsam Sarkhosh on web applications, backend systems and practical lessons from his projects.",
@@ -213,5 +213,6 @@
   "blogCodeCopied": "Code copied",
   "blogCopyFailed": "Select the code to copy it.",
   "blogAdded": "Added to this blog",
-  "blogReadingLanguage": "Article language"
+  "blogReadingLanguage": "Article language",
+  "blogProgress": "Reading progress"
 }

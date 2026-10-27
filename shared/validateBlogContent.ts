@@ -80,7 +80,7 @@ export function validateBlogContent(value: unknown, projectIds?: Iterable<string
       for (const [sectionIndex, section] of version.sections.entries()) {
         const sectionAt = `${translatedAt}.sections[${sectionIndex}]`;
         if (!object(section)) { errors.push(`${sectionAt} must be an object.`); continue; }
-        fields(section, ["id", "title", "paragraphs", "items", "code", "callout"], sectionAt);
+        fields(section, ["id", "title", "paragraphs", "items", "code", "codeLabel", "callout", "visual"], sectionAt);
         if (!slug(section.id)) errors.push(`${sectionAt}.id must use lowercase words separated by hyphens.`);
         if (text(section.id)) {
           if (sectionIds.has(section.id)) errors.push(`${sectionAt}.id duplicates ${section.id}.`);
@@ -93,7 +93,35 @@ export function validateBlogContent(value: unknown, projectIds?: Iterable<string
         for (const key of ["code", "callout"]) {
           if (key in section && !text(section[key])) errors.push(`${sectionAt}.${key} must be a non-empty string.`);
         }
-        if (!strings(section.paragraphs) && !strings(section.items) && !text(section.code) && !text(section.callout)) {
+        if ("codeLabel" in section && (!text(section.codeLabel) || !text(section.code))) errors.push(`${sectionAt}.codeLabel needs a non-empty label and code sample.`);
+        if ("visual" in section) {
+          const visual = section.visual;
+          const visualAt = `${sectionAt}.visual`;
+          if (!object(visual)) errors.push(`${visualAt} must be a project, flow or metrics object.`);
+          else {
+            if (!text(visual.caption)) errors.push(`${visualAt}.caption must be a non-empty localized description.`);
+            if (visual.kind === "project") {
+              fields(visual, ["kind", "projectId", "caption"], visualAt);
+              if (!slug(visual.projectId) || (projects && !projects.has(visual.projectId))) errors.push(`${visualAt}.projectId must reference a known project.`);
+            } else if (visual.kind === "flow" || visual.kind === "metrics") {
+              const flow = visual.kind === "flow";
+              const key = flow ? "steps" : "items";
+              fields(visual, ["kind", "title", key, "caption"], visualAt);
+              if (!text(visual.title)) errors.push(`${visualAt}.title must be a non-empty string.`);
+              const entries = visual[key];
+              if (!Array.isArray(entries) || entries.length < 2) errors.push(`${visualAt}.${key} must contain at least two entries.`);
+              else entries.forEach((entry, index) => {
+                const keys = flow ? ["title", "detail"] : ["value", "label"];
+                if (!object(entry)) errors.push(`${visualAt}.${key}[${index}] must be an object.`);
+                else {
+                  fields(entry, keys, `${visualAt}.${key}[${index}]`);
+                  for (const field of keys) if (!text(entry[field])) errors.push(`${visualAt}.${key}[${index}].${field} must be a non-empty string.`);
+                }
+              });
+            } else errors.push(`${visualAt}.kind must be project, flow or metrics.`);
+          }
+        }
+        if (!strings(section.paragraphs) && !strings(section.items) && !text(section.code) && !text(section.callout) && !("visual" in section)) {
           errors.push(`${sectionAt} needs paragraphs, items, code or a callout.`);
         }
       }

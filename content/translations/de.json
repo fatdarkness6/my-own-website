@@ -594,7 +594,7 @@
   "blogLabel": "// IDEEN, ENTSCHEIDUNGEN UND ERFAHRUNGEN AUS DER ENTWICKLUNG",
   "blogTitle": "ENTWICKLUNGSNOTIZEN.",
   "blogIntro": "Notizen über Webanwendungen, Backend-Systeme und die Arbeit hinter meinen Projekten.",
-  "blogLatest": "NEUESTER ARTIKEL",
+  "blogLatest": "NEUESTE ARTIKEL",
   "blogReadArticle": "Artikel lesen",
   "blogReadOriginal": "Originalbeitrag auf LinkedIn lesen",
   "blogContents": "Auf dieser Seite",
@@ -617,5 +617,6 @@
   "blogCodeCopied": "Code kopiert",
   "blogCopyFailed": "Markiere den Code, um ihn zu kopieren.",
   "blogAdded": "Zu diesem Blog hinzugefügt",
-  "blogReadingLanguage": "Artikelsprache"
+  "blogReadingLanguage": "Artikelsprache",
+  "blogProgress": "Lesefortschritt"
 }

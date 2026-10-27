@@ -3,17 +3,9 @@ const { c, localePath, content } = usePortfolioI18n();
 import { aboutPageCopy as sourceCopy } from "~/assets/data/aboutPage";
 import { portraitImages } from "~/assets/data/images";
 const aboutPageCopy = content(sourceCopy);
-const { $lenis } = useNuxtApp();
-const introReady = useState("introReady", () => false);
-const { activeSection, navigateToSection: scrollToAboutSection } = useSectionHash(
+const { activeSection, navigateToSection: scrollToAboutSection } = useSectionNavigation(
   ["about-main", ...Object.values(sourceCopy.chapters).map((chapter) => chapter.id), "about-exit"],
-  {
-    enabled: introReady,
-    scroll: $lenis ? (top, immediate) => {
-      $lenis.resize();
-      $lenis.scrollTo(top, { immediate });
-    } : undefined,
-  },
+  { track: true },
 );
 
 usePortfolioSeo({

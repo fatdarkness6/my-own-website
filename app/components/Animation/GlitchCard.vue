@@ -1,22 +1,33 @@
-<script setup>
-const props = defineProps({
-  image: { type: String, required: true },
-  alt: { type: String, default: "" },
-  interval: { type: Number, default: 6000 },
-  duration: { type: Number, default: 420 },
+<script setup lang="ts">
+import { QCard } from "quasar";
+
+const props = withDefaults(defineProps<{
+  image: string;
+  alt?: string;
+  /** Zero disables automatic bursts, leaving hover/focus and exposed run(). */
+  interval?: number;
+  duration?: number;
+  mediaOnly?: boolean;
+  fit?: "cover" | "contain";
+}>(), {
+  alt: "",
+  interval: 6000,
+  duration: 420,
+  mediaOnly: false,
+  fit: "cover",
 });
 
 const STYLES = ["rgb", "slice", "flicker"];
 const active = ref(false);
 const style = ref("rgb");
 
-let timer = null;
-let off = null;
-let last = null;
+let timer: ReturnType<typeof setTimeout> | undefined;
+let off: ReturnType<typeof setTimeout> | undefined;
+let last: string | undefined;
 
 function pick() {
-  let n;
-  do n = STYLES[Math.floor(Math.random() * STYLES.length)];
+  let n: string;
+  do n = STYLES[Math.floor(Math.random() * STYLES.length)]!;
   while (n === last);
   last = n;
   return n;
@@ -35,6 +46,7 @@ function run() {
 }
 
 function schedule() {
+  if (props.interval <= 0) return;
   timer = setTimeout(
     () => {
       run();
@@ -54,19 +66,22 @@ defineExpose({ run });
 </script>
 
 <template>
-  <q-card
-    flat
-    square
+  <component
+    :is="mediaOnly ? 'div' : QCard"
+    v-bind="mediaOnly ? {} : { flat: true, square: true }"
     class="gcard"
-    :class="[{ 'is-glitching': active }, active ? `gcard--${style}` : '']"
+    :class="[{ 'is-glitching': active, 'gcard--media-only': mediaOnly }, active ? `gcard--${style}` : '']"
+    :style="{ '--gcard-image-fit': fit }"
     @mouseenter="run"
     @focusin="run"
   >
     <div class="gcard__media">
+      <div v-if="$slots.image" class="gcard__img"><slot name="image" /></div>
       <q-img
+        v-else
         :src="image"
         :alt="alt"
-        fit="cover"
+        :fit="fit"
         no-spinner
         class="gcard__img"
       />
@@ -84,15 +99,17 @@ defineExpose({ run });
       <slot name="media" />
     </div>
 
-    <div class="gcard__body">
+    <div v-if="!mediaOnly" class="gcard__body">
       <slot />
     </div>
 
-    <span class="gcard__corner gcard__corner--tl" aria-hidden="true" />
-    <span class="gcard__corner gcard__corner--tr" aria-hidden="true" />
-    <span class="gcard__corner gcard__corner--bl" aria-hidden="true" />
-    <span class="gcard__corner gcard__corner--br" aria-hidden="true" />
-  </q-card>
+    <template v-if="!mediaOnly">
+      <span class="gcard__corner gcard__corner--tl" aria-hidden="true" />
+      <span class="gcard__corner gcard__corner--tr" aria-hidden="true" />
+      <span class="gcard__corner gcard__corner--bl" aria-hidden="true" />
+      <span class="gcard__corner gcard__corner--br" aria-hidden="true" />
+    </template>
+  </component>
 </template>
 
 <style scoped src="~/assets/css/components/animations/glitchCard.css"></style>

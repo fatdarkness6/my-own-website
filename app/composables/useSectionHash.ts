@@ -1,13 +1,15 @@
 import { onBeforeUnmount, onMounted, ref, toValue, watch, type MaybeRefOrGetter } from "vue";
 
-interface SectionHashOptions {
+export interface SectionHashOptions {
   enabled?: MaybeRefOrGetter<boolean>;
+  /** About tracks chapters while reading; simple anchor navigation need not. */
+  track?: boolean;
   /** Smooth-scroll adapters (such as Lenis) must also support immediate restoration. */
   scroll?: (top: number, immediate: boolean) => void;
 }
 
 /** Keep document chapters bookmarkable without routing, jumping or filling history. */
-export function useSectionHash(ids: readonly string[], { enabled = true, scroll }: SectionHashOptions = {}) {
+export function useSectionHash(ids: readonly string[], { enabled = true, track = true, scroll }: SectionHashOptions = {}) {
   const activeSection = ref(ids[0] ?? "");
   let mounted = false;
   let tracking = false;
@@ -39,10 +41,11 @@ export function useSectionHash(ids: readonly string[], { enabled = true, scroll 
 
   function moveTo(target: HTMLElement, immediate: boolean) {
     const top = targetTop(target);
+    immediate ||= window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (scroll) scroll(top, immediate);
     else window.scrollTo({
       top,
-      behavior: immediate || window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      behavior: immediate ? "instant" : "smooth",
     });
   }
 
@@ -87,13 +90,14 @@ export function useSectionHash(ids: readonly string[], { enabled = true, scroll 
         try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { /* Ignore malformed links. */ }
         const target = section(id);
         if (target) moveTo(target, true);
-        tracking = true;
+        tracking = track;
         update();
       });
     });
   }
 
   function navigateToSection(event: Event, id: string) {
+    if (event.defaultPrevented) return;
     if ("button" in event && (
       (event as MouseEvent).button !== 0 || (event as MouseEvent).metaKey || (event as MouseEvent).ctrlKey
       || (event as MouseEvent).shiftKey || (event as MouseEvent).altKey
@@ -118,11 +122,13 @@ export function useSectionHash(ids: readonly string[], { enabled = true, scroll 
   onMounted(() => {
     mounted = true;
     pathname = window.location.pathname;
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-    window.addEventListener("wheel", interrupt, { passive: true });
-    window.addEventListener("touchstart", interrupt, { passive: true });
-    window.addEventListener("keydown", interrupt);
+    if (track) {
+      window.addEventListener("scroll", schedule, { passive: true });
+      window.addEventListener("resize", schedule);
+      window.addEventListener("wheel", interrupt, { passive: true });
+      window.addEventListener("touchstart", interrupt, { passive: true });
+      window.addEventListener("keydown", interrupt);
+    }
     window.addEventListener("popstate", restore);
     window.addEventListener("hashchange", restore);
     restore();

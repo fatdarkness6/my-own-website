@@ -5,7 +5,11 @@
       "sourceUrl": "https://www.linkedin.com/posts/arsam-sarkhosh-3abb40420_nextjs-isr-webperformance-share-7520066003934928906-xBHQ/",
       "publishedAt": "2026-10-27",
       "projectId": "arvand-termo-tec",
-      "tags": ["Next.js", "Strapi", "ISR"],
+      "tags": [
+        "Next.js",
+        "Strapi",
+        "ISR"
+      ],
       "cover": {
         "src": "/images/blog/strapi-nextjs-isr.jpg",
         "optimizedSrc": "/images/blog/strapi-nextjs-isr.webp",
@@ -24,18 +28,49 @@
               "paragraphs": [
                 "A roughly 20 KB request to Strapi took almost 29 seconds to return its first byte. That was the situation while we were working on the blog performance of Arvand Termo Tec, a project with a Next.js frontend and blog content coming from Strapi.",
                 "Browser-side caching was already preventing repeated requests when moving between pages. But when the server cache was empty, the first visit still depended on that slow CMS response. This was where the practical value of pre-rendering and ISR became much clearer to me."
-              ]
+              ],
+              "visual": {
+                "kind": "project",
+                "projectId": "arvand-termo-tec",
+                "caption": "Arvand Termo Tec, the project behind this note. This image shows the website homepage, not a performance measurement."
+              }
             },
             {
               "id": "the-change",
               "title": "Moving the expensive work",
-              "paragraphs": ["The change I implemented was straightforward:"],
+              "paragraphs": [
+                "The change I implemented was straightforward:"
+              ],
               "items": [
                 "During the Vercel build, published content is fetched from Strapi and the blog listing and article pages are generated ahead of time.",
                 "A new visitor receives the prepared HTML and page data. Displaying content that has already been generated does not need a simultaneous request to Strapi.",
                 "With revalidate = 60, a page becomes eligible for regeneration after 60 seconds."
               ],
-              "code": "export const revalidate = 60;"
+              "code": "export const revalidate = 60;",
+              "codeLabel": "Next.js / TypeScript",
+              "visual": {
+                "kind": "flow",
+                "title": "From published content to a prepared page",
+                "steps": [
+                  {
+                    "title": "Strapi",
+                    "detail": "Published content"
+                  },
+                  {
+                    "title": "Next.js build",
+                    "detail": "Fetch and pre-render"
+                  },
+                  {
+                    "title": "Vercel cache",
+                    "detail": "Prepared HTML and data"
+                  },
+                  {
+                    "title": "Visitor",
+                    "detail": "Receives the cached page"
+                  }
+                ],
+                "caption": "The build-time path for existing content. Revalidation can refresh the cached page in the background; it is not a live update to an open browser tab."
+              }
             },
             {
               "id": "revalidation",
@@ -52,7 +87,22 @@
               "paragraphs": [
                 "To check the result, we built the project, started a fresh local production server and made the CMS unavailable. The complete listing pages took at most 23 milliseconds to receive, and the article pages took at most 11 milliseconds."
               ],
-              "callout": "These are local production-test results, not measurements of the live website. They measure complete page retrieval; the earlier 29-second observation was time to first byte for a CMS request."
+              "callout": "These are local production-test results, not measurements of the live website. They measure complete page retrieval; the earlier 29-second observation was time to first byte for a CMS request.",
+              "visual": {
+                "kind": "metrics",
+                "title": "Local production test — complete page retrieval",
+                "items": [
+                  {
+                    "value": "≤ 23 ms",
+                    "label": "Blog listing pages"
+                  },
+                  {
+                    "value": "≤ 11 ms",
+                    "label": "Article pages"
+                  }
+                ],
+                "caption": "Measured locally after the build, using a fresh server with the CMS unavailable. These values are not live-site benchmarks."
+              }
             },
             {
               "id": "the-limit",
@@ -75,18 +125,49 @@
               "paragraphs": [
                 "یه درخواست حدود ۲۰ کیلوبایتی به Strapi، نزدیک ۲۹ ثانیه طول کشید تا اولین بایت پاسخ رو برگردونه! داشتیم روی عملکرد بخش بلاگ وب‌سایت Arvand Termo Tec کار می‌کردیم؛ پروژه‌ای که فرانت‌اندش با Next.js توسعه داده شده و محتوای بلاگش از Strapi میاد.",
                 "کش سمت مرورگر باعث شده بود رفت‌وبرگشت بین صفحات، درخواست تکراری ایجاد نکنه. ولی وقتی کش سمت سرور خالی بود، اولین بازدید همچنان به پاسخ کند CMS وابسته می‌موند. اینجا بود که کاربرد واقعی پیش‌رندر و ISR برام روشن‌تر شد."
-              ]
+              ],
+              "visual": {
+                "kind": "project",
+                "projectId": "arvand-termo-tec",
+                "caption": "وب‌سایت Arvand Termo Tec؛ پروژه‌ای که این یادداشت دربارهٔ اونه. این تصویر صفحهٔ اصلی سایته، نه نتیجهٔ اندازه‌گیری عملکرد."
+              }
             },
             {
               "id": "the-change",
               "title": "انتقال کار پرهزینه از مسیر کاربر",
-              "paragraphs": ["تغییری که پیاده کردم این بود:"],
+              "paragraphs": [
+                "تغییری که پیاده کردم این بود:"
+              ],
               "items": [
                 "موقع build روی Vercel، اطلاعات منتشرشده از Strapi دریافت می‌شه و صفحات لیست بلاگ و مقاله‌ها از قبل ساخته می‌شن.",
                 "کاربر جدید، HTML و داده‌های آمادهٔ صفحه رو دریافت می‌کنه. بنابراین نمایش محتوای موجود، نیازمند یک درخواست هم‌زمان به Strapi نیست.",
                 "با تنظیم revalidate = 60، صفحه بعد از ۶۰ ثانیه واجد شرایط بازسازی می‌شه."
               ],
-              "code": "export const revalidate = 60;"
+              "code": "export const revalidate = 60;",
+              "codeLabel": "Next.js / TypeScript",
+              "visual": {
+                "kind": "flow",
+                "title": "از محتوای منتشرشده تا صفحهٔ آماده",
+                "steps": [
+                  {
+                    "title": "Strapi",
+                    "detail": "محتوای منتشرشده"
+                  },
+                  {
+                    "title": "ساخت با Next.js",
+                    "detail": "دریافت محتوا و پیش‌رندر"
+                  },
+                  {
+                    "title": "کش Vercel",
+                    "detail": "HTML و داده‌های آماده"
+                  },
+                  {
+                    "title": "کاربر",
+                    "detail": "دریافت صفحه از کش"
+                  }
+                ],
+                "caption": "مسیر ساخت برای محتوای موجود. بازسازی می‌تونه نسخهٔ کش‌شده رو در پس‌زمینه تازه کنه؛ این با به‌روزرسانی زندهٔ صفحهٔ بازشده در مرورگر فرق داره."
+              }
             },
             {
               "id": "revalidation",
@@ -103,7 +184,22 @@
               "paragraphs": [
                 "برای بررسی نتیجه، در یک تست production محلی، بعد از build یک سرور جدید اجرا کردیم و CMS رو از دسترس خارج کردیم. دریافت کامل صفحات لیست حداکثر ۲۳ میلی‌ثانیه و مقاله‌ها حداکثر ۱۱ میلی‌ثانیه طول کشید."
               ],
-              "callout": "این‌ها نتایج تست production محلی هستن، نه اندازه‌گیری سایت live. این تست، دریافت کامل صفحه‌ها رو اندازه گرفته؛ مشاهدهٔ ۲۹ ثانیه‌ای اول مربوط به زمان دریافت اولین بایت یک درخواست CMS بود."
+              "callout": "این‌ها نتایج تست production محلی هستن، نه اندازه‌گیری سایت live. این تست، دریافت کامل صفحه‌ها رو اندازه گرفته؛ مشاهدهٔ ۲۹ ثانیه‌ای اول مربوط به زمان دریافت اولین بایت یک درخواست CMS بود.",
+              "visual": {
+                "kind": "metrics",
+                "title": "تست production محلی — دریافت کامل صفحه",
+                "items": [
+                  {
+                    "value": "≤ 23 ms",
+                    "label": "صفحات لیست بلاگ"
+                  },
+                  {
+                    "value": "≤ 11 ms",
+                    "label": "صفحات مقاله"
+                  }
+                ],
+                "caption": "اندازه‌گیری محلی، بعد از build و با یک سرور تازه، در حالی که CMS از دسترس خارج بود. این اعداد بنچمارک سایت live نیستن."
+              }
             },
             {
               "id": "the-limit",
@@ -111,6 +207,636 @@
               "paragraphs": [
                 "این معماری، خود Strapi رو سریع‌تر نکرده؛ تأخیر backend همچنان نیاز به بررسی داره. همچنین مقاله‌ای که بعد از build منتشر شده، اگر هنوز warm نشده باشه، ممکنه در اولین درخواست منتظر CMS بمونه.",
                 "برای من، ارزش اصلی این تغییر، انتقال کار پرهزینه از مسیر درخواست کاربر به مرحلهٔ build و بازسازی پس‌زمینه بود. همین جزئیات معماری می‌تونن تأثیر بزرگی روی تجربهٔ اولین بازدید بذارن."
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ghssh-windows-accounts",
+      "sourceUrl": "https://www.linkedin.com/posts/arsam-sarkhosh-3abb40420_python-github-opensource-share-7519003674216603648-Ylbz/",
+      "publishedAt": "2026-10-27",
+      "projectId": "ghssh",
+      "tags": [
+        "Python",
+        "SSH",
+        "GitHub",
+        "Windows"
+      ],
+      "cover": {
+        "src": "/images/blog/ghssh-windows-accounts.jpg",
+        "optimizedSrc": "/images/blog/ghssh-windows-accounts.webp",
+        "width": 480,
+        "height": 599
+      },
+      "versions": {
+        "en": {
+          "title": "ghssh 0.4.0: saved GitHub accounts and a Windows installer",
+          "summary": "Moving beyond a temporary SSH switch: named accounts, project commit identities and a Windows release that runs without a separate Python installation.",
+          "coverAlt": "Original ghssh 0.4.0 release artwork showing three named accounts, their SSH keys and switch commands, with Linux and Windows support.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "Two accounts became three",
+              "paragraphs": [
+                "I built ghssh because switching between GitHub accounts involved more SSH configuration than I wanted for a simple change of account. The earlier workflow was temporary: select a second account, finish the work, then return to the previous settings.",
+                "That gets awkward when you regularly move between personal, work and project accounts. For version 0.4.0, I wanted to save those identities once and switch to them by name."
+              ]
+            },
+            {
+              "id": "named-accounts",
+              "title": "One name for the key and commit identity",
+              "paragraphs": [
+                "An account can now be saved under a name you choose. Switching selects its SSH key and sets the Git commit name and email for the project you are working in, without entering the details again."
+              ],
+              "code": "ghssh switch arsam\nghssh switch arvand\nghssh switch work",
+              "codeLabel": "Shell",
+              "callout": "SSH authentication and Git commit identity are separate settings. This release brings both into the account-switching workflow."
+            },
+            {
+              "id": "windows-release",
+              "title": "A Windows installer, not another Python setup",
+              "paragraphs": [
+                "The release also adds a Windows .exe installer. After installation, open a new CMD or PowerShell window and run ghssh directly. There is no separate Python installation or manual virtual-environment activation in this workflow.",
+                "Git and Windows OpenSSH Client are still required. The installer removes the Python setup step; it does not replace those dependencies."
+              ]
+            },
+            {
+              "id": "getting-started",
+              "title": "Make the first run easier too",
+              "code": "ghssh guide\nghssh accounts",
+              "codeLabel": "Shell",
+              "paragraphs": [
+                "Alongside saved accounts, I added a step-by-step account setup, support for existing or newly created keys, and fuller command help. The guide is the starting point; accounts lists the identities you have saved.",
+                "This note describes the 0.4.0 release I announced on LinkedIn. The related project links to the repository for installation instructions and subsequent releases."
+              ]
+            }
+          ]
+        },
+        "fa": {
+          "title": "ghssh 0.4.0؛ اکانت‌های ذخیره‌شده و نسخهٔ ویندوز",
+          "summary": "از تعویض موقت کلید SSH تا جابه‌جایی بین اکانت‌های نام‌گذاری‌شده؛ با تنظیم هویت کامیت برای پروژه و نصب روی ویندوز، بدون نصب جداگانهٔ پایتون.",
+          "coverAlt": "تصویر اصلی معرفی ghssh 0.4.0؛ سه اکانت با نام‌های arsam، arvand و work، کلیدهای SSH و دستورهای جابه‌جایی، با پشتیبانی لینوکس و ویندوز.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "وقتی دو اکانت می‌شن سه اکانت",
+              "paragraphs": [
+                "ghssh رو برای راحت‌تر شدن جابه‌جایی بین اکانت‌های گیت‌هاب ساختم. قبلاً یه اکانت دوم رو موقتاً انتخاب می‌کردم و بعد از تمام شدن کار، به تنظیمات قبلی برمی‌گشتم.",
+                "ولی وقتی مرتب بین اکانت شخصی، کاری و پروژه‌ای جابه‌جا می‌شی، این مدل دیگه خیلی راحت نیست. برای نسخهٔ ۰.۴.۰ می‌خواستم هر اکانت رو یه بار ذخیره کنم و بعد فقط با اسمش سراغش برم."
+              ]
+            },
+            {
+              "id": "named-accounts",
+              "title": "یک اسم برای کلید و هویت کامیت",
+              "paragraphs": [
+                "حالا هر اکانت رو با اسم دلخواه ذخیره می‌کنی. موقع جابه‌جایی، هم کلید SSH اون اکانت انتخاب می‌شه و هم نام و ایمیل کامیت برای پروژه‌ای که توش هستی تنظیم می‌شه؛ بدون وارد کردن دوبارهٔ مشخصات."
+              ],
+              "code": "ghssh switch arsam\nghssh switch arvand\nghssh switch work",
+              "codeLabel": "Shell",
+              "callout": "احراز هویت با SSH و هویت نویسندهٔ کامیت، دو تنظیم جدا هستن. توی این نسخه، هر دو توی فرایند جابه‌جایی اکانت در نظر گرفته شدن."
+            },
+            {
+              "id": "windows-release",
+              "title": "نصب روی ویندوز، بدون راه‌اندازی جداگانهٔ پایتون",
+              "paragraphs": [
+                "برای ویندوز یه فایل نصب .exe اضافه کردم. بعد از نصب، یه پنجرهٔ جدید CMD یا PowerShell باز می‌کنی و مستقیم ghssh رو اجرا می‌کنی؛ بدون نصب جداگانهٔ پایتون یا فعال کردن دستی محیط مجازی.",
+                "البته Git و Windows OpenSSH Client همچنان باید نصب باشن. فایل نصب، مرحلهٔ راه‌اندازی پایتون رو حذف می‌کنه، نه این وابستگی‌ها رو."
+              ]
+            },
+            {
+              "id": "getting-started",
+              "title": "شروع کار هم باید راحت‌تر باشه",
+              "paragraphs": [
+                "در کنار اکانت‌های ذخیره‌شده، راهنمای قدم‌به‌قدم اضافه کردن اکانت، استفاده از کلید قبلی یا ساخت کلید جدید و توضیحات کامل‌تر دستورها رو هم اضافه کردم. guide نقطهٔ شروعه و accounts اکانت‌های ذخیره‌شده رو نشون می‌ده.",
+                "این یادداشت دربارهٔ نسخهٔ ۰.۴.۰ معرفی‌شده در پست لینکدینه. راهنمای نصب و نسخه‌های بعدی از مخزن گیت‌هاب در صفحهٔ پروژه در دسترسن."
+              ],
+              "code": "ghssh guide\nghssh accounts",
+              "codeLabel": "Shell"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "strapi-vercel-content",
+      "sourceUrl": "https://www.linkedin.com/posts/arsam-sarkhosh-3abb40420_strapi-vercel-neon-share-7517660971092545536-AT7Q/",
+      "publishedAt": "2026-10-27",
+      "projectId": "arvand-termo-tec",
+      "tags": [
+        "Strapi",
+        "Vercel",
+        "PostgreSQL",
+        "Cloudinary"
+      ],
+      "cover": {
+        "src": "/images/blog/strapi-vercel-content.jpg",
+        "optimizedSrc": "/images/blog/strapi-vercel-content.webp",
+        "width": 480,
+        "height": 480
+      },
+      "versions": {
+        "en": {
+          "title": "Moving Arvand’s content from frontend files into Strapi",
+          "summary": "How I separated article content and images from static frontend files using Strapi, Vercel, Neon and Cloudinary—and checked 50 language variants before frontend integration.",
+          "coverAlt": "Original Arvand Termo Tec post illustration showing a Strapi content panel connected to Vercel, Neon and Cloudinary.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "Editing content should not require editing frontend files",
+              "paragraphs": [
+                "In Arvand Termo Tec, I was separating content and images from static frontend files. The goal was simple: change an article, title or image through an admin panel instead of changing the application's source files.",
+                "This was a content-management change, not just a different place to store the same JSON. The CMS needed to expose the information the frontend would actually use."
+              ]
+            },
+            {
+              "id": "the-stack",
+              "title": "Four services with different responsibilities",
+              "items": [
+                "Strapi manages the content and APIs.",
+                "Vercel runs the backend deployment used in this project.",
+                "Neon stores the PostgreSQL data.",
+                "Cloudinary stores and serves images instead of tying them to local backend files."
+              ],
+              "visual": {
+                "kind": "flow",
+                "title": "Separating content, data and media",
+                "steps": [
+                  {
+                    "title": "Strapi",
+                    "detail": "Content editing and API responses"
+                  },
+                  {
+                    "title": "Vercel",
+                    "detail": "Backend deployment"
+                  },
+                  {
+                    "title": "Neon",
+                    "detail": "PostgreSQL data storage"
+                  },
+                  {
+                    "title": "Cloudinary",
+                    "detail": "Image storage and delivery"
+                  }
+                ],
+                "caption": "The responsibilities in this project's setup. This is a description of the deployment I built, not a general hosting guide for every Strapi application."
+              }
+            },
+            {
+              "id": "checking-content",
+              "title": "25 articles, two languages, 50 variants",
+              "paragraphs": [
+                "At the point covered by the post, 25 articles had been imported and published in English and Italian. The listing API and slug-based article API were ready, including images, authors, categories and full article text.",
+                "I compared the imported data with the project's original content and tested the addresses of all 50 language variants against the live API. That count represents 25 articles in two languages—not 50 distinct articles."
+              ]
+            },
+            {
+              "id": "next-step",
+              "title": "An online CMS was one milestone, not the whole migration",
+              "paragraphs": [
+                "When I published the original update, the CMS was online and serving its data. Connecting the frontend to those APIs and replacing the static JSON files was the next step.",
+                "Keeping that boundary clear mattered: deploying a backend successfully does not, by itself, mean the frontend has stopped depending on its old content files."
+              ],
+              "callout": "This article captures the stage described in the original post. It does not present the frontend integration as already complete at that time."
+            }
+          ]
+        },
+        "fa": {
+          "title": "انتقال محتوای Arvand از فایل‌های فرانت‌اند به Strapi",
+          "summary": "تجربهٔ جدا کردن مقاله‌ها و تصاویر از فایل‌های ثابت با Strapi، Vercel، Neon و Cloudinary؛ همراه با بررسی ۵۰ نسخهٔ زبانی، قبل از اتصال فرانت‌اند.",
+          "coverAlt": "تصویر اصلی پست Arvand Termo Tec؛ پنل مدیریت Strapi در کنار وب‌سایت و سرویس‌های Vercel، Neon و Cloudinary.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "برای تغییر محتوا نباید سراغ فایل فرانت‌اند رفت",
+              "paragraphs": [
+                "توی پروژهٔ Arvand Termo Tec داشتم مدیریت محتوا و تصاویر رو از فایل‌های ثابت فرانت‌اند جدا می‌کردم. هدف این بود که تغییر عنوان، تصویر یا مقاله از داخل پنل مدیریت انجام بشه، نه با ویرایش فایل‌های اپلیکیشن.",
+                "موضوع فقط عوض کردن محل نگهداری JSON نبود. CMS باید اطلاعاتی رو از طریق API ارائه می‌داد که فرانت‌اند واقعاً برای نمایش محتوا بهش نیاز داشت."
+              ]
+            },
+            {
+              "id": "the-stack",
+              "title": "چهار سرویس با مسئولیت‌های مشخص",
+              "items": [
+                "Strapi برای مدیریت محتوا و APIها.",
+                "Vercel برای اجرای بک‌اند این پروژه.",
+                "Neon برای نگهداری داده‌ها در PostgreSQL.",
+                "Cloudinary برای ذخیره و ارائهٔ تصاویر، به‌جای وابستگی به فایل‌های محلی بک‌اند."
+              ],
+              "visual": {
+                "kind": "flow",
+                "title": "جدا کردن مسئولیت محتوا، داده و تصویر",
+                "steps": [
+                  {
+                    "title": "Strapi",
+                    "detail": "ویرایش محتوا و پاسخ‌های API"
+                  },
+                  {
+                    "title": "Vercel",
+                    "detail": "اجرای بک‌اند"
+                  },
+                  {
+                    "title": "Neon",
+                    "detail": "نگهداری داده‌های PostgreSQL"
+                  },
+                  {
+                    "title": "Cloudinary",
+                    "detail": "ذخیره و ارائهٔ تصاویر"
+                  }
+                ],
+                "caption": "نقش هر سرویس در پیاده‌سازی این پروژه. این شکل، توضیح تجربهٔ من در همین پروژه‌ست، نه راهنمای عمومی میزبانی هر اپلیکیشن Strapi."
+              }
+            },
+            {
+              "id": "checking-content",
+              "title": "۲۵ مقاله، دو زبان، ۵۰ نسخه",
+              "paragraphs": [
+                "تا مرحله‌ای که در پست اصلی توضیح دادم، ۲۵ مقاله به دو زبان انگلیسی و ایتالیایی وارد CMS و منتشر شده بودن. API لیست مقاله‌ها و دریافت هر مقاله با اسلاگ هم آماده بود؛ همراه با تصویر، نویسنده، دسته‌بندی و متن کامل.",
+                "داده‌های واردشده رو با محتوای اصلی پروژه مقایسه کردم و آدرس هر ۵۰ نسخهٔ زبانی روی API زنده تست شد. این عدد یعنی ۲۵ مقاله در دو زبان، نه ۵۰ مقالهٔ متفاوت."
+              ]
+            },
+            {
+              "id": "next-step",
+              "title": "آنلاین شدن CMS، پایان مهاجرت نبود",
+              "paragraphs": [
+                "وقتی پست اصلی رو منتشر کردم، CMS آنلاین بود و داده ارائه می‌داد. قدم بعدی، اتصال فرانت‌اند به APIها و جایگزین کردن فایل‌های JSON ثابت بود.",
+                "این تفکیک برام مهمه: آنلاین شدن موفق بک‌اند، به‌تنهایی به این معنی نیست که فرانت‌اند هم دیگه به فایل‌های قبلی وابسته نیست."
+              ],
+              "callout": "این یادداشت دربارهٔ مرحله‌ایه که در پست اصلی ثبت شده. اتصال فرانت‌اند در اون زمان هنوز قدم بعدی بود، نه کاری که تمام شده باشه."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ghssh-github-account-switching",
+      "sourceUrl": "https://www.linkedin.com/posts/arsam-sarkhosh-3abb40420_github-python-opensource-share-7516578675329314816-vIHn/",
+      "publishedAt": "2026-10-27",
+      "projectId": "ghssh",
+      "tags": ["Python", "Linux", "SSH", "GitHub"],
+      "cover": {
+        "src": "/images/blog/ghssh-github-account-switching.jpg",
+        "optimizedSrc": "/images/blog/ghssh-github-account-switching.webp",
+        "width": 800,
+        "height": 999
+      },
+      "versions": {
+        "en": {
+          "title": "Why I built ghssh to switch between GitHub accounts",
+          "summary": "The original 0.1.0 release: a Python CLI for Linux that switches GitHub SSH accounts, restores previous settings and helps manage keys with backups and dry-run previews.",
+          "coverAlt": "Original ghssh v0.1.0 artwork showing two GitHub account keys, arrows for switching between them, and the switch and switch --back commands.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "A simple account change had too many moving parts",
+              "paragraphs": [
+                "Why did switching between two GitHub accounts have to be so frustrating? I had an SSH key for my main account, wanted to work with a second account for a while, then return to the first. That was the whole task.",
+                "But I still had to keep track of the keys, SSH configuration and how to restore the previous setup. Eventually I decided to make that round trip easier for myself. The result was ghssh, a Python command-line tool for Linux."
+              ]
+            },
+            {
+              "id": "switch-and-return",
+              "title": "Switch, do the work, then go back",
+              "paragraphs": [
+                "Once the second account's key is ready and its public key is registered with GitHub, I can switch to it. When the work is finished, --back restores the previous settings. Both keys stay in place."
+              ],
+              "code": "ghssh switch github_second\nghssh switch --back",
+              "codeLabel": "Shell",
+              "callout": "This note covers the original Linux v0.1.0 workflow. The later Windows release and saved-account improvements have their own article."
+            },
+            {
+              "id": "key-management",
+              "title": "The key-management tasks around the switch",
+              "paragraphs": ["While building it, I added the related tasks I kept needing:"],
+              "items": [
+                "Create an Ed25519 key with a chosen name and comment, and copy its public key.",
+                "Replace the active key while keeping the previous key and a backup.",
+                "Show existing keys, the key configured for GitHub and identities loaded in ssh-agent.",
+                "Check configuration status and test the GitHub connection.",
+                "Back up and restore GitHub-related keys and configuration."
+              ]
+            },
+            {
+              "id": "safer-changes",
+              "title": "Preview changes before applying them",
+              "paragraphs": [
+                "I added a dry-run preview so the planned changes can be inspected before they are applied. Selective removal of GitHub settings or tool-managed keys requires confirmation and checks the key fingerprint.",
+                "The tool can also help add a public key to GitHub through GitHub CLI, when that CLI is installed and signed in. These checks and confirmations are part of the workflow, not steps I wanted to hide."
+              ]
+            },
+            {
+              "id": "first-release",
+              "title": "A small open-source tool, ready for feedback",
+              "paragraphs": [
+                "I published version 0.1.0 as open source. Installation uses pipx, so ghssh can run directly from the terminal without manually activating a virtual environment.",
+                "It started with a task that was annoying me. If you also move between GitHub accounts, I would like to know which parts of that workflow still get in your way. The related project page has the repository and installation guide."
+              ]
+            }
+          ]
+        },
+        "fa": {
+          "title": "چرا ghssh رو برای جابه‌جایی بین اکانت‌های گیت‌هاب ساختم",
+          "summary": "معرفی نسخهٔ اول ghssh؛ ابزار خط فرمان پایتون برای لینوکس، با جابه‌جایی بین اکانت‌های SSH گیت‌هاب، بازگشت به تنظیمات قبلی و مدیریت کلیدها با بکاپ و پیش‌نمایش تغییرات.",
+          "coverAlt": "تصویر اصلی معرفی ghssh v0.1.0؛ دو کلید مربوط به دو اکانت گیت‌هاب، فلش‌های رفت‌وبرگشت و دستورهای switch و switch --back.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "یک جابه‌جایی ساده، با کلی ریزه‌کاری",
+              "paragraphs": [
+                "جابه‌جایی بین دو اکانت گیت‌هاب چرا باید این‌قدر اعصاب‌خردکن باشه؟ دقیقاً گیر همین داستان افتاده بودم. یه کلید SSH برای اکانت اصلی‌ام داشتم و می‌خواستم موقتاً با اکانت دوم کار کنم، بعد هم برگردم سراغ قبلی. همین!",
+                "ولی باید حواسم به کلیدها، تنظیمات SSH و برگشتن به حالت قبل می‌بود. برای یه رفت‌وبرگشت ساده، زیادی دردسر داشت. آخرش تصمیم گرفتم کار رو برای خودم راحت‌تر کنم؛ نتیجه شد ghssh، یک ابزار خط فرمان با پایتون برای لینوکس."
+              ]
+            },
+            {
+              "id": "switch-and-return",
+              "title": "جابه‌جا شو، کارت رو انجام بده و برگرد",
+              "paragraphs": [
+                "وقتی کلید حساب دوم آماده و کلید عمومی اون روی گیت‌هاب ثبت شده باشه، با switch سراغش می‌رم. بعد از تمام شدن کار هم --back تنظیمات قبلی رو برمی‌گردونه. هر دو کلید سر جاشون می‌مونن."
+              ],
+              "code": "ghssh switch github_second\nghssh switch --back",
+              "codeLabel": "Shell",
+              "callout": "این یادداشت دربارهٔ نسخهٔ اول ۰.۱.۰ و گردش کار لینوکسه. نسخهٔ ویندوز و بهبود اکانت‌های ذخیره‌شده، در مطلب جداگانه‌ای معرفی شدن."
+            },
+            {
+              "id": "key-management",
+              "title": "کارهایی که کنار جابه‌جایی لازم می‌شدن",
+              "paragraphs": ["در کنارش، چند قابلیت برای مدیریت کلیدها هم اضافه کردم:"],
+              "items": [
+                "ساخت کلید Ed25519 با نام و توضیح دلخواه و امکان کپی کردن کلید عمومی.",
+                "تعویض کلید فعلی با کلید جدید، همراه با بکاپ و نگه داشتن کلید قبلی.",
+                "نمایش کلیدهای موجود، کلید تنظیم‌شده برای GitHub و هویت‌های بارگذاری‌شده در ssh-agent.",
+                "بررسی وضعیت تنظیمات و تست اتصال به GitHub.",
+                "بکاپ‌گیری و بازیابی کلیدها و تنظیمات مربوط به GitHub."
+              ]
+            },
+            {
+              "id": "safer-changes",
+              "title": "قبل از اجرا، تغییرات رو ببین",
+              "paragraphs": [
+                "با dry-run می‌شه قبل از اجرا دید قراره چه تغییراتی انجام بشه. حذف انتخابی تنظیمات GitHub یا کلیدهای تحت مدیریت ابزار هم با تأیید کاربر و بررسی اثر انگشت کلید انجام می‌شه.",
+                "امکان اضافه کردن کلید عمومی به GitHub با کمک GitHub CLI هم هست، به شرط نصب بودن و ورود به حساب در اون ابزار. این بررسی‌ها و تأییدها بخشی از گردش کارن؛ نمی‌خواستم از دید کاربر پنهان بشن."
+              ]
+            },
+            {
+              "id": "first-release",
+              "title": "یک ابزار کوچک متن‌باز، آمادهٔ بازخورد",
+              "paragraphs": [
+                "نسخهٔ ۰.۱.۰ رو به‌صورت متن‌باز منتشر کردم. نصبش با pipx انجام می‌شه و بعد از اون می‌شه ghssh رو مستقیم از ترمینال اجرا کرد؛ بدون فعال کردن دستی محیط مجازی.",
+                "شروعش از کاری بود که خودم رو اذیت می‌کرد. اگه شما هم بین چند اکانت گیت‌هاب رفت‌وآمد دارید، خوشحال می‌شم بدونم کجای این مسیر هنوز دردسر داره. مخزن کد و راهنمای نصب از صفحهٔ پروژه در دسترسن."
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "nextjs-architecture-performance",
+      "sourceUrl": "https://www.linkedin.com/posts/arsam-sarkhosh-3abb40420_nextjs-react-webperformance-share-7498392399484751873-mET_/",
+      "publishedAt": "2026-10-27",
+      "projectId": "arvand-termo-tec",
+      "tags": [
+        "Next.js",
+        "App Router",
+        "Performance",
+        "i18n"
+      ],
+      "cover": {
+        "src": "/images/blog/nextjs-architecture-performance.jpg",
+        "optimizedSrc": "/images/blog/nextjs-architecture-performance.webp",
+        "width": 480,
+        "height": 216
+      },
+      "versions": {
+        "en": {
+          "title": "A Next.js refactor beyond reorganizing folders",
+          "summary": "What changed in Arvand’s routes, localization, scrolling, carousel rendering and client data—and why using Next.js alone did not guarantee a lightweight frontend.",
+          "coverAlt": "Screenshot attached to the original refactor post, showing Arvand’s blue and orange homepage with a modern house.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "Structure and runtime cost were connected",
+              "paragraphs": [
+                "When I started rebuilding parts of Arvand, the work was not limited to tidying folders. Routes, localization and browser performance all needed attention.",
+                "I standardized the structure around the Next.js App Router and separated routes, features, shared components, content and i18n logic. That made the responsibilities clearer, but the runtime work was just as important."
+              ]
+            },
+            {
+              "id": "localized-routes",
+              "title": "Treat localized URLs and error pages as part of the product",
+              "paragraphs": [
+                "I revised English and Italian language handling so links used locale-aware URLs. I also worked on the 404 experience in both languages, including correct links and avoiding hydration errors.",
+                "A translated page is only one part of localization. Navigation and error states need to remain consistent with the selected language too."
+              ]
+            },
+            {
+              "id": "browser-work",
+              "title": "Reduce the work sent to the browser",
+              "items": [
+                "Removed the expensive smooth-scrolling implementation whose continuous requestAnimationFrame loop was adding CPU pressure.",
+                "Used content-visibility and removed heavy blur effects on smaller screens to reduce rendering work while scrolling.",
+                "Changed the carousel so only its active image rendered, instead of loading and decoding every image together.",
+                "Stopped sending complete article, project and service datasets to Home just to display a few previews.",
+                "Moved unnecessary data out of Client Components and into Server Components, removing a large client-side bundle."
+              ],
+              "callout": "A requestAnimationFrame loop is not automatically a performance bug. In this project, the problem was the cost of that particular scrolling implementation and the work happening alongside it."
+            },
+            {
+              "id": "verification",
+              "title": "Cleaner code still needs production checks",
+              "paragraphs": [
+                "I checked the changes with linting, a production build, translation and asset checks, and smoke tests for routes and APIs. The result I described in the post was less browser pressure and lighter scrolling and navigation.",
+                "My takeaway was that choosing Next.js is only the starting point. Oversized client data, uncontrolled image decoding and expensive effects still affect the experience. Clearer server/client boundaries and more deliberate rendering were the changes that mattered in this project."
+              ]
+            }
+          ]
+        },
+        "fa": {
+          "title": "بازسازی پروژهٔ Next.js؛ فراتر از مرتب کردن پوشه‌ها",
+          "summary": "تغییر مسیرها، مدیریت زبان، اسکرول، رندر تصاویر و داده‌های سمت کلاینت در Arvand؛ و اینکه چرا استفاده از Next.js به‌تنهایی یک فرانت‌اند سبک نمی‌سازه.",
+          "coverAlt": "تصویر صفحهٔ اصلی Arvand با طراحی آبی و نارنجی و خانهٔ مدرن؛ همان اسکرین‌شات پیوست پست بازسازی پروژه.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "ساختار کد و هزینهٔ اجرا، جدا از هم نبودن",
+              "paragraphs": [
+                "وقتی بازسازی بخش‌هایی از پروژهٔ Arvand رو شروع کردم، موضوع فقط مرتب کردن پوشه‌ها نبود. مسیرها، مدیریت چندزبانه و عملکرد مرورگر، همگی نیاز به بازنگری داشتن.",
+                "ساختار پروژه رو بر پایهٔ App Router در Next.js منظم کردم و routeها، featureها، کامپوننت‌های مشترک، محتوا و منطق i18n رو از هم جدا کردم. مسئولیت‌ها واضح‌تر شد، ولی بخش مهم دیگه، کم کردن کار اضافه موقع اجرای سایت بود."
+              ]
+            },
+            {
+              "id": "localized-routes",
+              "title": "مسیر و صفحهٔ خطا هم بخشی از چندزبانه بودنن",
+              "paragraphs": [
+                "مدیریت زبان‌های انگلیسی و ایتالیایی رو بازنگری کردم تا لینک‌ها، زبان انتخاب‌شده رو در URL در نظر بگیرن. صفحهٔ 404 هر دو زبان هم نیاز به رسیدگی داشت؛ از لینک‌های درست تا جلوگیری از خطاهای hydration.",
+                "ترجمه شدن متن صفحه، تمام ماجرای چندزبانه بودن نیست. مسیرهای ناوبری و حالت‌های خطا هم باید با زبان کاربر هماهنگ بمونن."
+              ]
+            },
+            {
+              "id": "browser-work",
+              "title": "کار کمتری به مرورگر بسپاریم",
+              "items": [
+                "پیاده‌سازی سنگین smooth scrolling رو حذف کردم؛ حلقهٔ دائمی requestAnimationFrame اون در این پروژه به CPU فشار می‌آورد.",
+                "برای کاهش هزینهٔ رندر موقع اسکرول از content-visibility استفاده کردم و blurهای سنگین رو در نمایشگرهای کوچک کنار گذاشتم.",
+                "رندر carousel رو تغییر دادم تا فقط تصویر فعال رندر بشه، نه اینکه همهٔ تصاویر هم‌زمان بارگذاری و decode بشن.",
+                "صفحهٔ Home دیگه برای نمایش چند preview، کل دادهٔ مقاله‌ها، پروژه‌ها و سرویس‌ها رو دریافت نمی‌کرد.",
+                "داده‌های غیرضروری رو از Client Componentها به Server Componentها منتقل کردم و یک bundle بزرگ سمت کلاینت حذف شد."
+              ],
+              "callout": "داشتن حلقهٔ requestAnimationFrame به‌خودی‌خود باگ عملکرد نیست. مسئلهٔ این پروژه، هزینهٔ همون پیاده‌سازی اسکرول و کارهای اضافه‌ای بود که کنارش انجام می‌شد."
+            },
+            {
+              "id": "verification",
+              "title": "کد مرتب‌تر هم به تست production نیاز داره",
+              "paragraphs": [
+                "تغییرات رو با lint، build نسخهٔ production، بررسی ترجمه‌ها و assetها و smoke test مسیرها و APIها بررسی کردم. نتیجه‌ای که در پست توضیح دادم، فشار کمتر روی مرورگر و اسکرول و ناوبری سبک‌تر بود.",
+                "نکتهٔ اصلی برای من این بود که انتخاب Next.js فقط نقطهٔ شروعه. داده‌های حجیم سمت کلاینت، decode کنترل‌نشدهٔ تصاویر و افکت‌های پرهزینه همچنان روی تجربهٔ کاربر اثر می‌ذارن. در این پروژه، مشخص‌تر کردن مرز سرور و کلاینت و کنترل بهتر رندر بود که تفاوت ایجاد کرد."
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "docintel-document-rag",
+      "sourceUrl": "https://www.linkedin.com/posts/arsam-sarkhosh-3abb40420_python-fastapi-artificialintelligence-ugcPost-7494457730058018816-tE9M/",
+      "publishedAt": "2026-10-27",
+      "projectId": "docintel",
+      "tags": [
+        "Python",
+        "FastAPI",
+        "RAG",
+        "pgvector",
+        "Nuxt"
+      ],
+      "versions": {
+        "en": {
+          "title": "Building DocIntel to learn document processing and RAG",
+          "summary": "Why I chose a full-stack document application to work with Python, embeddings and retrieval—and how its Nuxt interface connects to a FastAPI and PostgreSQL backend.",
+          "coverAlt": "DocIntel interface preview, reused from the portfolio’s project screenshot rather than the original LinkedIn video.",
+          "sections": [
+            {
+              "id": "the-idea",
+              "title": "Learn by connecting the pieces",
+              "paragraphs": [
+                "I wanted to go further with Python, AI, language models, embeddings and RAG alongside my full-stack work. Instead of stopping at courses and small exercises, I chose to build an application around those ideas.",
+                "The result was DocIntel: a document platform that brings uploading, organizing, processing, summarizing and asking questions into one dashboard."
+              ]
+            },
+            {
+              "id": "document-workflow",
+              "title": "More than a question box",
+              "items": [
+                "Upload and manage documents.",
+                "Extract and process document content.",
+                "Generate summaries with AI.",
+                "Ask questions about a document using RAG.",
+                "Find relevant document passages through embeddings and vector search.",
+                "Organize documents with folders, tags and favorites behind an authenticated dashboard."
+              ],
+              "visual": {
+                "kind": "flow",
+                "title": "The document-question workflow",
+                "steps": [
+                  {
+                    "title": "Document",
+                    "detail": "Upload, extract and process content"
+                  },
+                  {
+                    "title": "Embeddings",
+                    "detail": "Represent content for vector retrieval"
+                  },
+                  {
+                    "title": "Retrieval",
+                    "detail": "Find passages related to the question"
+                  },
+                  {
+                    "title": "Answer",
+                    "detail": "Use retrieved context in the RAG workflow"
+                  }
+                ],
+                "caption": "A high-level view of the workflow described in my original post. It is not an accuracy benchmark or a guarantee that generated answers are correct."
+              }
+            },
+            {
+              "id": "the-stack",
+              "title": "A web interface with a Python backend",
+              "paragraphs": [
+                "I used Nuxt, Vue, TypeScript and Quasar for the frontend. The backend uses Python, FastAPI, SQLAlchemy and PostgreSQL, with pgvector for vector storage and search. The AI part uses the OpenAI API, embeddings and RAG.",
+                "Working across those layers gave me more experience connecting web development to AI features: backend architecture, vector databases, document processing and authentication all had to fit into the same product."
+              ]
+            },
+            {
+              "id": "what-i-learned",
+              "title": "A project to keep developing",
+              "paragraphs": [
+                "For me, DocIntel was a way to learn how these pieces work together, not just how to make an isolated model call. It was one of my first substantial steps into building AI-assisted applications, and I intend to keep developing it.",
+                "The related project page links to the frontend preview and backend source. The frontend preview is available separately; the Python backend is not hosted with that demo. Its source is available if you want to explore the implementation."
+              ]
+            }
+          ]
+        },
+        "fa": {
+          "title": "ساخت DocIntel برای یادگیری پردازش اسناد و RAG",
+          "summary": "چرا برای کار با پایتون، embedding و بازیابی اطلاعات سراغ یک اپلیکیشن فول‌استک رفتم؛ از رابط Nuxt تا بک‌اند FastAPI و PostgreSQL.",
+          "coverAlt": "پیش‌نمایش رابط DocIntel؛ همان اسکرین‌شات صفحهٔ پروژه، نه تصویر استخراج‌شده از ویدیوی پست لینکدین.",
+          "sections": [
+            {
+              "id": "the-idea",
+              "title": "یادگیری با کنار هم گذاشتن بخش‌های واقعی",
+              "paragraphs": [
+                "می‌خواستم در کنار کار فول‌استک، جدی‌تر سراغ Python، هوش مصنوعی، مدل‌های زبانی، embedding و RAG برم. به‌جای اینکه فقط دوره ببینم و تمرین‌های کوچیک انجام بدم، تصمیم گرفتم یه اپلیکیشن بر پایهٔ همین موضوع‌ها بسازم.",
+                "نتیجه شد DocIntel؛ یک پلتفرم اسناد که آپلود، سازمان‌دهی، پردازش، خلاصه‌سازی و سؤال پرسیدن رو توی یک داشبورد کنار هم می‌ذاره."
+              ]
+            },
+            {
+              "id": "document-workflow",
+              "title": "بیشتر از یک کادر پرسش",
+              "items": [
+                "آپلود و مدیریت اسناد.",
+                "استخراج و پردازش محتوای سند.",
+                "تولید خلاصه با کمک هوش مصنوعی.",
+                "پرسیدن سؤال دربارهٔ محتوای سند با RAG.",
+                "پیدا کردن بخش‌های مرتبط با embedding و جست‌وجوی برداری.",
+                "مرتب کردن اسناد با پوشه، تگ و علاقه‌مندی‌ها در یک داشبورد با احراز هویت."
+              ],
+              "visual": {
+                "kind": "flow",
+                "title": "مسیر سؤال پرسیدن از سند",
+                "steps": [
+                  {
+                    "title": "سند",
+                    "detail": "آپلود، استخراج و پردازش محتوا"
+                  },
+                  {
+                    "title": "Embedding",
+                    "detail": "نمایش محتوا برای بازیابی برداری"
+                  },
+                  {
+                    "title": "بازیابی",
+                    "detail": "پیدا کردن بخش‌های مرتبط با سؤال"
+                  },
+                  {
+                    "title": "پاسخ",
+                    "detail": "استفاده از محتوای بازیابی‌شده در فرایند RAG"
+                  }
+                ],
+                "caption": "نمای کلی فرایندی که در پست اصلی توضیح دادم؛ نه بنچمارک دقت و نه تضمین درست بودن پاسخ‌های تولیدشده."
+              }
+            },
+            {
+              "id": "the-stack",
+              "title": "رابط وب در کنار بک‌اند پایتون",
+              "paragraphs": [
+                "برای فرانت‌اند از Nuxt، Vue، TypeScript و Quasar استفاده کردم. بک‌اند با Python، FastAPI، SQLAlchemy و PostgreSQL ساخته شده و pgvector هم برای نگهداری و جست‌وجوی برداری استفاده می‌شه. بخش هوش مصنوعی شامل OpenAI API، embedding و RAG هست.",
+                "کار روی این لایه‌ها تجربهٔ بهتری از اتصال توسعهٔ وب به قابلیت‌های هوش مصنوعی بهم داد. معماری بک‌اند، دیتابیس برداری، پردازش سند و احراز هویت باید توی یک محصول کنار هم درست کار می‌کردن."
+              ]
+            },
+            {
+              "id": "what-i-learned",
+              "title": "پروژه‌ای برای ادامه دادن",
+              "paragraphs": [
+                "DocIntel برام راهی بود برای فهمیدن ارتباط این بخش‌ها، نه فقط فرستادن یک درخواست به مدل. یکی از قدم‌های جدی اولم در ساخت اپلیکیشن‌های مجهز به هوش مصنوعی بود و می‌خوام توسعه‌ش رو ادامه بدم.",
+                "صفحهٔ پروژه، لینک پیش‌نمایش فرانت‌اند و کد بک‌اند رو داره. پیش‌نمایش فرانت‌اند جداگانه در دسترسه؛ بک‌اند پایتون همراه اون دمو میزبانی نشده، ولی کدش برای بررسی پیاده‌سازی در دسترسه."
               ]
             }
           ]

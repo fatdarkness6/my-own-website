@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import { createRenderer, h, nextTick, ref } from "vue";
 import { useSectionHash } from "../app/composables/useSectionHash.ts";
 
-function mountTracker(t: TestContext, { enabled = true, hash = "", smooth = false, path = "/about" } = {}) {
+function mountTracker(t: TestContext, { enabled = true, hash = "", smooth = false, path = "/about", track = true, adapter = true, reducedMotion = false } = {}) {
   const ready = ref(enabled);
   const frames = new Map<number, FrameRequestCallback>();
   let nextFrame = 0;
   const calls: { method: string; url: string; state: unknown }[] = [];
   const moves: { top: number; immediate: boolean }[] = [];
+  const nativeMoves: ScrollToOptions[] = [];
   const tops: Record<string, number> = { "about-main": 0, profile: 1000, toolkit: 2200, "about-exit": 3500 };
   const browser = Object.assign(new EventTarget(), {
     scrollY: 0, innerHeight: 800,
@@ -19,6 +20,8 @@ function mountTracker(t: TestContext, { enabled = true, hash = "", smooth = fals
       pushState(state: unknown, _: string, url: string) { calls.push({ method: "push", state, url }); browser.location.hash = url.slice(url.indexOf("#")); },
     },
     getComputedStyle: () => ({ scrollMarginTop: "112px" }),
+    matchMedia: () => ({ matches: reducedMotion }),
+    scrollTo(options: ScrollToOptions) { nativeMoves.push(options); browser.scrollY = options.top ?? 0; },
     requestAnimationFrame(callback: FrameRequestCallback) { frames.set(++nextFrame, callback); return nextFrame; },
     cancelAnimationFrame(id: number) { frames.delete(id); },
   });
@@ -45,10 +48,11 @@ function mountTracker(t: TestContext, { enabled = true, hash = "", smooth = fals
     setup() {
       tracker = useSectionHash(Object.keys(tops), {
         enabled: ready,
-        scroll(top, immediate) {
+        track,
+        scroll: adapter ? (top, immediate) => {
           moves.push({ top, immediate });
           if (!smooth || immediate) browser.scrollY = top;
-        },
+        } : undefined,
       });
       return () => h("div");
     },
@@ -63,7 +67,7 @@ function mountTracker(t: TestContext, { enabled = true, hash = "", smooth = fals
     pending.forEach((callback) => callback(0));
   }
   function scrollTo(top: number) { browser.scrollY = top; browser.dispatchEvent(new Event("scroll")); flushFrame(); }
-  return { tracker, ready, browser, frames, calls, moves, unmount, flushFrame, scrollTo };
+  return { tracker, ready, browser, frames, calls, moves, nativeMoves, unmount, flushFrame, scrollTo };
 }
 
 test("scrolling updates chapters in both directions without adding history or navigating", (t) => {
@@ -167,4 +171,71 @@ test("outgoing page scroll work cannot overwrite the next page's URL", (t) => {
   browser.location.pathname = "/projects";
   scrollTo(2300);
   assert.equal(calls.length, count);
+});
+
+test("navigation-only pages smoothly link chapters without a scroll spy or URL churn", (t) => {
+  const { tracker, browser, calls, moves, frames, flushFrame, scrollTo } = mountTracker(t, { track: false, smooth: true, path: "/fa/blog/note" });
+  flushFrame(); flushFrame();
+  scrollTo(1200);
+  assert.equal(calls.length, 0);
+  assert.equal(frames.size, 0);
+  const click = new Event("click", { cancelable: true });
+  tracker.navigateToSection(click, "toolkit");
+  assert.equal(click.defaultPrevented, true);
+  assert.deepEqual(moves, [{ top: 2088, immediate: false }]);
+  assert.equal(calls.at(-1)!.url, "/fa/blog/note?source=test#toolkit");
+  assert.equal(calls.at(-1)!.state, browser.history.state);
+  scrollTo(1200);
+  assert.equal(browser.location.hash, "#toolkit");
+  assert.equal(calls.length, 1);
+});
+
+test("native mobile anchors scroll smoothly with the same sticky-header offset", (t) => {
+  const { tracker, nativeMoves, flushFrame } = mountTracker(t, { track: false, adapter: false });
+  flushFrame(); flushFrame();
+  tracker.navigateToSection(new Event("click"), "profile");
+  assert.deepEqual(nativeMoves, [{ top: 888, behavior: "smooth" }]);
+});
+
+test("reduced motion disables native smooth scrolling", (t) => {
+  const native = mountTracker(t, { track: false, adapter: false, reducedMotion: true });
+  native.flushFrame(); native.flushFrame();
+  native.tracker.navigateToSection(new Event("click"), "profile");
+  assert.deepEqual(native.nativeMoves, [{ top: 888, behavior: "instant" }]);
+});
+
+test("reduced motion is also honored by the Lenis adapter", (t) => {
+  const adapted = mountTracker(t, { track: false, reducedMotion: true });
+  adapted.flushFrame(); adapted.flushFrame();
+  adapted.tracker.navigateToSection(new Event("click"), "profile");
+  assert.deepEqual(adapted.moves, [{ top: 888, immediate: true }]);
+});
+
+test("navigation-only anchors restore on reload and Back/Forward after the intro", async (t) => {
+  const page = mountTracker(t, { track: false, enabled: false, hash: "#toolkit" });
+  page.flushFrame();
+  assert.equal(page.moves.length, 0);
+  page.ready.value = true;
+  await nextTick();
+  page.flushFrame(); page.flushFrame();
+  assert.deepEqual(page.moves, [{ top: 2088, immediate: true }]);
+  assert.equal(page.calls.length, 0);
+  page.browser.location.hash = "#profile";
+  page.browser.dispatchEvent(new Event("popstate"));
+  page.flushFrame(); page.flushFrame();
+  assert.deepEqual(page.moves.at(-1), { top: 888, immediate: true });
+  assert.equal(page.calls.length, 0);
+});
+
+test("invalid destinations and clicks already handled elsewhere remain native", (t) => {
+  const page = mountTracker(t, { track: false });
+  page.flushFrame(); page.flushFrame();
+  const missing = new Event("click", { cancelable: true });
+  page.tracker.navigateToSection(missing, "missing");
+  assert.equal(missing.defaultPrevented, false);
+  const handled = new Event("click", { cancelable: true });
+  handled.preventDefault();
+  page.tracker.navigateToSection(handled, "profile");
+  assert.equal(page.moves.length, 0);
+  assert.equal(page.calls.length, 0);
 });

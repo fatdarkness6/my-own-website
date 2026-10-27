@@ -20,8 +20,12 @@ function report(image: string, before: number, after: number) {
 
 async function webp(input: URL, path: string) {
   const source = await readFile(input);
-  const encoded: Buffer = await sharp(source)
-    .webp({ quality: 90, alphaQuality: 100, effort: 6 }).toBuffer();
+  const encode = (quality: number): Promise<Buffer> => sharp(source)
+    .webp({ quality, alphaQuality: 100, effort: 6 }).toBuffer();
+  let encoded = await encode(90);
+  // Already-compressed post artwork can grow at quality 90; avoid shipping more
+  // bytes just because the output uses a newer image format.
+  if (encoded.length >= source.length) encoded = await encode(82);
   const before = await sharp(source).metadata();
   const after = await sharp(encoded).metadata();
   assert.equal(after.format, "webp");
