@@ -50,6 +50,22 @@ test("page titles, descriptions and project summaries are localized", () => {
   }
 });
 
+test("blog interface and SEO copy translate in every explicit catalog", async () => {
+  const required = Object.entries(english).filter(([key]) => key.startsWith("blog") || key === "seoBlog" || key === "seoBlogDesc");
+  assert.ok(required.length >= 29);
+  for (const { code, translations } of [{ code: "en", translations: englishLocale.translations }, ...languages]) {
+    const language = await jiti.import<{ default: ReturnType<typeof catalog> }>(`../i18n/locales/${code}.ts`);
+    const localized = createI18n({ legacy: false, locale: code, messages: { [code]: language.default } });
+    for (const [key, source] of required) {
+      assert.ok(translations[key]?.trim(), `${code}: missing blog copy ${key}`);
+      const id = translationKey(source);
+      assert.ok(id in language.default.copy, `${code}: missing compiled blog copy ${key}`);
+      assert.equal(localized.global.t(`copy.${id}`), translations[key], `${code}: ${key}`);
+      if (["ar", "fa"].includes(code)) assert.ok(/\p{Script=Arabic}/u.test(translations[key]!), `${code}: incorrect script ${key}`);
+    }
+  }
+});
+
 test("ghssh developer-tool copy is localized without translating code metadata", async () => {
   const required = Object.entries(english).filter(([key]) =>
     key === "developerTools" || key === "cliSource" ||

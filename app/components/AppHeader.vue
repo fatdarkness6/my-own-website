@@ -1,6 +1,6 @@
 <script setup>
 const { c, localePath, rtl } = usePortfolioI18n();
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useScrollSections } from "~/composables/useScrollSections";
 
@@ -9,6 +9,7 @@ const links = computed(() => [
   { label: "Home", to: "/" },
   { label: "About", to: "/about" },
   { label: "Projects", to: "/projects" },
+  { label: "Blog", to: "/blog" },
   { label: "Resume", to: "/resume" },
 ].map((link) => ({ ...link, label: c(link.label), to: localePath(link.to) })));
 
@@ -25,16 +26,17 @@ const progress = computed(() => {
 });
 
 const route = useRoute();
-const activeTab = ref(route.path);
-watch(
-  () => route.path,
-  (p) => (activeTab.value = p),
-);
+function currentLink(to) {
+  if (route.path === to) return "page";
+  if (to !== localePath("/") && route.path.startsWith(`${to}/`)) return "location";
+  return undefined;
+}
 
 const currentLabel = computed(() => {
   const name = String(routeBaseName() || "index");
   if (name.startsWith("projects-")) return c("Projects");
-  if (name !== "index") return c({ about: "About", projects: "Projects", resume: "Resume", contact: "Contact" }[name] || "Home");
+  if (name.startsWith("blog-")) return c("Blog");
+  if (name !== "index") return c({ about: "About", projects: "Projects", blog: "Blog", resume: "Resume", contact: "Contact" }[name] || "Home");
   return sections[currentIndex.value]?.id || "hero";
 });
 
@@ -75,6 +77,8 @@ const sectionCounter = computed(
                 clickable
                 exact
                 :to="link.to"
+                :active="!!currentLink(link.to)"
+                :aria-current="currentLink(link.to)"
               >
                 <q-item-section>
                   <AnimationGlitchText :text="c(link.label)" />
@@ -92,26 +96,19 @@ const sectionCounter = computed(
           </span>
         </div>
 
-        <nav class="gt-sm" :aria-label="c('Main')">
-          <q-tabs
-            v-model="activeTab"
-            class="app-header__nav"
-            dense
-            inline-label
-            narrow-indicator
+        <nav class="gt-sm app-header__nav" :aria-label="c('Main')">
+          <q-btn
+            v-for="link in links"
+            :key="link.to"
+            flat
             no-caps
+            no-ripple
+            :to="link.to"
+            :aria-current="currentLink(link.to)"
+            class="nav-link"
           >
-            <q-route-tab
-              v-for="link in links"
-              :key="link.to"
-              :name="link.to"
-              :to="link.to"
-              :exact="link.to !== localePath('/projects') && (route.path !== link.to || !route.hash)"
-              class="nav-link"
-            >
-              <AnimationGlitchText :text="c(link.label)" />
-            </q-route-tab>
-          </q-tabs>
+            <AnimationGlitchText :text="c(link.label)" />
+          </q-btn>
         </nav>
 
         <q-space />

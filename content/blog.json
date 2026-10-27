@@ -1,0 +1,121 @@
+{
+  "posts": [
+    {
+      "id": "strapi-nextjs-isr",
+      "sourceUrl": "https://www.linkedin.com/posts/arsam-sarkhosh-3abb40420_nextjs-isr-webperformance-share-7520066003934928906-xBHQ/",
+      "publishedAt": "2026-10-27",
+      "projectId": "arvand-termo-tec",
+      "tags": ["Next.js", "Strapi", "ISR"],
+      "cover": {
+        "src": "/images/blog/strapi-nextjs-isr.jpg",
+        "optimizedSrc": "/images/blog/strapi-nextjs-isr.webp",
+        "width": 1280,
+        "height": 853
+      },
+      "versions": {
+        "en": {
+          "title": "Moving a slow Strapi request out of the first visit",
+          "coverAlt": "Original LinkedIn artwork showing Strapi content passing through a Next.js build into Vercel’s ISR cache, then reaching the visitor as a prepared page.",
+          "summary": "What pre-rendering and ISR changed in Arvand Termo Tec’s Next.js blog, how revalidate = 60 behaves, and what our local production test actually measured.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "A small request, a long wait",
+              "paragraphs": [
+                "A roughly 20 KB request to Strapi took almost 29 seconds to return its first byte. That was the situation while we were working on the blog performance of Arvand Termo Tec, a project with a Next.js frontend and blog content coming from Strapi.",
+                "Browser-side caching was already preventing repeated requests when moving between pages. But when the server cache was empty, the first visit still depended on that slow CMS response. This was where the practical value of pre-rendering and ISR became much clearer to me."
+              ]
+            },
+            {
+              "id": "the-change",
+              "title": "Moving the expensive work",
+              "paragraphs": ["The change I implemented was straightforward:"],
+              "items": [
+                "During the Vercel build, published content is fetched from Strapi and the blog listing and article pages are generated ahead of time.",
+                "A new visitor receives the prepared HTML and page data. Displaying content that has already been generated does not need a simultaneous request to Strapi.",
+                "With revalidate = 60, a page becomes eligible for regeneration after 60 seconds."
+              ],
+              "code": "export const revalidate = 60;"
+            },
+            {
+              "id": "revalidation",
+              "title": "What happens after 60 seconds?",
+              "paragraphs": [
+                "This last detail was the interesting part for me: reaching the 60-second mark does not create a request by itself. The first request after that interval usually receives the cached version while Next.js regenerates the page in the background. Once regeneration succeeds, subsequent requests receive the new version.",
+                "If the CMS fails during regeneration, the last successful version is retained.",
+                "This process does not automatically update a page that is already open in a visitor’s browser. The server cache and the browser’s current state are separate layers."
+              ]
+            },
+            {
+              "id": "local-test",
+              "title": "Testing without the CMS",
+              "paragraphs": [
+                "To check the result, we built the project, started a fresh local production server and made the CMS unavailable. The complete listing pages took at most 23 milliseconds to receive, and the article pages took at most 11 milliseconds."
+              ],
+              "callout": "These are local production-test results, not measurements of the live website. They measure complete page retrieval; the earlier 29-second observation was time to first byte for a CMS request."
+            },
+            {
+              "id": "the-limit",
+              "title": "What this change does—and what it leaves to investigate",
+              "paragraphs": [
+                "This architecture did not make Strapi itself faster. The backend delay still needs investigation. Also, an article published after the build may still wait for the CMS on its first request if it has not been warmed yet.",
+                "For me, the main value was moving expensive work away from the visitor’s request and into the build and background regeneration. These architectural details can make a real difference to the first visit."
+              ]
+            }
+          ]
+        },
+        "fa": {
+          "title": "وقتی پاسخ Strapi کند است: تجربهٔ پیش‌رندر و ISR در Next.js",
+          "coverAlt": "تصویر اصلی پست لینکدین: محتوای Strapi پس از ساخت با Next.js وارد کش ISR در Vercel می‌شود و به شکل صفحهٔ آماده به کاربر می‌رسد.",
+          "summary": "تجربه‌ام از بهبود بلاگ Arvand Termo Tec با پیش‌رندر و ISR؛ رفتار revalidate = 60 و نتیجهٔ تست production محلی، با توضیح محدودیت‌ها.",
+          "sections": [
+            {
+              "id": "the-problem",
+              "title": "یک درخواست کوچک، یک انتظار طولانی",
+              "paragraphs": [
+                "یه درخواست حدود ۲۰ کیلوبایتی به Strapi، نزدیک ۲۹ ثانیه طول کشید تا اولین بایت پاسخ رو برگردونه! داشتیم روی عملکرد بخش بلاگ وب‌سایت Arvand Termo Tec کار می‌کردیم؛ پروژه‌ای که فرانت‌اندش با Next.js توسعه داده شده و محتوای بلاگش از Strapi میاد.",
+                "کش سمت مرورگر باعث شده بود رفت‌وبرگشت بین صفحات، درخواست تکراری ایجاد نکنه. ولی وقتی کش سمت سرور خالی بود، اولین بازدید همچنان به پاسخ کند CMS وابسته می‌موند. اینجا بود که کاربرد واقعی پیش‌رندر و ISR برام روشن‌تر شد."
+              ]
+            },
+            {
+              "id": "the-change",
+              "title": "انتقال کار پرهزینه از مسیر کاربر",
+              "paragraphs": ["تغییری که پیاده کردم این بود:"],
+              "items": [
+                "موقع build روی Vercel، اطلاعات منتشرشده از Strapi دریافت می‌شه و صفحات لیست بلاگ و مقاله‌ها از قبل ساخته می‌شن.",
+                "کاربر جدید، HTML و داده‌های آمادهٔ صفحه رو دریافت می‌کنه. بنابراین نمایش محتوای موجود، نیازمند یک درخواست هم‌زمان به Strapi نیست.",
+                "با تنظیم revalidate = 60، صفحه بعد از ۶۰ ثانیه واجد شرایط بازسازی می‌شه."
+              ],
+              "code": "export const revalidate = 60;"
+            },
+            {
+              "id": "revalidation",
+              "title": "بعد از ۶۰ ثانیه چه اتفاقی می‌افته؟",
+              "paragraphs": [
+                "نکته‌ای که خیلی برام باحال بود همین بخش آخره: رسیدن به ثانیهٔ ۶۰، خودش درخواستی ایجاد نمی‌کنه. اولین درخواست بعد از این بازه، معمولاً نسخهٔ ذخیره‌شده رو دریافت می‌کنه و Next.js بازسازی صفحه رو در پس‌زمینه انجام می‌ده. بعد از اتمام موفق بازسازی، درخواست‌های بعدی نسخهٔ جدید رو می‌گیرن.",
+                "اگر CMS در این بازسازی خطا بده، آخرین نسخهٔ موفق حفظ می‌شه.",
+                "البته این فرایند، صفحهٔ بازشده در مرورگر کاربر رو خودکار تغییر نمی‌ده. کش سرور و state فعلی مرورگر، دو لایهٔ جدا هستن."
+              ]
+            },
+            {
+              "id": "local-test",
+              "title": "تست بدون دسترسی به CMS",
+              "paragraphs": [
+                "برای بررسی نتیجه، در یک تست production محلی، بعد از build یک سرور جدید اجرا کردیم و CMS رو از دسترس خارج کردیم. دریافت کامل صفحات لیست حداکثر ۲۳ میلی‌ثانیه و مقاله‌ها حداکثر ۱۱ میلی‌ثانیه طول کشید."
+              ],
+              "callout": "این‌ها نتایج تست production محلی هستن، نه اندازه‌گیری سایت live. این تست، دریافت کامل صفحه‌ها رو اندازه گرفته؛ مشاهدهٔ ۲۹ ثانیه‌ای اول مربوط به زمان دریافت اولین بایت یک درخواست CMS بود."
+            },
+            {
+              "id": "the-limit",
+              "title": "نتیجه و محدودیت‌های این تغییر",
+              "paragraphs": [
+                "این معماری، خود Strapi رو سریع‌تر نکرده؛ تأخیر backend همچنان نیاز به بررسی داره. همچنین مقاله‌ای که بعد از build منتشر شده، اگر هنوز warm نشده باشه، ممکنه در اولین درخواست منتظر CMS بمونه.",
+                "برای من، ارزش اصلی این تغییر، انتقال کار پرهزینه از مسیر درخواست کاربر به مرحلهٔ build و بازسازی پس‌زمینه بود. همین جزئیات معماری می‌تونن تأثیر بزرگی روی تجربهٔ اولین بازدید بذارن."
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

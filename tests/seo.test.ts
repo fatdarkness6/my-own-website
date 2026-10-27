@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile, readdir } from "node:fs/promises";
-import { SITE_URL, SITE_LOCALES, SITE_ROUTES, buildRobots, buildSitemap, canonicalUrl, indexingAllowed, localizedPath, serializeJsonLd, siteOrigin } from "../shared/seo.ts";
+import { SITE_URL, SITE_LOCALES, SITE_ROUTES, SITE_PAGES, buildRobots, buildSitemap, canonicalUrl, indexingAllowed, localizedPath, serializeJsonLd, siteOrigin } from "../shared/seo.ts";
 import { projects } from "../app/assets/data/projects.ts";
 import { projectPath } from "../shared/projectRoutes.ts";
+import { blogPosts } from "../app/assets/data/blog.ts";
+import { blogLocales, blogPath, getBlogPost } from "../shared/blogRoutes.ts";
 
 test("canonical origins ignore paths, queries and fragments; reject unsafe schemes", () => {
   assert.equal(siteOrigin(`${SITE_URL}/about?utm_source=test#bio`), SITE_URL);
@@ -45,18 +47,19 @@ test("domain redirect configuration targets only the old production hosts and ke
 test("all localized pages have unique URLs and reciprocal sitemap alternates", () => {
   const xml = buildSitemap(SITE_URL);
   const entries = [...xml.matchAll(/<url>(.*?)<\/url>/g)].map((match) => match[1]!);
-  const expectedCount = SITE_ROUTES.length * SITE_LOCALES.length;
+  const expectedCount = SITE_PAGES.reduce((count, page) => count + page.locales.length, 0);
   assert.equal(entries.length, expectedCount);
   const locations = entries.map((entry) => entry.match(/<loc>(.*?)<\/loc>/)![1]);
   assert.equal(new Set(locations).size, expectedCount);
-  for (const path of SITE_ROUTES) for (const locale of SITE_LOCALES) {
+  for (const { path, locales } of SITE_PAGES) for (const locale of locales) {
     const location = `${SITE_URL}${localizedPath(path, locale)}`;
     const entry = entries.find((value) => value.includes(`<loc>${location}</loc>`))!;
     assert.ok(entry, location);
-    for (const language of SITE_LOCALES) {
+    for (const language of locales) {
       assert.ok(entry.includes(`hreflang="${language}" href="${SITE_URL}${localizedPath(path, language)}"`));
     }
-    assert.ok(entry.includes(`hreflang="x-default" href="${SITE_URL}${path}"`));
+    assert.equal([...entry.matchAll(/<xhtml:link\b/g)].length, locales.length + 1);
+    assert.ok(entry.includes(`hreflang="x-default" href="${SITE_URL}${localizedPath(path, locales.includes("en") ? "en" : locales[0]!)}"`));
   }
   assert.ok(!xml.includes("lastmod"));
   assert.ok(locations.every((location) => !location?.includes("?")));
@@ -66,7 +69,22 @@ test("the sitemap route inventory stays synchronized with actual page files", as
   const files = await readdir(new URL("../app/pages/", import.meta.url), { recursive: true });
   const routes = files.filter((file) => file.endsWith(".vue") && !file.includes("["))
     .map((file) => `/${file.replace(/\\/g, "/").replace(/\.vue$/, "")}`.replace(/\/index$/, "") || "/");
-  assert.deepEqual([...SITE_ROUTES].sort(), [...routes, ...projects.map(({ id }) => projectPath(id))].sort());
+  assert.deepEqual([...SITE_ROUTES].sort(), [...routes, ...projects.map(({ id }) => projectPath(id)), ...blogPosts.map(({ id }) => blogPath(id))].sort());
+});
+
+test("blog routes advertise actual article translations without source-language duplicates", () => {
+  const xml = buildSitemap(SITE_URL);
+  const published = blogPosts.find(({ id }) => id === "strapi-nextjs-isr")!;
+  assert.ok(published);
+  assert.deepEqual(blogLocales(published), ["en", "fa"]);
+  assert.deepEqual(SITE_PAGES.find(({ path }) => path === blogPath(published.id))?.locales, ["en", "fa"]);
+  for (const locale of SITE_LOCALES) {
+    assert.ok(xml.includes(`<loc>${SITE_URL}${localizedPath("/blog", locale)}</loc>`));
+    assert.equal(Boolean(getBlogPost(published.id, locale)), blogLocales(published).includes(locale));
+    assert.equal(xml.includes(`<loc>${SITE_URL}${localizedPath(blogPath(published.id), locale)}</loc>`), blogLocales(published).includes(locale));
+  }
+  assert.equal(getBlogPost("not-a-real-article", "en"), undefined);
+  assert.equal(getBlogPost([published.id], "en"), undefined);
 });
 
 test("ghssh has a permanent project route and accurate source-code metadata", () => {
@@ -150,7 +168,7 @@ test("the first gesture unlocks audio without double-toggling explicit playback"
   const audio = await readFile(new URL("../app/composables/useEntryAudio.ts", import.meta.url), "utf8");
   const control = await readFile(new URL("../app/components/AppMusicControl.vue", import.meta.url), "utf8");
   assert.ok(app.includes('event.target.closest("[data-audio-toggle]")'));
-  assert.ok(app.includes("activateAudio({ autoplayMusic: !handlesPlayback })"));
+  assert.ok(app.includes("activateAudio({ autoplayMusic: !handlesPlayback && !readingRoute.value })"));
   assert.ok(audio.includes("activation.autoplayMusic !== false && options.autoplayMusic !== false"));
   assert.equal(control.match(/data-audio-toggle/g)?.length, 2);
 });

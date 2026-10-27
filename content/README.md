@@ -9,6 +9,7 @@ No database, admin account, runtime fetch or new dependency is needed.
 | File | Controls |
 | --- | --- |
 | `projects.json` | Project records, their order, URLs, screenshots and Home's `featuredIds` |
+| `blog.json` | Verified blog articles, original source links, dates added to this blog and actual language versions |
 | `resume.json` | Work experience, skills, education, extra projects and PDF settings |
 | `profile.json` | Name, role, public email, GitHub and LinkedIn, shared across pages |
 | `images.json` | Home portrait, RTL portrait and About portrait paths |
@@ -97,6 +98,39 @@ that may intentionally stay English. It never invents or overwrites translations
 
 Content is bundled at build time. The dev server reloads changes; the public site
 needs a commit/push and a successful deployment. These JSON files are not a live CMS.
+
+## Blog articles
+
+The first article adapts the owner's latest LinkedIn post about Strapi and Next.js
+ISR. Its original Persian and English translation are stored in `blog.json`.
+The source URL links to the original post. `publishedAt` is the date the adaptation
+was added to this blog; it is not a guessed LinkedIn publication date. Only add
+`sourcePublishedAt` when an exact original date is known.
+
+Each post has a stable `id`, an HTTPS LinkedIn `sourceUrl`, `publishedAt`, technical
+`tags`, an optional existing `projectId` and a `versions` object. Each actual
+language version contains `title`, `summary` and `sections`. Sections support
+`paragraphs`, `items`, `code` and `callout`, rendered as escaped Vue text. Keep
+section IDs identical across translations so bookmarks survive language changes.
+No HTML, database, Markdown parser or additional runtime dependency is required.
+
+Optional `cover` metadata supplies a locally hosted JPEG `src`, its WebP
+`optimizedSrc`, and the original `width`/`height`. Save post artwork under
+`public/images/blog/`; retain the original JPEG and generate its WebP with the
+existing image-maintenance script. Every actual language version then needs a
+`coverAlt` description in that language. Do not hotlink expiring LinkedIn CDN URLs.
+The first cover is the original artwork attached to the linked Strapi/ISR post.
+
+The blog interface has all seven site languages. Article URLs, hreflang and the
+sitemap contain only the versions supplied in `versions`; there is no detail-page
+language fallback. The index may link to an available English or original version
+and labels the available languages. Add a translation only when its complete
+article text is ready. Published IDs are permanent URLs, so renames need redirects.
+
+Run the normal content/type/localization/build checks after edits. `content:check`
+also validates article shape, dates, clean LinkedIn source links, related project
+IDs, language availability and shared section anchors. Never add invented posts,
+results, publication dates or translations as layout filler.
 SSR, localization, RTL, typing, glitch animations and URL selection keep their
 existing behavior.
 

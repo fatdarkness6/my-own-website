@@ -11,6 +11,7 @@ const props = defineProps({
 });
 
 const { state, ensureAudio, toggle, setVolume } = useMainMusic();
+const route = useRoute();
 
 const volUi = ref(Math.round(state.value.volume * 100));
 
@@ -31,7 +32,8 @@ function onVolumeChange(v: number | null) {
 }
 
 onMounted(() => {
-  ensureAudio(props.src);
+  // Reading routes keep music opt-in, including the initial MP3 download.
+  if (!route.meta.readingMode) ensureAudio(props.src);
 });
 </script>
 

@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import { readFile, writeFile } from "node:fs/promises";
 import { portraitImages } from "../app/assets/data/images.ts";
 import { projects } from "../app/assets/data/projects.ts";
+import { blogPosts } from "../app/assets/data/blog.ts";
 
 // Maintenance only: generated images are committed; builds need no Sharp dependency.
 // Accept a local Sharp package path, like the other asset-generation scripts.
@@ -42,6 +43,9 @@ for (const path of Object.values(portraitImages)) {
 }
 for (const { screenshot } of projects) {
   if (screenshot?.optimizedSrc) await webp(publicFile(screenshot.src), screenshot.optimizedSrc);
+}
+for (const { cover } of blogPosts) {
+  if (cover) await webp(publicFile(cover.src), cover.optimizedSrc);
 }
 
 // Keep social previews and browser icons in PNG for compatibility. This step is

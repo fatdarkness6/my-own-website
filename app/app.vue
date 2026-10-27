@@ -4,8 +4,11 @@ import { INTRO_SESSION_KEY, shouldShowIntro } from "~/utils/introSession";
 
 const showIntro = ref(false);
 const mounted = ref(false);
+const route = useRoute();
+const readingRoute = computed(() => route.meta.readingMode === true);
 const { c, locale, rtl } = usePortfolioI18n();
 const introReady = useState("introReady", () => false);
+const entryPending = computed(() => !readingRoute.value && !introReady.value);
 const { prepare: prepareAudio, activate: activateAudio } = useEntryAudio();
 
 function removeAudioGesture() {
@@ -28,7 +31,7 @@ function resumeAudio(event) {
   // Let an explicit Play/Pause button handle its own playback exactly once.
   const handlesPlayback = event.target instanceof Element &&
     event.target.closest("[data-audio-toggle]");
-  activateAudio({ autoplayMusic: !handlesPlayback });
+  activateAudio({ autoplayMusic: !handlesPlayback && !readingRoute.value });
 }
 
 function rememberEntry({ audioActivated = true } = {}) {
@@ -53,9 +56,9 @@ onMounted(() => {
     // Fall back to the normal intro when session storage is unavailable.
   }
 
-  showIntro.value = shouldShowIntro(navigation?.type, enteredThisSession);
+  showIntro.value = shouldShowIntro(navigation?.type, enteredThisSession, readingRoute.value);
   introReady.value = !showIntro.value;
-  if (!showIntro.value) {
+  if (!showIntro.value && !readingRoute.value) {
     // A new document needs a new audio gesture even during the same tab visit.
     // Typing/reading starts immediately; audio resumes on the next interaction.
     prepareAudio();
@@ -84,16 +87,16 @@ useHead({ noscript: [{ innerHTML: `<style>
 
 <template>
   <!-- Present in SSR too: never expose the layout before the entry decision. -->
-  <div v-if="!introReady" class="app-boot-cover" aria-hidden="true" />
+  <div v-if="entryPending" class="app-boot-cover" aria-hidden="true" />
   <ClientOnly>
     <LoadingScreen v-if="showIntro" @entered="rememberEntry" />
   </ClientOnly>
   <PageSignalGlitch />
   <div
     class="app-content"
-    :class="{ 'app-content--pending': !introReady }"
-    :inert="mounted && !introReady"
-    :aria-hidden="mounted && !introReady ? 'true' : undefined"
+    :class="{ 'app-content--pending': entryPending }"
+    :inert="mounted && entryPending"
+    :aria-hidden="mounted && entryPending ? 'true' : undefined"
   >
     <a class="skip-link" href="#main-content">{{ c("Skip to content") }}</a>
     <NuxtLayout>

@@ -1,6 +1,16 @@
 <script setup lang="ts">
+import { blogPosts } from "~/assets/data/blog";
+import { blogLocales } from "#shared/blogRoutes";
+
 const { locale, locales, setLocale } = useI18n();
 const { c } = usePortfolioI18n();
+const route = useRoute();
+const routeBaseName = useRouteBaseName();
+const availableLanguages = computed(() => {
+  const post = routeBaseName(route) === "blog-slug"
+    ? blogPosts.find(({ id }) => id === route.params.slug) : undefined;
+  return post ? locales.value.filter(({ code }) => blogLocales(post).includes(code)) : locales.value;
+});
 const switching = ref(false);
 async function choose(code: Parameters<typeof setLocale>[0]) {
   if (switching.value || code === locale.value) return;
@@ -16,7 +26,7 @@ async function choose(code: Parameters<typeof setLocale>[0]) {
     <span dir="ltr">{{ locale.toUpperCase() }}</span>
     <q-menu class="language-menu" anchor="bottom middle" self="top middle" :offset="[0, 12]">
       <q-list role="menu" :aria-label="c('Choose language')">
-        <q-item v-for="language in locales" :key="language.code" clickable v-close-popup
+        <q-item v-for="language in availableLanguages" :key="language.code" clickable v-close-popup
           role="menuitemradio" :aria-checked="locale === language.code"
           :active="locale === language.code" @click="choose(language.code)">
           <q-item-section><bdi :lang="language.code">{{ language.name }}</bdi></q-item-section>

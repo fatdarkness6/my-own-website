@@ -186,14 +186,10 @@
   color: #64748b;
 }
 
-.app-header__nav :deep(.q-tabs__content) {
+.app-header__nav {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.app-header__nav :deep(.q-tab__indicator) {
-  display: none;
 }
 
 .app-header__burger {
@@ -260,6 +256,8 @@
 /* nav links: corner brackets that swap and grow on hover/active */
 .nav-link {
   position: relative;
+  box-shadow: none;
+  clip-path: none;
   min-height: 42px;
   padding: 0 22px;
   border-radius: 0;
@@ -305,14 +303,14 @@
 .nav-link:hover::after,
 .nav-link:focus-visible::before,
 .nav-link:focus-visible::after,
-.nav-link.q-router-link--exact-active::before,
-.nav-link.q-router-link--exact-active::after {
+.nav-link[aria-current]::before,
+.nav-link[aria-current]::after {
   width: 18px;
   height: 18px;
   opacity: 1;
 }
 
-.nav-link.q-router-link--exact-active {
+.nav-link[aria-current] {
   color: var(--accent-light);
 }
 

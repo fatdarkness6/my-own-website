@@ -8,6 +8,8 @@ type EntryNavigationType = "navigate" | "reload" | "back_forward";
 export function shouldShowIntro(
   navigationType: EntryNavigationType | undefined,
   enteredThisSession: boolean,
+  readingMode = false,
 ) {
+  if (readingMode) return false;
   return navigationType === "reload" || !enteredThisSession;
 }

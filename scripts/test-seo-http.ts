@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { SITE_URL, SITE_ROUTES, SITE_LOCALES, SOCIAL_IMAGE, PAGE_SEO, localizedPath } from "../shared/seo.ts";
+import { SITE_URL, SITE_PAGES, SITE_LOCALES, SOCIAL_IMAGE, PAGE_SEO, localizedPath } from "../shared/seo.ts";
 import { projects } from "../app/assets/data/projects.ts";
 import { projectPath } from "../shared/projectRoutes.ts";
 import { identity } from "../app/assets/data/identity.ts";
@@ -7,6 +7,8 @@ import { portraitImages } from "../app/assets/data/images.ts";
 import { translationKey } from "../app/utils/translationKey.ts";
 import { createI18n } from "vue-i18n";
 import { createJiti } from "jiti";
+import { blogPosts } from "../app/assets/data/blog.ts";
+import { blogLocales, blogPath, getBlogPost } from "../shared/blogRoutes.ts";
 
 const jiti = createJiti(import.meta.url);
 const translators = new Map();
@@ -25,8 +27,9 @@ const attributes = (html: string, tag: string) => [...html.matchAll(new RegExp(`
   Object.fromEntries([...element.matchAll(/([\w:-]+)="([^"]*)"/g)].map(([, key, value]) => [key!, value!])),
 );
 const pageTitles = new Map<string, Set<string>>();
-for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
+for (const { path, locales: availableLocales } of SITE_PAGES) for (const language of availableLocales) {
   const project = projects.find((record) => projectPath(record.id) === path);
+  const article = path.startsWith("/blog/") ? getBlogPost(path.slice("/blog/".length), language) : undefined;
   const translate = translators.get(language)!;
   const route = localizedPath(path, language);
   const response = await fetch(`${origin}${route}`);
@@ -42,19 +45,20 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   assert.ok(links.some((link) => link.rel === "apple-touch-icon" && link.href === "/apple-touch-icon.png"), `${route}: iOS icon`);
   assert.ok(links.some((link) => link.rel === "manifest" && link.href === "/site.webmanifest"), `${route}: manifest`);
   const alternates = links.filter((link) => link.rel === "alternate" && link.hreflang);
-  assert.equal(alternates.length, 8, `${route}: language alternates`);
+  assert.equal(alternates.length, availableLocales.length + 1, `${route}: language alternates`);
   assert.ok(alternates.some((link) => link.hreflang === "x-default" && link.href === `${SITE_URL}${path}`), `${route}: x-default`);
-  for (const locale of SITE_LOCALES) assert.ok(alternates.some((link) => link.hreflang === locale && link.href === `${SITE_URL}${localizedPath(path, locale)}`));
+  for (const locale of availableLocales) assert.ok(alternates.some((link) => link.hreflang === locale && link.href === `${SITE_URL}${localizedPath(path, locale)}`));
   const metadata = attributes(html, "meta");
   for (const property of ["og:title", "og:description", "og:url", "og:image"]) {
     assert.equal(metadata.filter((meta) => meta.property === property).length, 1, `${route}: ${property}`);
   }
   // A bare origin and its trailing-slash root represent the same HTTP URL.
   assert.equal(new URL(metadata.find((meta) => meta.property === "og:url")!.content!).href, expectedUrl);
-  assert.equal(metadata.find((meta) => meta.property === "og:image")?.content, `${SITE_URL}${project?.screenshot?.src || SOCIAL_IMAGE}`);
-  assert.equal(metadata.find((meta) => meta.property === "og:image:type")?.content, project?.screenshot?.mimeType || "image/png");
-  assert.equal(metadata.find((meta) => meta.property === "og:image:width")?.content, String(project?.screenshot?.width || 1200));
-  assert.equal(metadata.find((meta) => meta.property === "og:image:height")?.content, String(project?.screenshot?.height || 630));
+  const expectedImage = article?.post.cover || project?.screenshot;
+  assert.equal(metadata.find((meta) => meta.property === "og:image")?.content, `${SITE_URL}${expectedImage?.src || SOCIAL_IMAGE}`);
+  assert.equal(metadata.find((meta) => meta.property === "og:image:type")?.content, article?.post.cover ? "image/jpeg" : project?.screenshot?.mimeType || "image/png");
+  assert.equal(metadata.find((meta) => meta.property === "og:image:width")?.content, String(expectedImage?.width || 1200));
+  assert.equal(metadata.find((meta) => meta.property === "og:image:height")?.content, String(expectedImage?.height || 630));
   assert.equal(metadata.find((meta) => meta.name === "google-site-verification")?.content, "QqxjGlyiagYJJ7OqLt3hdM-CxlPSf5QQx5VQJI3kl8E");
   assert.equal(metadata.find((meta) => meta.name === "twitter:card")?.content, "summary_large_image");
   assert.ok(metadata.find((meta) => meta.name === "description")?.content);
@@ -67,8 +71,8 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
   assert.ok(/<main\b[^>]*id="main-content"/.test(html), `${route}: main landmark`);
   const title = html.match(/<title>(.*?)<\/title>/)![1]!;
   const pageKey = path === "/" ? "home" : path.slice(1) as keyof typeof PAGE_SEO;
-  const expectedTitle = project ? `${project.name} | ${translate(identity.name)}` : translate(PAGE_SEO[pageKey].title);
-  const expectedDescription = project ? `${translate(identity.name)}: ${translate(project.summary)}` : translate(PAGE_SEO[pageKey].description);
+  const expectedTitle = article ? `${article.version.title} | ${translate(identity.name)}` : project ? `${project.name} | ${translate(identity.name)}` : translate(PAGE_SEO[pageKey].title);
+  const expectedDescription = article ? article.version.summary : project ? `${translate(identity.name)}: ${translate(project.summary)}` : translate(PAGE_SEO[pageKey].description);
   assert.equal(decodeHtml(title), expectedTitle, `${route}: localized title`);
   assert.equal(decodeHtml(metadata.find((meta) => meta.name === "description")?.content), expectedDescription, `${route}: localized description`);
   for (const platform of ["og", "twitter"]) {
@@ -77,7 +81,8 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
     assert.equal(decodeHtml(metadata.find((meta) => meta[field] === `${platform}:description`)?.content), expectedDescription, `${route}: ${platform} description`);
   }
   assert.equal(metadata.find((meta) => meta.property === "og:locale")?.content, language);
-  assert.equal(metadata.filter((meta) => meta.property === "og:locale:alternate").length, SITE_LOCALES.length - 1);
+  assert.equal(metadata.filter((meta) => meta.property === "og:locale:alternate").length, availableLocales.length - 1);
+  assert.equal(metadata.find((meta) => meta.property === "og:type")?.content, article ? "article" : "website");
   const titles = pageTitles.get(language) || new Set<string>();
   assert.ok(!titles.has(title), `${route}: duplicated page title`);
   titles.add(title); pageTitles.set(language, titles);
@@ -127,6 +132,55 @@ for (const language of SITE_LOCALES) for (const path of SITE_ROUTES) {
     for (const record of projects) assert.ok(anchors.some((anchor) =>
       anchor.href === localizedPath(projectPath(record.id), language)), `${route}: crawlable ${record.id} link`);
   }
+  if (path === "/blog") {
+    const blog = graph.find((entry: { "@type": string }) => entry["@type"] === "Blog");
+    assert.equal(blog?.["@id"], `${expectedUrl}#blog`, `${route}: Blog collection`);
+    const list = graph.find((entry: { "@type": string }) => entry["@type"] === "ItemList");
+    assert.equal(list?.numberOfItems, blogPosts.length, `${route}: real article count`);
+    assert.ok(!graph.some((entry: { "@id": string }) => entry["@id"] === `${expectedUrl}#projects`), `${route}: no project list on blog`);
+    const anchors = attributes(semanticHtml, "a");
+    for (const post of blogPosts) {
+      const available = blogLocales(post);
+      const articleLanguage = available.includes(language) ? language : available.includes("en") ? "en" : available[0]!;
+      const item = list.itemListElement.find((entry: { item: { url: string } }) => entry.item.url === `${SITE_URL}${localizedPath(blogPath(post.id), articleLanguage)}`);
+      assert.ok(item, `${route}: article schema points to an existing language`);
+      assert.equal(item.item.inLanguage, articleLanguage);
+      if (post.cover) {
+        assert.equal(item.item.image, `${SITE_URL}${post.cover.src}`, `${route}: original cover in article schema`);
+        const cover = attributes(semanticHtml, "img").find((image) => image.src === post.cover!.optimizedSrc);
+        assert.ok(cover, `${route}: locally hosted article cover`);
+        assert.equal(decodeHtml(cover.alt), post.versions[articleLanguage]!.coverAlt, `${route}: translated cover alternative text`);
+        assert.equal(cover.width, String(post.cover.width));
+        assert.equal(cover.height, String(post.cover.height));
+      }
+      assert.ok(anchors.some((anchor) => anchor.href === localizedPath(blogPath(post.id), articleLanguage)), `${route}: crawlable article link`);
+      for (const unavailable of SITE_LOCALES.filter((code) => !available.includes(code))) {
+        assert.ok(!anchors.some((anchor) => anchor.href === localizedPath(blogPath(post.id), unavailable)), `${route}: no unavailable article link`);
+      }
+    }
+  }
+  if (article) {
+    const record = graph.find((entry: { "@type": string }) => entry["@type"] === "BlogPosting");
+    assert.equal(record?.["@id"], `${expectedUrl}#article`, `${route}: article entity`);
+    assert.equal(record.headline, article.version.title);
+    assert.equal(record.description, article.version.summary);
+    assert.equal(record.datePublished, article.post.publishedAt);
+    assert.equal(record.author["@id"], `${SITE_URL}/#person`);
+    assert.equal(record.inLanguage, language);
+    assert.equal(record.citation, article.post.sourceUrl);
+    assert.equal(record.image, `${SITE_URL}${article.post.cover?.src || SOCIAL_IMAGE}`, `${route}: article social image`);
+    assert.equal(record.dateModified, undefined, `${route}: no fabricated modification date`);
+    assert.equal(metadata.find((meta) => meta.property === "article:published_time")?.content, article.post.publishedAt);
+    assert.ok(graph.some((entry: { "@type": string }) => entry["@type"] === "BreadcrumbList"));
+    const visible = decodeHtml(semanticHtml);
+    assert.ok(visible.includes(article.version.title), `${route}: SSR article title`);
+    assert.ok(visible.includes(article.version.summary), `${route}: SSR article summary`);
+    for (const section of article.version.sections) assert.ok(visible.includes(section.title), `${route}: SSR article section ${section.id}`);
+    assert.ok(attributes(semanticHtml, "a").some((anchor) => anchor.href === article.post.sourceUrl), `${route}: original LinkedIn source`);
+    for (const unavailable of SITE_LOCALES.filter((code) => !availableLocales.includes(code))) {
+      assert.ok(!alternates.some((link) => link.hreflang === unavailable), `${route}: no untranslated hreflang`);
+    }
+  }
   console.log(`PASS ${route}`);
 }
 const robots = await (await fetch(`${origin}/robots.txt`)).text();
@@ -136,9 +190,9 @@ assert.equal(sitemap.status, preview ? 404 : 200);
 if (!preview) {
   const xml = await sitemap.text();
   const locations = [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]);
-  assert.equal(locations.length, SITE_ROUTES.length * SITE_LOCALES.length);
+  assert.equal(locations.length, SITE_PAGES.reduce((count, page) => count + page.locales.length, 0));
   assert.ok(!xml.includes("arsamsarkhosh.vercel.app"));
-  for (const language of SITE_LOCALES) for (const path of SITE_ROUTES)
+  for (const { path, locales } of SITE_PAGES) for (const language of locales)
     assert.ok(locations.includes(`${SITE_URL}${localizedPath(path, language)}`));
   for (const [, href] of xml.matchAll(/href="([^"]+)"/g)) assert.equal(new URL(href!).origin, SITE_URL);
   const imageUrls = new Set([...xml.matchAll(/<image:loc>(.*?)<\/image:loc>/g)].map((match) => match[1]!));
@@ -169,7 +223,7 @@ for (const file of ["/favicon.ico", "/favicon.svg", "/favicon-96x96.png", "/appl
 const unknown = await fetch(`${origin}/this-page-does-not-exist`);
 assert.equal(unknown.status, 404);
 for (const locale of SITE_LOCALES) {
-  for (const path of ["/about", "/projects/docintel"]) {
+  for (const path of ["/about", "/projects/docintel", "/blog"]) {
     const response = await fetch(`${origin}${localizedPath(path, locale)}/?ref=test`, { redirect: "manual" });
     assert.equal(response.status, 308, `${locale}: trailing slash redirect`);
     assert.equal(response.headers.get("location"), `${localizedPath(path, locale)}?ref=test`);
@@ -196,6 +250,19 @@ for (const locale of SITE_LOCALES) {
   for (const language of SITE_LOCALES) assert.ok(switchedLinks.some((link) => link.hreflang === language && link.href === `${SITE_URL}${localizedPath("/projects/docintel", language)}`), `${locale}: selected project alternate ${language}`);
   const missing = await fetch(`${origin}${localizedPath("/projects/not-a-real-project", locale)}`);
   assert.equal(missing.status, 404, `${locale}: unknown project`);
+  const missingArticle = await fetch(`${origin}${localizedPath("/blog/not-a-real-article", locale)}`);
+  assert.equal(missingArticle.status, 404, `${locale}: unknown article`);
+  for (const post of blogPosts) {
+    const articleRoute = localizedPath(blogPath(post.id), locale);
+    if (!blogLocales(post).includes(locale)) {
+      const unavailable = await fetch(`${origin}${articleRoute}`);
+      assert.equal(unavailable.status, 404, `${locale}: untranslated article`);
+    } else {
+      const articleSlash = await fetch(`${origin}${articleRoute}/?ref=test`, { redirect: "manual" });
+      assert.equal(articleSlash.status, 308, `${locale}: article trailing slash`);
+      assert.equal(articleSlash.headers.get("location"), `${articleRoute}?ref=test`);
+    }
+  }
 }
 for (const query of ["project=unknown", "project=", "project=arilvo&project=docintel"]) {
   const response = await fetch(`${origin}/projects?${query}`, { redirect: "manual" });
@@ -209,6 +276,7 @@ const image = await fetch(`${origin}${SOCIAL_IMAGE}`);
 assert.equal(image.status, 200);
 assert.ok(image.headers.get("content-type")?.includes("image/png"));
 for (const path of [
+  ...blogPosts.flatMap(({ cover }) => cover ? [cover.optimizedSrc] : []),
   ...Object.values(portraitImages),
   ...projects.flatMap(({ screenshot }) => screenshot?.optimizedSrc ? [screenshot.optimizedSrc] : []),
 ]) {
@@ -225,4 +293,4 @@ for (const path of Object.values(portraitImages)) {
   assert.equal(legacy.headers.get("location"), path);
 }
 console.log("PASS optimized WebP images, MIME types and legacy portrait links");
-console.log(`PASS ${preview ? "preview" : "production"} SEO across ${SITE_ROUTES.length * SITE_LOCALES.length} routes, project links, query selections, verification, sitemap, robots, 404s and social image`);
+console.log(`PASS ${preview ? "preview" : "production"} SEO across ${SITE_PAGES.reduce((count, page) => count + page.locales.length, 0)} routes, project/blog links, available translations, query selections, verification, sitemap, robots, 404s and social image`);

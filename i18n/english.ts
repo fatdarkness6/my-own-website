@@ -16,6 +16,7 @@ export const ui = {
   seoHome: PAGE_SEO.home.title, seoHomeDesc: PAGE_SEO.home.description,
   seoAbout: PAGE_SEO.about.title, seoAboutDesc: PAGE_SEO.about.description,
   seoProjects: PAGE_SEO.projects.title, seoProjectsDesc: PAGE_SEO.projects.description,
+  seoBlog: PAGE_SEO.blog.title, seoBlogDesc: PAGE_SEO.blog.description,
   seoResume: PAGE_SEO.resume.title, seoResumeDesc: PAGE_SEO.resume.description,
   seoContact: PAGE_SEO.contact.title, seoContactDesc: PAGE_SEO.contact.description,
 };

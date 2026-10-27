@@ -18,5 +18,9 @@
   "contact": {
     "title": "Contact | Arsam Sarkhosh",
     "description": "Contact Arsam Sarkhosh about a software project, a development role or a collaboration. Find his email, GitHub and LinkedIn profiles."
+  },
+  "blog": {
+    "title": "Blog | Arsam Sarkhosh",
+    "description": "Development notes by Arsam Sarkhosh on web applications, backend systems and practical lessons from his projects."
   }
 }

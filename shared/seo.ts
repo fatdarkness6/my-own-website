@@ -2,12 +2,19 @@ import { PROJECT_PATHS, projectPath } from "./projectRoutes.ts";
 import { projects } from "../app/assets/data/projects.ts";
 import { identity } from "../app/assets/data/identity.ts";
 import { locales } from "./locales.ts";
+import { BLOG_PAGES } from "./blogRoutes.ts";
 
 // Complete the coordinated hosting move in docs/seo.md so this host serves directly.
 export const SITE_URL = "https://arsamsarkhosh.ir";
 export const SITE_NAME = identity.name;
 export const SITE_LOCALES = locales.map(({ code }) => code);
-export const SITE_ROUTES = ["/", "/about", "/projects", "/resume", "/contact", ...PROJECT_PATHS] as const;
+/** Each page advertises only the language versions that actually exist. */
+export const SITE_PAGES = [
+  ...["/", "/about", "/projects", "/resume", "/contact", "/blog", ...PROJECT_PATHS]
+    .map((path) => ({ path, locales: SITE_LOCALES as readonly string[] })),
+  ...BLOG_PAGES,
+];
+export const SITE_ROUTES = SITE_PAGES.map(({ path }) => path);
 export const SOCIAL_IMAGE = "/images/og/portfolio.png";
 export { PAGE_SEO } from "../app/assets/data/pageSeo.ts";
 
@@ -43,11 +50,11 @@ export function escapeXml(value: string): string {
 
 export function buildSitemap(origin: string): string {
   const base = siteOrigin(origin);
-  const entries = SITE_ROUTES.flatMap((path) => SITE_LOCALES.map((locale) => {
+  const entries = SITE_PAGES.flatMap(({ path, locales: pageLocales }) => pageLocales.map((locale) => {
     const url = `${base}${localizedPath(path, locale)}`;
-    const alternatives = [...SITE_LOCALES.map((language) => ({
+    const alternatives = [...pageLocales.map((language) => ({
       language, url: `${base}${localizedPath(path, language)}`,
-    })), { language: "x-default", url: `${base}${path}` }];
+    })), { language: "x-default", url: `${base}${localizedPath(path, pageLocales.includes("en") ? "en" : pageLocales[0]!)}` }];
     // Describe real project screenshots using the same records as the pages.
     const screenshots = projects.filter((project) =>
       path === "/" || path === "/projects" || path === projectPath(project.id),

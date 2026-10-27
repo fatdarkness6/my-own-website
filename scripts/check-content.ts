@@ -1,6 +1,7 @@
 import { readFile, access } from "node:fs/promises";
 import { createJiti } from "jiti";
 import { validateProjectContent } from "../shared/validateProjectContent.ts";
+import { validateBlogContent } from "../shared/validateBlogContent.ts";
 import { translationKey } from "../app/utils/translationKey.ts";
 // Allow report output to be piped to tools such as head/Select-Object -First.
 process.stdout.on("error", (error: NodeJS.ErrnoException) => {
@@ -13,6 +14,9 @@ const errors: string[] = [];
 const json = await read("content/projects.json");
 errors.push(...validateProjectContent(json));
 // Do not import application adapters until the raw JSON has passed validation.
+if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
+const blog = await read("content/blog.json");
+errors.push(...validateBlogContent(blog, json.items.map((item: { id: string }) => item.id)));
 if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
 const resume = await read("content/resume.json");
 const profile = await read("content/profile.json");
@@ -50,9 +54,12 @@ for (const project of json.items) for (const src of [project.screenshot?.src, pr
   if (src.includes("..") || src.includes("\\")) { errors.push(`projects.json: unsafe image path ${src}.`); continue; }
   try { await access(new URL(`public${src}`, root)); } catch { errors.push(`projects.json: missing image public${src}.`); }
 }
+for (const post of blog.posts) for (const src of [post.cover?.src, post.cover?.optimizedSrc].filter(Boolean)) {
+  try { await access(new URL(`public${src}`, root)); } catch { errors.push(`blog.json: missing cover image public${src}.`); }
+}
 for (const file of ["profile", "images", "home", "about", "about-page", "contact", "seo", "resume", "interface"]) await read(`content/${file}.json`);
 const codes = ["en", "es", "de", "fr", "it", "ar", "fa"];
-const required = Object.entries(english).filter(([key, source]) => source !== "API" && (key.startsWith("seo") || /^projects\.[^.]+\.(role|statusLabel|summary|description|availability|headline|ownership|note|contributions\.\d+|layers\.\d+\.(label|title))$/.test(key) || /^resumeExperience\.[^.]+\.(role|location|period|employmentType|workMode|summary|bullets\.\d+)$/.test(key)));
+const required = Object.entries(english).filter(([key, source]) => source !== "API" && (key.startsWith("seo") || key.startsWith("blog") || /^projects\.[^.]+\.(role|statusLabel|summary|description|availability|headline|ownership|note|contributions\.\d+|layers\.\d+\.(label|title))$/.test(key) || /^resumeExperience\.[^.]+\.(role|location|period|employmentType|workMode|summary|bullets\.\d+)$/.test(key)));
 for (const code of codes) {
   const copy = await read(`content/translations/${code}.json`);
   for (const [key, value] of Object.entries(copy)) {
@@ -69,4 +76,4 @@ for (const code of codes) {
   }
 }
 if (errors.length) { console.error(errors.join("\n")); process.exitCode = 1; }
-else console.log(`PASS editable content: ${json.items.length} projects, ${json.featuredIds.length} featured projects, ${resumeExperience.length} experiences and ${codes.length} locales.`);
+else console.log(`PASS editable content: ${json.items.length} projects, ${json.featuredIds.length} featured projects, ${blog.posts.length} blog posts, ${resumeExperience.length} experiences and ${codes.length} locales.`);

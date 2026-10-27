@@ -8,6 +8,10 @@ transparency, RTL portrait selection and screenshot zoom behavior are unchanged.
 - Project screenshots: JPEG `src` for social previews; WebP `optimizedSrc` for
   Home cards, project previews and the enlarged viewer. Both live in `public/images/projects/`.
 - Social cards and browser icons remain PNG; compression is lossless.
+- Blog covers: original LinkedIn artwork in `public/images/blog/` as JPEG plus
+  quality-90 WebP. `content/blog.json` owns paths/dimensions, while each actual
+  article translation supplies `coverAlt`. Cards use WebP; article social previews
+  use the original JPEG. The source post link records provenance.
 - Old portrait PNG URLs redirect to their WebP replacements.
 
 To replace a portrait, update its source PNG and regenerate. For a project, update

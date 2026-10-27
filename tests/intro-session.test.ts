@@ -25,6 +25,14 @@ test("missing navigation timing uses the tab's entry state", () => {
   assert.equal(shouldShowIntro(undefined, false), true);
 });
 
+test("reading routes open immediately for fresh visits and explicit reloads", () => {
+  for (const navigation of ["navigate", "reload", "back_forward", undefined] as const) {
+    assert.equal(shouldShowIntro(navigation, false, true), false);
+    assert.equal(shouldShowIntro(navigation, true, true), false);
+  }
+  assert.equal(shouldShowIntro("reload", true, false), true, "portfolio entry behavior stays intact");
+});
+
 test("boot completion never automatically dismisses the loading screen", async () => {
   const loader = await readFile(new URL("../app/components/LoadingScreen.vue", import.meta.url), "utf8");
   assert.doesNotMatch(loader, /autoEnter|setTimeout\s*\(\s*triggerBurst/);
