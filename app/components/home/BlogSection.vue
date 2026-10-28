@@ -3,6 +3,7 @@ import { blogPosts, blogCover } from "~/assets/data/blog";
 import { homeCopy } from "~/assets/data/homeCopy";
 import { blogPath, blogPreview } from "#shared/blogRoutes";
 import { locales } from "#shared/locales";
+import { useHorizontalSwipe } from "~/composables/useHorizontalSwipe";
 
 const { c, locale, localePath, rtl, content } = usePortfolioI18n();
 const { sections, currentIndex, isAnimating } = useScrollSections();
@@ -32,6 +33,10 @@ const destination = computed(() => selected.value && localePath(blogPath(selecte
 const articleDirection = computed(() => locales.find(({ code }) => code === selected.value?.language)?.dir ?? "ltr");
 const imageGlitch = ref<{ run: () => void } | null>(null);
 const number = (value: number) => new Intl.NumberFormat(locale.value, { minimumIntegerDigits: 2 }).format(value);
+const imageSwipe = useHorizontalSwipe({
+  enabled: () => inView.value && revealed.value && blogPosts.length > 1,
+  onSwipe: (direction) => select((direction === "left" ? 1 : -1) * (rtl.value ? -1 : 1)),
+});
 
 function select(offset: number) {
   selectArticle(activeIndex.value + offset);
@@ -85,19 +90,24 @@ function selectArticle(index: number) {
 
             <CommonHackerReveal :key="selected.post.id" :show="revealed" :duration="420" class="home-blog__stage-reveal">
               <article class="home-blog__stage" @mouseenter="imageGlitch?.run()" @focusin="imageGlitch?.run()">
-                <div class="home-blog__artboard">
+                <div class="home-blog__artboard" :class="{ 'is-dragging': imageSwipe.dragging.value }"
+                  :style="{ '--blog-drag-x': `${imageSwipe.offset.value}px` }"
+                  @pointerdown="imageSwipe.handlers.pointerdown" @pointermove="imageSwipe.handlers.pointermove"
+                  @pointerup="imageSwipe.handlers.pointerup" @pointercancel="imageSwipe.handlers.pointercancel"
+                  @lostpointercapture="imageSwipe.handlers.lostpointercapture" @pointerleave="imageSwipe.handlers.pointerleave"
+                  @click.capture="imageSwipe.handlers.clickCapture" @dragstart.prevent>
                   <span class="home-blog__serial" aria-hidden="true" dir="ltr">{{ String(activeIndex + 1).padStart(2, '0') }}</span>
                   <span class="home-blog__cross home-blog__cross--start" aria-hidden="true">+</span>
                   <span class="home-blog__cross home-blog__cross--end" aria-hidden="true">+</span>
-                  <span class="home-blog__art-label" aria-hidden="true">{{ c('PROJECT NOTE') }}</span>
+                  <span class="home-blog__art-label" aria-hidden="true"><q-icon name="swipe" size="14px" />{{ c('Swipe to browse') }}</span>
                   <NuxtLink class="home-blog__visual" :to="destination" :hreflang="selected.language"
-                    :aria-label="selected.version.title" tabindex="-1">
+                    :aria-label="selected.version.title" tabindex="-1" draggable="false">
                     <span class="home-blog__plate" aria-hidden="true" />
                     <AnimationGlitchCard v-if="cover" ref="imageGlitch" media-only fit="contain" :interval="0"
                       :image="cover.optimizedSrc || cover.src" :alt="selected.version.coverAlt || c(cover.alt)">
                       <template #image>
                         <img :src="cover.optimizedSrc || cover.src" :alt="selected.version.coverAlt || c(cover.alt)"
-                          :width="cover.width" :height="cover.height" loading="lazy" decoding="async" />
+                          :width="cover.width" :height="cover.height" loading="lazy" decoding="async" draggable="false" />
                       </template>
                     </AnimationGlitchCard>
                     <q-icon v-else name="terminal" size="64px" aria-hidden="true" />

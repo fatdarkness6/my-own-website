@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BlogBackground from "~/components/blog/Background.vue";
-import GlitchCard from "~/components/Animation/GlitchCard.vue";
+import ArticleImage from "~/components/blog/ArticleImage.vue";
 import { useArticleReading } from "~/composables/useArticleReading";
 import { blogCover } from "~/assets/data/blog";
 import PostSource from "~/components/blog/PostSource.vue";
@@ -12,6 +12,7 @@ import { locales } from "#shared/locales";
 
 definePageMeta({ readingMode: true });
 const { c, locale, localePath, rtl } = usePortfolioI18n();
+const $q = useQuasar();
 const route = useRoute();
 const article = getBlogPost(route.params.slug, locale.value);
 if (!article) throw createError({ statusCode: 404, statusMessage: "Article not found" });
@@ -39,14 +40,14 @@ usePortfolioSeo({
     <BlogBackground :active="started" :reading-progress="progress" />
     <nav class="article-toolbar" :aria-label="c('Blog')">
       <NuxtLink :to="localePath('/blog')" class="article-toolbar__back"><q-icon :name="rtl ? 'arrow_forward' : 'arrow_back'" size="18px" aria-hidden="true" />{{ c('Back to blog') }}</NuxtLink>
-      <span class="article-toolbar__file"><CommonPageGlitch :text="c('ARSAM / ENGINEERING NOTES')" :interval="14000" /></span>
+      <span class="article-toolbar__file"><CommonPageGlitch :text="c('ARSAM / ENGINEERING NOTES')" :interval="14000" :enabled="$q.screen.gt.sm" /></span>
       <div class="blog-languages" :aria-label="c('Available article languages')"><NuxtLink v-for="language in languages" :key="language.code" :to="localePath(blogPath(post.id), language.code)" :hreflang="language.code" :lang="language.code" :aria-current="language.code === locale ? 'page' : undefined">{{ language.name }}</NuxtLink></div>
     </nav>
     <header ref="element" class="blog-article__header" :class="{ 'blog-article__header--text': !cover }">
       <div class="article-intro">
         <p class="blog-label">// {{ c('PROJECT NOTE') }}</p>
         <div class="blog-tags"><q-badge v-for="tag in post.tags" :key="tag" outline><bdi>{{ tag }}</bdi></q-badge></div>
-        <h1><AnimationTypedLine :text="version.title" :speed="12" :glitch="12000" v-bind="line('title')" /></h1>
+        <h1><AnimationTypedLine :text="version.title" :speed="12" v-bind="line('title')" /></h1>
         <p class="blog-summary">{{ version.summary }}</p>
         <BlogPostMeta :post="post" :version="version" />
         <q-btn :href="`#${version.sections[0]!.id}`" class="blog-button article-intro__read" flat no-caps no-ripple @click="navigateToSection($event, version.sections[0]!.id)"><AnimationGlitchText :text="c('Read article')" /><q-icon name="south" size="18px" aria-hidden="true" /></q-btn>
@@ -54,11 +55,7 @@ usePortfolioSeo({
       </div>
       <figure v-if="cover" class="article-cover">
         <div class="article-figure__bar"><span>{{ c('PROJECT NOTE') }}</span><span class="article-cover__lights" aria-hidden="true"><i /><i /><i /></span></div>
-        <div class="article-cover__image">
-          <GlitchCard :image="cover.optimizedSrc || cover.src" media-only fit="contain" :interval="0">
-            <template #image><img :src="cover.optimizedSrc || cover.src" :alt="coverAlt" :width="cover.width" :height="cover.height" decoding="async" fetchpriority="high" /></template>
-          </GlitchCard>
-        </div>
+        <ArticleImage :image="cover" :alt="coverAlt" :label="version.title" priority />
         <PostSource tag="figcaption" :source-url="post.sourceUrl" />
       </figure>
     </header>

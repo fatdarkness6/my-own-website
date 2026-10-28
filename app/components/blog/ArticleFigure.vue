@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BlogVisual } from "~/assets/data/blog";
 import { projects } from "~/assets/data/projects";
-import GlitchCard from "~/components/Animation/GlitchCard.vue";
+import ArticleImage from "~/components/blog/ArticleImage.vue";
 
 const props = defineProps<{ visual: BlogVisual; active: boolean }>();
 const { c } = usePortfolioI18n();
@@ -15,11 +15,7 @@ const project = computed(() => {
   <figure class="article-figure" :class="[`article-figure--${visual.kind}`, { 'is-current': active }]">
     <template v-if="visual.kind === 'project' && project?.screenshot">
       <div class="article-figure__bar"><span>{{ project.name }}</span><q-icon name="web_asset" size="18px" aria-hidden="true" /></div>
-      <div class="article-figure__image" :style="{ aspectRatio: `${project.screenshot.width || 16} / ${project.screenshot.height || 9}` }">
-        <GlitchCard :image="project.screenshot.optimizedSrc || project.screenshot.src" media-only fit="contain" :interval="0">
-          <template #image><img :src="project.screenshot.optimizedSrc || project.screenshot.src" :alt="c(project.screenshot.alt)" :width="project.screenshot.width" :height="project.screenshot.height" loading="lazy" decoding="async" /></template>
-        </GlitchCard>
-      </div>
+      <ArticleImage :image="project.screenshot" :alt="c(project.screenshot.alt)" :label="project.name" />
     </template>
     <template v-else-if="visual.kind === 'flow'">
       <div class="article-figure__bar"><span>{{ visual.title }}</span><q-icon name="account_tree" size="18px" aria-hidden="true" /></div>

@@ -17,7 +17,7 @@ async function copyCode(code: string) {
     <section v-for="(section, index) in version.sections" :id="section.id" :key="section.id" class="blog-prose__section" :class="{ 'is-current': activeSection === section.id }" :aria-labelledby="`${section.id}-heading`">
       <header class="blog-prose__heading">
         <span class="blog-prose__number" aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</span>
-        <h2 :id="`${section.id}-heading`"><CommonPageGlitch :text="section.title" :interval="14000" /></h2>
+        <h2 :id="`${section.id}-heading`">{{ section.title }}</h2>
       </header>
       <p v-for="paragraph in section.paragraphs" :key="paragraph">{{ paragraph }}</p>
       <ul v-if="section.items"><li v-for="item in section.items" :key="item">{{ item }}</li></ul>

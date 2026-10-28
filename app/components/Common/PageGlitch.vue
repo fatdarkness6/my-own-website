@@ -1,6 +1,7 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ text: string; interval?: number }>(), {
+withDefaults(defineProps<{ text: string; interval?: number; enabled?: boolean }>(), {
   interval: 9000,
+  enabled: true,
 });
 
 const element = ref<HTMLElement | null>(null);
@@ -26,7 +27,7 @@ onBeforeUnmount(() => {
 <template>
   <span ref="element" class="page-glitch">
     <AnimationGlitchTextTimer
-      v-if="introReady && visible && tabVisible && !reducedMotion"
+      v-if="enabled && introReady && visible && tabVisible && !reducedMotion"
       :text="text"
       :interval="interval"
       :duration="450"

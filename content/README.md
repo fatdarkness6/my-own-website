@@ -192,8 +192,11 @@ Run the normal content/type/localization/build checks after edits. `content:chec
 also validates article shape, dates, clean LinkedIn source links, related project
 IDs, language availability and shared section anchors. Never add invented posts,
 results, publication dates or translations as layout filler.
-SSR, localization, RTL, typing, glitch animations and URL selection keep their
-existing behavior.
+SSR, localization, RTL and URL selection keep their existing behavior. Article
+titles type once, while chapter headings and reading text stay stable. The Home
+and blog archive retain their glitch styling. Article images use the shared
+`ArticleImage` presentation and the existing zoom/pan viewer, without scanline or
+color filters over diagram text.
 
 ### Home preview
 
@@ -204,6 +207,9 @@ selection through up to six numbered files; the visible file window follows the
 current article as the catalog grows. Titles use `home.json` → `blog`;
 interface translations remain in `translations/`. Article links always point to
 an actual supplied language version, not a missing translated page.
+The artwork also supports horizontal touch swipes and mouse dragging. Swipe
+direction follows the interface's LTR/RTL direction; vertical gestures keep their
+normal Home section navigation. A tap still opens the selected article.
 
 ### Dates
 

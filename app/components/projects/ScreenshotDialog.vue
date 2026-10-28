@@ -8,7 +8,7 @@ const { c } = usePortfolioI18n();
 const $q = useQuasar();
 const viewer = ref<HTMLElement | null>(null);
 const zoom = ref(1);
-const aspect = ref(1270 / 714);
+const aspect = ref((props.screenshot?.width || 1270) / (props.screenshot?.height || 714));
 const viewport = reactive({ width: 0, height: 0 });
 const imageWidth = computed(() => screenshotWidth(viewport.width, viewport.height, aspect.value, zoom.value));
 let observer: ResizeObserver | undefined;
@@ -91,8 +91,8 @@ onBeforeUnmount(stopObserving);
               :src="screenshot.optimizedSrc || screenshot.src"
               :alt="screenshot.alt"
               :style="{ width: imageWidth ? `${imageWidth}px` : '100%' }"
-              width="1270"
-              height="714"
+              :width="screenshot.width || 1270"
+              :height="screenshot.height || 714"
               draggable="false"
               @load="loaded"
               @dblclick="setZoom(zoom === 1 ? 2 : 1)"
