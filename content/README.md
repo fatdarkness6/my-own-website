@@ -80,6 +80,28 @@ renaming one requires redirect handling to preserve old links and SEO.
 Removing a project also requires removing its featured/focus/experience references
 and old translation keys. Decide on an appropriate redirect for its old URL.
 
+### Interactive project previews
+
+Arilvo, DocIntel's frontend, Arvand and Raymand Group have live previews enabled.
+DocIntel's backend is not deployed; its existing availability message still
+explains which features are unavailable. Visitors choose **Try live** to load the
+real site inside the project panel, or a full-screen dialog on phones. Desktop
+and mobile controls change the embedded viewport without restarting the site;
+Stop, closing the dialog, or choosing another project removes the embedded page.
+Screenshots and project descriptions remain the initial, server-rendered content.
+
+To enable another hosted project, add an optional `previewUrl` HTTPS URL next to
+its `live` URL in `projects.json`. Verify the final destination permits embedding
+(`X-Frame-Options` and CSP `frame-ancestors`) and works in the sandbox first.
+Do not add previews for source-only tools or bypass a site's embedding policy.
+Omit the field to keep the existing screenshot and external-link experience.
+Preview URLs are structural data and do not need translation keys. Interface
+labels use the `projectPreview*` keys in all seven translation files.
+
+Embedded sites can change or depend on browser cookie policies. The preview
+always includes an **Open website** fallback. No third-party page is requested
+until a visitor activates it. Run `npm run test:preview` after changing this flow.
+
 ## Checks and publication
 
 ```sh

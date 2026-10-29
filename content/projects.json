@@ -57,7 +57,8 @@
         "Handled localization, SEO and deployment."
       ],
       "note": "Structured for future backend and dynamic content integration.",
-      "live": "https://arilvo.com"
+      "live": "https://arilvo.com",
+      "previewUrl": "https://www.arilvo.com/"
     },
     {
       "id": "docintel",
@@ -110,11 +111,13 @@
       ],
       "note": "Frontend and backend are separate project records. The live URL previews the interface, not a hosted AI service.",
       "live": "https://docintel-frontend.vercel.app/",
+      "previewUrl": "https://docintel-frontend.vercel.app/",
       "repo": "https://github.com/fatdarkness6/docintel-frontend"
     },
     {
       "id": "arvand-termo-tec",
       "live": "https://arvandtermotec.com",
+      "previewUrl": "https://www.arvandtermotec.com/en",
       "status": "live",
       "file": "arvand_termo_tec/",
       "name": "ARVAND TERMO TEC",
@@ -165,6 +168,7 @@
     {
       "id": "raymand-group",
       "live": "https://raimandgroup.com/en",
+      "previewUrl": "https://raimandgroup.com/en/",
       "status": "live",
       "file": "raymand_group/",
       "name": "RAYMAND GROUP",

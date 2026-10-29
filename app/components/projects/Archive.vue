@@ -216,34 +216,36 @@ const title = computed(() => props.projectId
                   >{{ current.statusLabel ?? c('LIVE') }}</q-badge
                 ><span v-else>{{ current.statusLabel ?? c('PROJECT FILE') }}</span>
               </div>
-              <div class="archive-showcase">
-                <component
-                  :is="current.screenshot ? 'button' : 'div'"
-                  :type="current.screenshot ? 'button' : undefined"
-                  class="archive-preview-trigger"
-                  :aria-label="current.screenshot ? previewLabel : undefined"
-                  :aria-haspopup="current.screenshot ? 'dialog' : undefined"
-                  @click="openPreview"
-                >
-                  <ProjectsPreview
-                    :name="current.name"
-                    :category="current.category"
-                    :screenshot="current.screenshot"
-                    :source-only="Boolean(current.repo && !current.live)"
-                  />
-                </component>
-                <q-btn
-                  v-if="current.screenshot"
-                  flat
-                  no-caps
-                  no-ripple
-                  class="archive-enlarge"
-                  :aria-label="previewLabel"
-                  aria-haspopup="dialog"
-                  @click="openPreview"
-                >
-                  <q-icon name="fullscreen" size="20px" aria-hidden="true" />{{ c("Enlarge") }}</q-btn>
-              </div>
+              <ProjectsLivePreview :key="current.id" :url="current.previewUrl" :name="current.name">
+                <div class="archive-showcase">
+                  <component
+                    :is="current.screenshot ? 'button' : 'div'"
+                    :type="current.screenshot ? 'button' : undefined"
+                    class="archive-preview-trigger"
+                    :aria-label="current.screenshot ? previewLabel : undefined"
+                    :aria-haspopup="current.screenshot ? 'dialog' : undefined"
+                    @click="openPreview"
+                  >
+                    <ProjectsPreview
+                      :name="current.name"
+                      :category="current.category"
+                      :screenshot="current.screenshot"
+                      :source-only="Boolean(current.repo && !current.live)"
+                    />
+                  </component>
+                  <q-btn
+                    v-if="current.screenshot"
+                    flat
+                    no-caps
+                    no-ripple
+                    class="archive-enlarge"
+                    :aria-label="previewLabel"
+                    aria-haspopup="dialog"
+                    @click="openPreview"
+                  >
+                    <q-icon name="fullscreen" size="20px" aria-hidden="true" />{{ c("Enlarge") }}</q-btn>
+                </div>
+              </ProjectsLivePreview>
               <q-card-section class="archive-record__intro">
                 <div class="archive-record__identity">
                   <div>

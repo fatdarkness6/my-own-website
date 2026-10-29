@@ -624,5 +624,17 @@
   "blogCopyFailed": "Sélectionnez le code pour le copier.",
   "blogAdded": "Ajouté à ce blog",
   "blogReadingLanguage": "Langue de l’article",
-  "blogProgress": "Progression de lecture"
+  "blogProgress": "Progression de lecture",
+  "projectPreviewTry": "Essayer en direct",
+  "projectPreviewTitle": "Aperçu en direct",
+  "projectPreviewIntro": "Interagissez avec le site ici.",
+  "projectPreviewSize": "Taille de l’aperçu",
+  "projectPreviewDesktop": "Ordinateur",
+  "projectPreviewMobile": "Mobile",
+  "projectPreviewReload": "Recharger l’aperçu",
+  "projectPreviewStop": "Fermer l’aperçu",
+  "projectPreviewLoading": "Chargement de l’aperçu…",
+  "projectPreviewSlow": "Le chargement prend du temps ? Ouvrez le site ci-dessous.",
+  "projectPreviewBlank": "Aperçu vide ? Ouvrez directement le site.",
+  "projectPreviewOpen": "Ouvrir le site"
 }

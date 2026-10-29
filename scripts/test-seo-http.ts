@@ -98,6 +98,10 @@ for (const { path, locales: availableLocales } of SITE_PAGES) for (const languag
   if (path === "/about" || path === "/resume") assert.ok(graph.some((entry: { "@type": string; mainEntity?: { "@id": string } }) =>
     entry["@type"] === "ProfilePage" && entry.mainEntity?.["@id"] === `${SITE_URL}/#person`));
   const semanticHtml = html.replace(/<script\b[^>]*>.*?<\/script>/gs, "");
+  if (project || path === "/projects") {
+    assert.equal(attributes(semanticHtml, "iframe").length, 0, `${route}: live previews require visitor activation`);
+    if (project) assert.equal(semanticHtml.includes('class="project-live__launcher"'), Boolean(project.previewUrl), `${route}: preview opt-in`);
+  }
   assert.ok(!/Full[- ]Stack Engineer|Senior Developer|AI Engineer/i.test(semanticHtml), `${route}: stale positioning`);
   if (path === "/") {
     assert.ok(semanticHtml.includes(`aria-label="${translate(identity.name)}"`), `${route}: semantic full name`);

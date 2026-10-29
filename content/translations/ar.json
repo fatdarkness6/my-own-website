@@ -624,5 +624,17 @@
   "blogCopyFailed": "حدّد الكود لنسخه.",
   "blogAdded": "أُضيف إلى هذه المدونة",
   "blogReadingLanguage": "لغة المقال",
-  "blogProgress": "تقدّم القراءة"
+  "blogProgress": "تقدّم القراءة",
+  "projectPreviewTry": "جرّب الموقع",
+  "projectPreviewTitle": "معاينة مباشرة",
+  "projectPreviewIntro": "تفاعل مع الموقع هنا.",
+  "projectPreviewSize": "حجم المعاينة",
+  "projectPreviewDesktop": "سطح المكتب",
+  "projectPreviewMobile": "الهاتف",
+  "projectPreviewReload": "إعادة تحميل المعاينة",
+  "projectPreviewStop": "إغلاق المعاينة",
+  "projectPreviewLoading": "جارٍ تحميل المعاينة…",
+  "projectPreviewSlow": "هل يستغرق التحميل وقتًا طويلًا؟ افتح الموقع أدناه.",
+  "projectPreviewBlank": "المعاينة فارغة؟ افتح الموقع مباشرةً.",
+  "projectPreviewOpen": "فتح الموقع"
 }

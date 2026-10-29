@@ -624,5 +624,17 @@
   "blogCopyFailed": "برای کپی کردن، کد را انتخاب کنید.",
   "blogAdded": "افزوده‌شده به این بلاگ",
   "blogReadingLanguage": "زبان مطلب",
-  "blogProgress": "پیشرفت مطالعه"
+  "blogProgress": "پیشرفت مطالعه",
+  "projectPreviewTry": "امتحان سایت",
+  "projectPreviewTitle": "پیش‌نمایش زنده",
+  "projectPreviewIntro": "همین‌جا با سایت کار کنید.",
+  "projectPreviewSize": "اندازهٔ پیش‌نمایش",
+  "projectPreviewDesktop": "دسکتاپ",
+  "projectPreviewMobile": "موبایل",
+  "projectPreviewReload": "بارگذاری دوبارهٔ پیش‌نمایش",
+  "projectPreviewStop": "بستن پیش‌نمایش",
+  "projectPreviewLoading": "در حال بارگذاری پیش‌نمایش…",
+  "projectPreviewSlow": "بارگذاری طول کشیده؟ سایت را از لینک پایین باز کنید.",
+  "projectPreviewBlank": "پیش‌نمایش خالی است؟ سایت را مستقیم باز کنید.",
+  "projectPreviewOpen": "باز کردن سایت"
 }

@@ -63,7 +63,7 @@ for (const post of blog.posts) for (const version of Object.values(post.versions
 }
 for (const file of ["profile", "images", "home", "about", "about-page", "contact", "seo", "resume", "interface"]) await read(`content/${file}.json`);
 const codes = ["en", "es", "de", "fr", "it", "ar", "fa"];
-const required = Object.entries(english).filter(([key, source]) => source !== "API" && (key.startsWith("seo") || key.startsWith("blog") || /^projects\.[^.]+\.(role|statusLabel|summary|description|availability|headline|ownership|note|contributions\.\d+|layers\.\d+\.(label|title))$/.test(key) || /^resumeExperience\.[^.]+\.(role|location|period|employmentType|workMode|summary|bullets\.\d+)$/.test(key)));
+const required = Object.entries(english).filter(([key, source]) => source !== "API" && (key.startsWith("seo") || key.startsWith("blog") || key.startsWith("projectPreview") || /^projects\.[^.]+\.(role|statusLabel|summary|description|availability|headline|ownership|note|contributions\.\d+|layers\.\d+\.(label|title))$/.test(key) || /^resumeExperience\.[^.]+\.(role|location|period|employmentType|workMode|summary|bullets\.\d+)$/.test(key)));
 for (const code of codes) {
   const copy = await read(`content/translations/${code}.json`);
   for (const [key, value] of Object.entries(copy)) {

@@ -1,7 +1,7 @@
 import { translationKey } from "~/utils/translationKey";
 
 const structuralKeys = new Set([
-  "id", "projectId", "code", "icon", "class", "src", "optimizedSrc", "href", "live", "repo",
+  "id", "projectId", "code", "icon", "class", "src", "optimizedSrc", "href", "live", "previewUrl", "repo",
   "file", "filename", "status", "category", "level", "number", "tone", "programmingLanguage", "license",
 ]);
 

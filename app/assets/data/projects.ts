@@ -35,6 +35,8 @@ export interface Project {
   contributions: string[];
   note: string;
   live?: string;
+  /** Explicit opt-in after checking that this HTTPS page allows embedding. */
+  previewUrl?: string;
   repo?: string;
   programmingLanguage?: string[];
   license?: string;

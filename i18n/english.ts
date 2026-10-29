@@ -21,7 +21,7 @@ export const ui = {
   seoContact: PAGE_SEO.contact.title, seoContactDesc: PAGE_SEO.contact.description,
 };
 
-const structural = new Set(["id", "code", "icon", "class", "src", "optimizedSrc", "href", "live", "repo", "file", "filename", "status", "category", "level", "number", "projectId", "programmingLanguage", "license"]);
+const structural = new Set(["id", "code", "icon", "class", "src", "optimizedSrc", "href", "live", "previewUrl", "repo", "file", "filename", "status", "category", "level", "number", "projectId", "programmingLanguage", "license"]);
 export function flatten(source: unknown, prefix = "", result: Record<string, string> = {}) {
   if (typeof source === "string") result[prefix] = source;
   else if (Array.isArray(source)) source.forEach((item, index) => {

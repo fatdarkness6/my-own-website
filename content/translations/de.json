@@ -624,5 +624,17 @@
   "blogCopyFailed": "Markiere den Code, um ihn zu kopieren.",
   "blogAdded": "Zu diesem Blog hinzugefügt",
   "blogReadingLanguage": "Artikelsprache",
-  "blogProgress": "Lesefortschritt"
+  "blogProgress": "Lesefortschritt",
+  "projectPreviewTry": "Live ausprobieren",
+  "projectPreviewTitle": "Live-Vorschau",
+  "projectPreviewIntro": "Interagiere hier mit der Website.",
+  "projectPreviewSize": "Vorschaugröße",
+  "projectPreviewDesktop": "Desktop",
+  "projectPreviewMobile": "Mobil",
+  "projectPreviewReload": "Vorschau neu laden",
+  "projectPreviewStop": "Vorschau schließen",
+  "projectPreviewLoading": "Live-Vorschau wird geladen…",
+  "projectPreviewSlow": "Dauert es länger? Öffne die Website unten.",
+  "projectPreviewBlank": "Leere Vorschau? Öffne die Website direkt.",
+  "projectPreviewOpen": "Website öffnen"
 }

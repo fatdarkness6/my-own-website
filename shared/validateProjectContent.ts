@@ -12,7 +12,7 @@ export function validateProjectContent(value: unknown): string[] {
   if (!object(value) || !Array.isArray(value.items) || !value.items.length) return ["projects.json: items must be a non-empty array."];
   const ids = new Set<string>();
   const required = ["id", "file", "name", "role", "summary", "headline", "description", "ownership", "note"];
-  const optional = ["year", "statusLabel", "availability", "live", "repo", "license"];
+  const optional = ["year", "statusLabel", "availability", "live", "previewUrl", "repo", "license"];
   const allowed = new Set([...required, ...optional, "category", "status", "stack", "screenshot", "contributionOnly", "layers", "contributions", "programmingLanguage"]);
   value.items.forEach((item, index) => {
     const at = `projects.json: items[${index}]`;
@@ -31,6 +31,8 @@ export function validateProjectContent(value: unknown): string[] {
     if ("programmingLanguage" in item && (!strings(item.programmingLanguage) || !item.programmingLanguage.length)) errors.push(`${at}.programmingLanguage must be an array of language names.`);
     if ("contributionOnly" in item && typeof item.contributionOnly !== "boolean") errors.push(`${at}.contributionOnly must be true or false.`);
     for (const key of ["live", "repo", "license"]) if (key in item && !url(item[key])) errors.push(`${at}.${key} must be an absolute HTTP(S) URL without credentials.`);
+    if ("previewUrl" in item && (!item.live || !url(item.previewUrl) || new URL(String(item.previewUrl)).protocol !== "https:"))
+      errors.push(`${at}.previewUrl requires a live URL and an HTTPS preview URL without credentials.`);
     if (!item.live && !item.repo) errors.push(`${at} needs a live or repo URL.`);
     if (item.status === "live" && !item.live) errors.push(`${at}: a live project needs a live URL; source-only tools should omit status.`);
     if (!Array.isArray(item.layers) || !item.layers.length || item.layers.some((layer) => !object(layer) || !["label", "title", "tools"].every((key) => text(layer[key])))) errors.push(`${at}.layers needs objects with label, title and tools.`);

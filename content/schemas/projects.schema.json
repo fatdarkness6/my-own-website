@@ -33,6 +33,7 @@
           "programmingLanguage": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
           "contributionOnly": { "type": "boolean", "description": "Set true when this is a contribution to an existing product, not authorship." },
           "live": { "type": "string", "format": "uri", "pattern": "^https?://" },
+          "previewUrl": { "type": "string", "format": "uri", "pattern": "^https://", "description": "Optional interactive-preview opt-in. Verify that the site permits embedding before enabling it." },
           "repo": { "type": "string", "format": "uri", "pattern": "^https?://" },
           "license": { "type": "string", "format": "uri", "pattern": "^https?://" },
           "layers": {
@@ -53,7 +54,8 @@
             }
           }
         },
-        "anyOf": [{ "required": ["live"] }, { "required": ["repo"] }]
+        "anyOf": [{ "required": ["live"] }, { "required": ["repo"] }],
+        "dependencies": { "previewUrl": ["live"] }
       }
     }
   }

@@ -220,5 +220,17 @@
   "blogCopyFailed": "Select the code to copy it.",
   "blogAdded": "Added to this blog",
   "blogReadingLanguage": "Article language",
-  "blogProgress": "Reading progress"
+  "blogProgress": "Reading progress",
+  "projectPreviewTry": "Try live",
+  "projectPreviewTitle": "Live preview",
+  "projectPreviewIntro": "Interact with the website here.",
+  "projectPreviewSize": "Preview size",
+  "projectPreviewDesktop": "Desktop",
+  "projectPreviewMobile": "Mobile",
+  "projectPreviewReload": "Reload preview",
+  "projectPreviewStop": "Stop preview",
+  "projectPreviewLoading": "Loading live preview…",
+  "projectPreviewSlow": "Taking longer than expected? Open the website below.",
+  "projectPreviewBlank": "Blank preview? Open the website directly.",
+  "projectPreviewOpen": "Open website"
 }
