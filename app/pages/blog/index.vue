@@ -5,6 +5,7 @@ import { identity } from "~/assets/data/identity";
 
 definePageMeta({ readingMode: true });
 const { c } = usePortfolioI18n();
+const titleSegments = useBlogTitle(8500);
 usePortfolioSeo({ page: "blog", type: "CollectionPage", collection: "blog" });
 const { element, line, started } = useViewportTyping(["label", "title", "description"], {
   onceKey: "blog-introduction", viewport: { threshold: 0 },
@@ -17,7 +18,7 @@ const { element, line, started } = useViewportTyping(["label", "title", "descrip
     <div class="blog-filebar"><span><CommonPageGlitch :text="c('ARSAM / ENGINEERING NOTES')" :interval="14000" /></span><span>{{ String(blogPosts.length).padStart(2, '0') }} {{ c('ARTICLE') }}</span></div>
     <header ref="element" class="blog-intro">
       <p class="blog-label"><AnimationTypedLine :text="c('// IDEAS, DECISIONS & LESSONS FROM BUILDING')" :speed="12" :glitch="11000" v-bind="line('label')" /></p>
-      <h1><AnimationTypedLine :text="c('ENGINEERING NOTES.')" :speed="24" :glitch="8500" v-bind="line('title')" /></h1>
+      <h1><AnimationSegmentedLine :segments="titleSegments" :speed="24" v-bind="line('title')" /></h1>
       <p class="blog-intro__description"><AnimationTypedLine :text="c('Notes on web applications, backend systems and the work behind my projects.')" :speed="10" :glitch="15000" v-bind="line('description')" /></p>
     </header>
     <section class="blog-posts" aria-labelledby="blog-latest">

@@ -225,8 +225,12 @@ The common `CommonLocalizedDate` component follows the selected site language:
 ```
 
 Persian uses the Persian calendar; the other supported languages use localized
-Gregorian dates. Month/year-only records may span two Persian months/years:
-the formatter preserves that precision rather than inventing an exact day.
+Gregorian dates. Partial dates display one label: a month-only value is converted
+using its first day (`2026-07` → `تیر ۱۴۰۵`), while a year-only value uses midyear
+to select the Persian year covering most of that Gregorian year (`2026` → `۱۴۰۵`).
+These are display conventions for incomplete dates. Supply `YYYY-MM-DD` when an
+exact conversion is needed. A period such as `Jul 2026 - Present` therefore reads
+`تیر ۱۴۰۵ – اکنون`, with one separator between its actual endpoints.
 For animated text, use `useLocalizedDate().formatDate(value)` or
 `.formatPeriod(period)`. SEO dates and `<time datetime>` stay machine-readable ISO.
 

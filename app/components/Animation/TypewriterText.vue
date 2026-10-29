@@ -20,6 +20,7 @@ const props = defineProps({
 
 const emit = defineEmits(["done"]);
 
+const element = ref(null);
 const displayed = ref("");
 const showCursor = ref(true);
 const isTyping = ref(false);
@@ -82,7 +83,9 @@ let cursorInterval = null;
 let disposed = false;
 
 function playTick() {
-  if (!props.sound) return;
+  // Container/media queries can hide an ancestor while its typing sequence runs.
+  // Recheck each tick so resizing also silences text that has become hidden.
+  if (!props.sound || !element.value?.getClientRects().length) return;
   tick(props.soundSrc, props.soundVolume, props.soundMinInterval);
 }
 
@@ -154,7 +157,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <span class="typewriter" :dir="direction">
+  <span ref="element" class="typewriter" :dir="direction">
     <bdi class="typewriter__prefix" v-if="prefix" dir="ltr">{{ prefix }}</bdi>
     <span class="typewriter__text">
       <template v-for="(word, index) in words" :key="index">

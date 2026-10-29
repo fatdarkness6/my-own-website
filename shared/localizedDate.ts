@@ -52,19 +52,13 @@ export function formatLocalizedDate(value: DateValue, locale: string, format: Lo
   if (!parsed) return String(value);
   const style = parsed.precision === "year" ? "year" : parsed.precision === "month" ? "month" : format;
   const output = formatter(locale, style);
-  // A Gregorian month/year can overlap two Persian months/years. Preserve that
-  // source precision instead of inventing an exact day or choosing only one month.
-  if (language(locale) === "fa" && parsed.precision !== "day") {
-    const last = new Date(parsed.date);
-    if (parsed.precision === "month") last.setUTCMonth(last.getUTCMonth() + 1, 0);
-    else last.setUTCFullYear(last.getUTCFullYear() + 1, 0, 0);
-    const startParts = output.formatToParts(parsed.date);
-    const endParts = output.formatToParts(last);
-    const part = (parts: Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value;
-    const startYear = part(startParts, "year"), endYear = part(endParts, "year");
-    if (startYear !== endYear) return `${output.format(parsed.date)} – ${output.format(last)}`;
-    if (style === "month" && part(startParts, "month") !== part(endParts, "month"))
-      return `${part(startParts, "month")}–${part(endParts, "month")} ${startYear}`;
+  // A partial date gets one display label, not another range inside a period.
+  // Months use their first day. A year-only label uses midyear to select the
+  // Persian year covering most of that Gregorian year; stored ISO stays intact.
+  if (language(locale) === "fa" && parsed.precision === "year") {
+    const midyear = new Date(parsed.date);
+    midyear.setUTCMonth(6);
+    return output.format(midyear);
   }
   return output.format(parsed.date);
 }

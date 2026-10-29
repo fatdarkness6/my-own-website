@@ -18,14 +18,26 @@ test("full dates use the selected calendar and UTC consistently", () => {
   assert.equal(formatLocalizedDate(source, "bad_locale"), formatLocalizedDate(source, "en"));
 });
 
-test("partial dates preserve their precision across calendar boundaries", () => {
+test("partial dates display one Persian month or year without expanding into ranges", () => {
   assert.equal(formatLocalizedDate("2026-07", "en"), "Jul 2026");
-  assert.equal(formatLocalizedDate("2026-07", "fa"), "تیر–مرداد ۱۴۰۵");
-  assert.equal(formatLocalizedDate("2026-03", "fa"), "اسفند ۱۴۰۴ – فروردین ۱۴۰۵");
-  assert.equal(formatLocalizedDate("2026", "fa"), "۱۴۰۴ – ۱۴۰۵");
+  assert.equal(formatLocalizedDate("2026-07", "fa"), "تیر ۱۴۰۵");
+  assert.equal(formatLocalizedDate("2026-03", "fa"), "اسفند ۱۴۰۴");
+  assert.equal(formatLocalizedDate("2026-04", "fa"), "فروردین ۱۴۰۵");
+  assert.equal(formatLocalizedDate("2026", "fa"), "۱۴۰۵");
+  assert.equal(formatLocalizedDate(2026, "fa-IR"), "۱۴۰۵");
   assert.equal(formatLocalizedDate(2026, "en"), "2026");
   assert.equal(dateTimeValue("2026-07"), "2026-07");
   assert.equal(dateTimeValue("2026"), "2026");
+});
+
+test("Persian periods contain only the real start/end separator", () => {
+  assert.equal(formatLocalizedPeriod("Jul 2026 - Present", "fa"), "تیر ۱۴۰۵ – اکنون");
+  assert.equal(formatLocalizedPeriod("Jun 2025 - Aug 2026", "fa"), "خرداد ۱۴۰۴ – مرداد ۱۴۰۵");
+  assert.equal(formatLocalizedPeriod("Dec 2024 - Mar 2025", "fa"), "آذر ۱۴۰۳ – اسفند ۱۴۰۳");
+  for (const { period } of resume.experience) {
+    const display = formatLocalizedPeriod(period, "fa");
+    assert.equal((display.match(/–/g) ?? []).length, 1, `${period}: ${display}`);
+  }
 });
 
 test("invalid dates never roll over or throw during rendering", () => {
@@ -47,7 +59,7 @@ test("all existing résumé periods localize without editing the factual source"
     assert.ok(!/[A-Za-z]/.test(formatLocalizedPeriod(record.period, "fa")));
   }
   assert.deepEqual(parseDatePeriod("Jul 2026 - Present"), { start: "2026-07", end: null });
-  assert.equal(formatLocalizedPeriod("Jul 2026 - Present", "fa"), "تیر–مرداد ۱۴۰۵ – اکنون");
+  assert.equal(formatLocalizedPeriod("Jul 2026 - Present", "fa"), "تیر ۱۴۰۵ – اکنون");
   assert.equal(formatLocalizedPeriod("Jul 2026 - Present", "en"), "Jul 2026 – Present");
   for (const locale of ["en", "es", "de", "fr", "it", "ar", "fa"])
     assert.ok(formatLocalizedPeriod("2026-07 - Present", locale).endsWith(presentDateLabel(locale)));
@@ -66,7 +78,7 @@ test("blog and résumé render the common semantic date component", async () => 
   const page = await readFile(new URL("../app/pages/resume.vue", import.meta.url), "utf8");
   assert.match(post, /<CommonLocalizedDate :value="post\.publishedAt"/);
   assert.match(page, /<CommonLocalizedDate :value="sourceExperience\[index\]!\.period" range/);
-  const component = await readFile(new URL("../app/components/common/LocalizedDate.vue", import.meta.url), "utf8");
+  const component = await readFile(new URL("../app/components/Common/LocalizedDate.vue", import.meta.url), "utf8");
   assert.match(component, /:datetime="dateTimeValue\(value\)"/);
   assert.match(component, /unicode-bidi: isolate/);
 });

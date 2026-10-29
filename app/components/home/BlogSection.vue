@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { blogPosts, blogCover } from "~/assets/data/blog";
-import { homeCopy } from "~/assets/data/homeCopy";
 import { blogPath, blogPreview } from "#shared/blogRoutes";
 import { locales } from "#shared/locales";
 import { useHorizontalSwipe } from "~/composables/useHorizontalSwipe";
 
-const { c, locale, localePath, rtl, content } = usePortfolioI18n();
+const { c, locale, localePath, rtl } = usePortfolioI18n();
 const { sections, currentIndex, isAnimating } = useScrollSections();
 const inView = computed(() => sections[currentIndex.value]?.id === "blog" && !isAnimating.value);
-const titleSegments = content(homeCopy.blog.title);
+const titleSegments = useBlogTitle();
 const revealed = ref(false);
 const { play, line } = useTypingSequence(["eyebrow", "title", "desc"], {
   onceKey: "home-blog",
